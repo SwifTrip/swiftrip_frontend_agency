@@ -66,7 +66,7 @@ export default function AuthLayout({ children, mode = 'register' }) {
           <div className="hidden lg:block w-full">
             <div className="relative max-w-xl mx-auto">
               {/* Main image card with overlay text */}
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl">
+              <div className="relative rounded-3xl overflow-hidden shadow-2xl -mt-5">
                 <img 
                   src={HeroImage}
                   alt="Travel destination" 
