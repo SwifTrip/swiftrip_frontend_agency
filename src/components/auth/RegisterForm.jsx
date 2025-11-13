@@ -1,10 +1,10 @@
-// src/components/auth/RegisterForm.jsx
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { useAuth } from "../../utils/auth/authContext";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { registerUser, selectLoading, selectError } from "../../store/slices/authSlice";
 
 const schema = yup.object().shape({
   firstName: yup.string().required("First Name is required"),
@@ -17,8 +17,11 @@ const schema = yup.object().shape({
 });
 
 export default function RegisterForm() {
-  const { registerUser: handleUserRegister, loading } = useAuth();
+
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const loading = useSelector(selectLoading);
+  const error = useSelector(selectError);
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -29,10 +32,16 @@ export default function RegisterForm() {
 
   const onSubmit = async (data) => {
     try {
-      await handleUserRegister(data);
-      navigate("/app");
+
+      const resultAction = await dispatch(registerUser(data));
+      
+      if (registerUser.fulfilled.match(resultAction)) {
+        navigate("/login");
+      } else {
+        console.error("Registration failed:", resultAction.payload);
+      }
     } catch (error) {
-      console.error("Registration failed:", error);
+      console.error("Registration error:", error);
     }
   };
 
@@ -40,25 +49,29 @@ export default function RegisterForm() {
     <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
       <div className="space-y-4">
 
+        {/* Show error message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+            {error}
+          </div>
+        )}
+
         {/* Social buttons */}
         <button 
           type="button" 
           className="w-full border border-gray-300 rounded-xl p-3.5 flex items-center justify-center gap-3 hover:bg-gray-50 transition font-medium text-gray-700"
         >
-          <span className="text-xl font-bold">G</span>
+          <span className="text-xl font-bold text-[#EA4335]">G</span>
           <span>Continue with Google</span>
         </button>
 
         <button 
           type="button" 
-          className="w-full bg-black text-white rounded-xl p-3.5 flex items-center justify-center gap-3 hover:bg-gray-800 transition font-medium"
+          className="w-full bg-[#1877F2] text-white rounded-xl p-3.5 flex items-center justify-center gap-3 hover:bg-[#166FE5] transition font-medium"
         >
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
-          </svg>
-          <span>Continue with Apple</span>
+          <span className="text-xl font-bold">f</span>
+          <span>Continue with Facebook</span>
         </button>
-
 
         {/* Divider */}
         <div className="relative text-center my-5">
@@ -74,7 +87,8 @@ export default function RegisterForm() {
         <div className="grid grid-cols-2 gap-3">
           <div>
             <input 
-              {...register("firstName")} 
+              {...register("firstName")}
+              autoComplete="given-name"
               placeholder="First Name"
               className="p-3.5 border border-gray-300 rounded-xl w-full text-sm bg-gray-50 focus:bg-white focus:border-blue-500 focus:outline-none transition" 
             />
@@ -84,8 +98,10 @@ export default function RegisterForm() {
           </div>
 
           <div>
+            <input {...register("role")} type="hidden" value="AGENCY_STAFF" />
             <input 
-              {...register("lastName")} 
+              {...register("lastName")}
+              autoComplete="family-name"
               placeholder="Last Name"
               className="p-3.5 border border-gray-300 rounded-xl w-full text-sm bg-gray-50 focus:bg-white focus:border-blue-500 focus:outline-none transition" 
             />
@@ -98,7 +114,9 @@ export default function RegisterForm() {
         {/* Email */}
         <div>
           <input 
-            {...register("email")} 
+            {...register("email")}
+            type="email"
+            autoComplete="email"
             placeholder="you@travelagency.com"
             className="w-full p-3.5 border border-gray-300 rounded-xl text-sm bg-gray-50 focus:bg-white focus:border-blue-500 focus:outline-none transition" 
           />
@@ -112,25 +130,26 @@ export default function RegisterForm() {
           <input 
             type={showPassword ? "text" : "password"}
             {...register("password")}
+            autoComplete="new-password"
             placeholder="Create a strong password"
             className="w-full p-3.5 pr-12 border border-gray-300 rounded-xl text-sm bg-gray-50 focus:bg-white focus:border-blue-500 focus:outline-none transition" 
           />
-          <button
-              type="button"
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-              )}
-            </button>
+          <button 
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          >
+            {showPassword ? (
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            )}
+          </button>
         </div>
         {errors.password && (
           <p className="text-red-500 text-xs mt-1">{errors.password?.message}</p>
@@ -139,9 +158,9 @@ export default function RegisterForm() {
         {/* Company details */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <input type="hidden" value="AGENCY_STAFF" {...register("role")} />
             <input 
               {...register("companyName")}
+              autoComplete="organization"
               placeholder="Your Travel Agency"
               className="p-3.5 border border-gray-300 rounded-xl text-sm w-full bg-gray-50 focus:bg-white focus:border-blue-500 focus:outline-none transition" 
             />
@@ -153,6 +172,7 @@ export default function RegisterForm() {
           <div>
             <input 
               {...register("companyRegistrationNumber")}
+              autoComplete="off"
               placeholder="REG-123456"
               className="p-3.5 border border-gray-300 rounded-xl text-sm w-full bg-gray-50 focus:bg-white focus:border-blue-500 focus:outline-none transition" 
             />
