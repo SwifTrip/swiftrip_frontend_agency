@@ -1,10 +1,5 @@
-// src/store/slices/packageSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import * as api from '../../api/packageService';
-
-// ============================================
-// ASYNC THUNKS (API calls)
-// ============================================
 
 // Fetch all packages
 export const fetchPackages = createAsyncThunk(

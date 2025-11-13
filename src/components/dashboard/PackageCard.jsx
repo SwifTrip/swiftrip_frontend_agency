@@ -1,4 +1,3 @@
-// src/components/dashboard/PackageCard.jsx
 import React from 'react';
 
 export default function PackageCard({ 
@@ -14,7 +13,8 @@ export default function PackageCard({
   company,
   createdAt,
   onEdit,
-  onDelete
+  onDelete,
+  onView // Added onView prop
 }) {
   const statusColors = {
     ACTIVE: 'bg-green-100 text-green-700',
@@ -28,13 +28,10 @@ export default function PackageCard({
     : 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop';
 
   // Format price
-  const formattedPrice = price?.currency === 'PKR' 
-    ? price.amount.toLocaleString()
-    : price?.amount?.toLocaleString() || '0';
-
+  const formattedPrice = price?.amount?.toLocaleString() || '0';
   const currency = price?.currency === 'PKR' ? 'PKR' : 'USD';
 
-  // Mock rating - in real app, get from backend
+  // Mock rating and bookings
   const rating = 4.8;
   const bookings = 24;
 
@@ -70,26 +67,24 @@ export default function PackageCard({
       {/* Content */}
       <div className="p-5">
         {/* Title */}
-        <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-1">{title}</h3>
+        <h3 className="text-lg font-bold text-gray-900 mb-1 line-clamp-1">{title}</h3>
 
         {/* Category Badge */}
-        <div className="mb-4">
-          <span className="inline-block px-3 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">
+        <div className="mb-3">
+          <span className="inline-block px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-l">
             {category}
           </span>
         </div>
 
-        {/* Stats */}
-        <div className="flex items-center gap-4 mb-4 text-sm text-gray-600">
+        {/* Stats Row */}
+        <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
           {/* Max Group Size */}
-          {maxGroupSize && (
-            <div className="flex items-center gap-1.5">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-              <span>Max {maxGroupSize}</span>
-            </div>
-          )}
+          <div className="flex items-center gap-1.5">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <span>Max {maxGroupSize}</span>
+          </div>
 
           {/* Bookings */}
           <div className="flex items-center gap-1.5">
@@ -101,47 +96,63 @@ export default function PackageCard({
         </div>
 
         {/* Price */}
-        <div className="mb-4">
+        <div className="mb-5">
           <div className="flex items-baseline gap-1">
-            <span className="text-3xl font-bold text-blue-600">{currency} {formattedPrice}</span>
+            <span className="text-2xl font-bold text-blue-600">
+              {currency === 'PKR' ? 'PKR' : 'USD'} {formattedPrice}
+            </span>
           </div>
           <p className="text-sm text-gray-500">per person</p>
         </div>
 
-        {/* Actions */}
-        <div className="pt-4 border-t border-gray-100">
-          <button 
-            onClick={() => onEdit && onEdit(id)}
-            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-            title="Edit"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-          </button>
+        {/* Action Buttons - Bottom Row */}
+        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+          <div className="flex items-center gap-2">
+            {/* Edit */}
+            <button 
+              onClick={() => onEdit && onEdit(id)}
+              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+              title="Edit"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </button>
 
-          <button 
-            onClick={() => console.log('View package:', id)}
-            className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors ml-6"
-            title="View"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
-          </button>
+            {/* View */}
+            <button 
+              onClick={() => onView && onView(id)}
+              className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+              title="View"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+            </button>
 
+            {/* Download/Export (optional) */}
+            <button 
+              className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+              title="Download"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Delete - Right Aligned */}
           <button 
             onClick={() => onDelete && onDelete(id)}
-            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors ml-80"
+            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
             title="Delete"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
           </button>
         </div>
-
       </div>
     </div>
   );

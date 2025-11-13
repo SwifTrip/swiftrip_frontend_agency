@@ -47,7 +47,8 @@ export const createPackage = async (packageData) => {
   // SAFE JSON
   formData.append('includes', JSON.stringify(packageData.includes || {}));
   formData.append('itineraries', JSON.stringify(packageData.itineraries || []));
-
+  formData.append("fromLocation", formData.fromLocation);
+  formData.append("toLocation", formData.toLocation);
   // Media
   packageData.media?.forEach(m => m.file && formData.append('media', m.file));
 

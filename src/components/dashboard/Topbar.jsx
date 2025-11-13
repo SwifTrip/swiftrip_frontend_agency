@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { logout, selectUser } from '../../store/slices/authSlice';
+import { persistor } from '../../store';  
 
 export default function Topbar() {
   const dispatch = useDispatch();
@@ -11,18 +12,18 @@ export default function Topbar() {
 
   const handleLogout = () => {
     dispatch(logout());
+    persistor.purge();               
     navigate('/auth/login');
   };
 
-   return (
+  return (
     <header className="bg-white border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Packages</h1>
           <p className="text-sm text-gray-500">
             Welcome back,{' '}
             <span className="font-semibold text-amber-700">
-              {user?.fullName || user?.firstName || 'Traveler'}
+              {user?.fullName || 'Admin'}
             </span>
           </p>
         </div>
@@ -47,9 +48,9 @@ export default function Topbar() {
               </div>
               <div className="text-left hidden sm:block">
                 <p className="text-sm font-semibold text-gray-800">
-                  {user?.fullName || 'Ali Hassan'}
+                  {user?.fullName || 'Admin'}
                 </p>
-                <p className="text-xs text-amber-600">{user?.email || 'ali@gmail.com'}</p>
+                <p className="text-xs text-amber-600">{user?.email || 'admin@swiftrip.com'}</p>
               </div>
             </button>
 

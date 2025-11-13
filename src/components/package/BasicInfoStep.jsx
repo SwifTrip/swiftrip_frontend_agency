@@ -1,6 +1,7 @@
+// src/components/package/BasicInfoStep.jsx
 import React from 'react';
 
-const CATEGORIES = ['ADVENTURE', 'CULTURAL', 'FAMILY', 'LUXURY', 'RELIGIOUS', 'BUSINESS'];
+const CATEGORIES = ['ADVENTURE', 'FAMILY', 'ROMANTIC', 'CULTURAL', 'RELIGIOUS', 'OTHER'];
 const STATUSES = ['DRAFT', 'ACTIVE', 'INACTIVE'];
 const CURRENCIES = ['PKR', 'USD', 'EUR', 'GBP'];
 
@@ -17,10 +18,15 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.title || !formData.category || !formData.basePrice || !formData.maxGroupSize) {
-      alert('Please fill in all required fields');
+
+    const required = ['title', 'category', 'basePrice', 'maxGroupSize', 'fromLocation', 'toLocation'];
+    const missing = required.filter(field => !formData[field]);
+
+    if (missing.length > 0) {
+      alert(`Please fill in: ${missing.join(', ')}`);
       return;
     }
+
     onNext();
   };
 
@@ -34,6 +40,30 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left Column */}
         <div className="space-y-5">
+          {/* From Location */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">From Location</label>
+              <input
+                type="text"
+                className="mt-1 block w-full border border-gray-300 rounded-lg p-2"
+                value={formData.fromLocation}
+                onChange={(e) => updateFormData({ fromLocation: e.target.value })}
+                placeholder="Enter starting point"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">To Location</label>
+              <input
+                type="text"
+                className="mt-1 block w-full border border-gray-300 rounded-lg p-2"
+                value={formData.toLocation}
+                onChange={(e) => updateFormData({ toLocation: e.target.value })}
+                placeholder="Enter destination"
+              />
+            </div>
+          </div>
           {/* Title */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -62,9 +92,7 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
             >
               <option value="">Select category</option>
               {CATEGORIES.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
+                <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>
           </div>
@@ -78,7 +106,10 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
               <input
                 type="number"
                 value={formData.basePrice}
-                onChange={(e) => handleChange('basePrice', e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  handleChange('basePrice', value === '' ? 0 : Number(value));
+                }}
                 placeholder="2500"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 required
@@ -92,9 +123,7 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
               >
                 {CURRENCIES.map((curr) => (
-                  <option key={curr} value={curr}>
-                    {curr}
-                  </option>
+                  <option key={curr} value={curr}>{curr}</option>
                 ))}
               </select>
             </div>
@@ -108,7 +137,10 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
             <input
               type="number"
               value={formData.maxGroupSize}
-              onChange={(e) => handleChange('maxGroupSize', e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                handleChange('maxGroupSize', value === '' ? 0 : Number(value));
+              }}
               placeholder="12"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
               required
@@ -124,9 +156,7 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
             >
               {STATUSES.map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
+                <option key={status} value={status}>{status}</option>
               ))}
             </select>
           </div>
@@ -150,136 +180,50 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-3">Package Includes</label>
             <div className="space-y-3">
-              <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition">
-                <input
-                  type="checkbox"
-                  checked={!!formData.includes.meals}
-                  onChange={(e) => handleIncludesChange('meals', e.target.checked ? '3 meals per day' : '')}
-                  className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
-                />
-                <div className="flex-1">
-                  <p className="font-medium text-gray-800">Meals</p>
-                  {formData.includes.meals && (
-                    <input
-                      type="text"
-                      value={formData.includes.meals}
-                      onChange={(e) => handleIncludesChange('meals', e.target.value)}
-                      placeholder="e.g., 3 meals per day"
-                      className="mt-1 text-sm text-gray-600 border-none focus:ring-0 p-0"
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  )}
-                </div>
-              </label>
-
-              <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition">
-                <input
-                  type="checkbox"
-                  checked={!!formData.includes.transportation}
-                  onChange={(e) => handleIncludesChange('transportation', e.target.checked ? 'Included' : '')}
-                  className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
-                />
-                <div className="flex-1">
-                  <p className="font-medium text-gray-800">Transport</p>
-                  {formData.includes.transportation && (
-                    <input
-                      type="text"
-                      value={formData.includes.transportation}
-                      onChange={(e) => handleIncludesChange('transportation', e.target.value)}
-                      placeholder="e.g., Private vehicle"
-                      className="mt-1 text-sm text-gray-600 border-none focus:ring-0 p-0"
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  )}
-                </div>
-              </label>
-
-              <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition">
-                <input
-                  type="checkbox"
-                  checked={!!formData.includes.accommodation}
-                  onChange={(e) => handleIncludesChange('accommodation', e.target.checked ? '4-star hotel' : '')}
-                  className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
-                />
-                <div className="flex-1">
-                  <p className="font-medium text-gray-800">Accommodation</p>
-                  {formData.includes.accommodation && (
-                    <input
-                      type="text"
-                      value={formData.includes.accommodation}
-                      onChange={(e) => handleIncludesChange('accommodation', e.target.value)}
-                      placeholder="e.g., 4-star hotel"
-                      className="mt-1 text-sm text-gray-600 border-none focus:ring-0 p-0"
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  )}
-                </div>
-              </label>
-
-              <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition">
-                <input
-                  type="checkbox"
-                  checked={!!formData.includes.guide}
-                  onChange={(e) => handleIncludesChange('guide', e.target.checked ? 'Professional tour guide' : '')}
-                  className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
-                />
-                <div className="flex-1">
-                  <p className="font-medium text-gray-800">Tour Guide</p>
-                  {formData.includes.guide && (
-                    <input
-                      type="text"
-                      value={formData.includes.guide}
-                      onChange={(e) => handleIncludesChange('guide', e.target.value)}
-                      placeholder="e.g., Professional guide"
-                      className="mt-1 text-sm text-gray-600 border-none focus:ring-0 p-0"
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  )}
-                </div>
-              </label>
-
-              <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition">
-                <input
-                  type="checkbox"
-                  checked={!!formData.includes.activities}
-                  onChange={(e) => handleIncludesChange('activities', e.target.checked ? 'All activities' : '')}
-                  className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
-                />
-                <div className="flex-1">
-                  <p className="font-medium text-gray-800">Activities</p>
-                </div>
-              </label>
-
-              <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition">
-                <input
-                  type="checkbox"
-                  checked={!!formData.includes.travelInsurance}
-                  onChange={(e) => handleIncludesChange('travelInsurance', e.target.checked ? 'Basic coverage' : '')}
-                  className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
-                />
-                <div className="flex-1">
-                  <p className="font-medium text-gray-800">Travel Insurance</p>
-                </div>
-              </label>
+              {['meals', 'transportation', 'accommodation', 'guide', 'activities', 'travelInsurance'].map((key) => (
+                <label key={key} className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer transition">
+                  <input
+                    type="checkbox"
+                    checked={!!formData.includes[key]}
+                    onChange={(e) => handleIncludesChange(key, e.target.checked ? (key === 'meals' ? '3 meals per day' : key === 'transportation' ? 'Included' : key === 'accommodation' ? '4-star hotel' : key === 'guide' ? 'Professional tour guide' : key === 'activities' ? 'All activities' : 'Basic coverage') : '')}
+                    className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                  />
+                  <div className="flex-1">
+                    <p className="font-medium text-gray-800">
+                      {key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}
+                    </p>
+                    {formData.includes[key] && (
+                      <input
+                        type="text"
+                        value={formData.includes[key]}
+                        onChange={(e) => handleIncludesChange(key, e.target.value)}
+                        placeholder={`e.g., ${key === 'meals' ? '3 meals per day' : 'Private vehicle'}`}
+                        className="mt-1 text-sm text-gray-600 border-none focus:ring-0 p-0"
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    )}
+                  </div>
+                </label>
+              ))}
             </div>
           </div>
         </div>
       </div>
 
-      {/* Navigation Buttons */}
+      {/* Navigation */}
       <div className="flex justify-between items-center mt-8 pt-6 border-t border-gray-200">
         <button
           type="button"
           disabled
           className="px-6 py-3 text-gray-400 bg-gray-100 rounded-lg cursor-not-allowed"
         >
-          ← Previous
+          Previous
         </button>
         <button
           type="submit"
           className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition shadow-lg hover:shadow-xl"
         >
-          Next →
+          Next
         </button>
       </div>
     </form>
