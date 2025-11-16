@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toast } from 'react-toastify';
 
 export default function MediaUploadStep({ formData, updateFormData, onNext, onPrev }) {
   const [uploading, setUploading] = useState(false);
@@ -37,21 +38,24 @@ export default function MediaUploadStep({ formData, updateFormData, onNext, onPr
     const maxSize = 5 * 1024 * 1024; // 5MB
 
     if (formData.media.length + files.length > maxFiles) {
-      alert(`Maximum ${maxFiles} images allowed`);
+      toast.error(`Maximum ${maxFiles} images allowed`);
       return;
     }
 
     setUploading(true);
     const newMedia = [];
+    let processedCount = 0;
 
     for (let file of files) {
       if (file.size > maxSize) {
-        alert(`${file.name} is too large. Max size is 5MB`);
+        toast.error(`${file.name} is too large. Max size is 5MB`);
+        processedCount++;
         continue;
       }
 
       if (!file.type.startsWith('image/')) {
-        alert(`${file.name} is not an image file`);
+        toast.error(`${file.name} is not an image file`);
+        processedCount++;
         continue;
       }
 
@@ -63,9 +67,13 @@ export default function MediaUploadStep({ formData, updateFormData, onNext, onPr
           preview: reader.result,
           name: file.name,
         });
+        processedCount++;
 
-        if (newMedia.length === files.length) {
-          updateFormData({ media: [...formData.media, ...newMedia] });
+        if (processedCount === files.length) {
+          if (newMedia.length > 0) {
+            updateFormData({ media: [...formData.media, ...newMedia] });
+            toast.success(`${newMedia.length} image(s) uploaded successfully`);
+          }
           setUploading(false);
         }
       };
@@ -76,15 +84,30 @@ export default function MediaUploadStep({ formData, updateFormData, onNext, onPr
   const removeImage = (index) => {
     const updated = formData.media.filter((_, i) => i !== index);
     updateFormData({ media: updated });
+    toast.success('Image removed successfully');
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // Validation: Check if at least one image is uploaded
+    if (formData.media.length === 0) {
+      toast.error('Please upload at least one image for your package');
+      return;
+    }
+    
     onNext();
   };
 
   return (
     <form onSubmit={handleSubmit} className="p-8">
+      <style>{`
+        ::placeholder {
+          color: #D1D5DB;
+          opacity: 1;
+        }
+      `}</style>
+      
       <div className="mb-6">
         <h3 className="text-xl font-bold text-gray-800">Upload Package Images</h3>
         <p className="text-gray-600 text-sm mt-1">Add up to 10 high-quality images to showcase your tour package</p>

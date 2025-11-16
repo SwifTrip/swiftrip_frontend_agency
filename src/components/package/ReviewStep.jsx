@@ -1,33 +1,110 @@
 import React from 'react';
+import { toast } from 'react-toastify';
 
 export default function ReviewStep({ formData, onPrev, onSubmit, loading }) {
   const handleDraftSave = (e) => {
     e.preventDefault();
+    
+    // Validation before saving as draft
+    if (!formData.title || formData.title.trim() === '') {
+      toast.error('Package title is required');
+      return;
+    }
+    
+    if (formData.itineraries.length === 0) {
+      toast.error('Please add at least one day to the itinerary');
+      return;
+    }
+    
     onSubmit(false); 
   };
 
   const handlePublish = (e) => {
     e.preventDefault();
+    
+    // Validation before publishing
+    if (!formData.title || formData.title.trim() === '') {
+      toast.error('Package title is required');
+      return;
+    }
+    
+    if (!formData.description || formData.description.trim() === '') {
+      toast.error('Package description is required');
+      return;
+    }
+    
+    if (formData.itineraries.length === 0) {
+      toast.error('Please add at least one day to the itinerary');
+      return;
+    }
+    
+    const hasItemsInAnyDay = formData.itineraries.some(day => day.itineraryItems.length > 0);
+    if (!hasItemsInAnyDay) {
+      toast.error('Please add at least one item to any day in the itinerary');
+      return;
+    }
+    
+    if (formData.media.length === 0) {
+      toast.error('Please upload at least one image');
+      return;
+    }
+    
     onSubmit(true); 
   };
 
-  // Calculate total cost
+  // Calculate total cost - Fixed to properly sum all items
   const calculateTotal = () => {
-    let total = parseFloat(formData.basePrice) || 0;
+    let basePrice = parseFloat(formData.basePrice) || 0;
+    let itemsTotal = 0;
+    
     formData.itineraries.forEach((day) => {
       day.itineraryItems.forEach((item) => {
-        if (!item.optional) {
-          total += parseFloat(item.price) || 0;
+        // Only add non-optional items to the base package cost
+        if (!item.optional && !item.isAddOn) {
+          const itemPrice = parseFloat(item.price) || 0;
+          itemsTotal += itemPrice;
         }
       });
     });
-    return total;
+    
+    return basePrice + itemsTotal;
   };
 
   const totalCost = calculateTotal();
 
+  // Calculate breakdown for display
+  const getCostBreakdown = () => {
+    let includedItems = 0;
+    let optionalItems = 0;
+    let addOnItems = 0;
+    
+    formData.itineraries.forEach((day) => {
+      day.itineraryItems.forEach((item) => {
+        const itemPrice = parseFloat(item.price) || 0;
+        if (item.isAddOn) {
+          addOnItems += itemPrice;
+        } else if (item.optional) {
+          optionalItems += itemPrice;
+        } else {
+          includedItems += itemPrice;
+        }
+      });
+    });
+    
+    return { includedItems, optionalItems, addOnItems };
+  };
+
+  const breakdown = getCostBreakdown();
+
   return (
     <div className="p-8">
+      <style>{`
+        ::placeholder {
+          color: #D1D5DB;
+          opacity: 1;
+        }
+      `}</style>
+      
       <div className="mb-6">
         <h3 className="text-xl font-bold text-gray-800">Review & Publish</h3>
         <p className="text-gray-600 text-sm mt-1">Review all details before publishing your package</p>
@@ -122,11 +199,19 @@ export default function ReviewStep({ formData, onPrev, onSubmit, loading }) {
                     </div>
                     <p className="font-semibold text-gray-800">{day.title}</p>
                   </div>
+                  <p className="ml-10 text-sm text-gray-600 mb-2">{day.description}</p>
                   <ul className="ml-10 space-y-1">
                     {day.itineraryItems.map((item, itemIndex) => (
                       <li key={itemIndex} className="text-sm text-gray-600 flex items-start gap-2">
                         <span className="text-gray-400">•</span>
-                        <span>{item.name || 'Unnamed item'}</span>
+                        <span className="flex-1">
+                          {item.name || 'Unnamed item'} 
+                          {item.price > 0 && (
+                            <span className="text-gray-500"> - {formData.currency} {parseFloat(item.price).toLocaleString()}</span>
+                          )}
+                          {item.optional && <span className="ml-2 text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded">Optional</span>}
+                          {item.isAddOn && <span className="ml-2 text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded">Add-on</span>}
+                        </span>
                       </li>
                     ))}
                     {day.itineraryItems.length === 0 && (
@@ -145,7 +230,7 @@ export default function ReviewStep({ formData, onPrev, onSubmit, loading }) {
             <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            <h4 className="font-semibold text-gray-800">Media Gallery</h4>
+            <h4 className="font-semibold text-gray-800">Media Gallery ({formData.media.length} images)</h4>
           </div>
 
           {formData.media.length === 0 ? (
@@ -186,12 +271,41 @@ export default function ReviewStep({ formData, onPrev, onSubmit, loading }) {
                 {formData.currency} {parseFloat(formData.basePrice).toLocaleString()}
               </span>
             </div>
+            {breakdown.includedItems > 0 && (
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Included Items</span>
+                <span className="font-medium text-gray-800">
+                  {formData.currency} {breakdown.includedItems.toLocaleString()}
+                </span>
+              </div>
+            )}
+            {breakdown.optionalItems > 0 && (
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Optional Items (not in base)</span>
+                <span className="font-medium text-yellow-600">
+                  {formData.currency} {breakdown.optionalItems.toLocaleString()}
+                </span>
+              </div>
+            )}
+            {breakdown.addOnItems > 0 && (
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Add-on Items (not in base)</span>
+                <span className="font-medium text-purple-600">
+                  {formData.currency} {breakdown.addOnItems.toLocaleString()}
+                </span>
+              </div>
+            )}
             <div className="border-t border-blue-200 pt-2 flex justify-between">
               <span className="font-semibold text-gray-800">Total Package Cost</span>
               <span className="font-bold text-blue-600 text-lg">
                 {formData.currency} {totalCost.toLocaleString()}
               </span>
             </div>
+            {(breakdown.optionalItems > 0 || breakdown.addOnItems > 0) && (
+              <p className="text-xs text-gray-500 mt-2">
+                * Optional and add-on items are not included in the base package cost
+              </p>
+            )}
           </div>
         </div>
       </div>
