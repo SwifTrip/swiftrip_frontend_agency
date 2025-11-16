@@ -5,6 +5,7 @@ import LoginPage from '../pages/auth/LoginPage';
 import RegisterPage from '../pages/auth/RegisterPage';
 import PackagesPage from '../pages/dashboard/PackagesPage';
 import CreatePackagePage from '../pages/dashboard/CreatePackagePage';
+import PackageDetailsPage from '../components/package/PackageDetailsPage';
 import ProtectedRouter from './ProtectedRouter';
 import AuthRedirect from './AuthRedirect';
 
@@ -30,6 +31,7 @@ export default function AppRouter() {
                 <Route path="dashboard" element={<PackagesPage />} />
                 <Route path="packages" element={<PackagesPage />} />
                 <Route path="packages/create" element={<CreatePackagePage />} />
+                <Route path="packages/:id" element={<PackageDetailsPage />} />
                 <Route path="packages/edit/:id" element={<CreatePackagePage />} />
                 <Route path="payments" element={<div className="p-8"><h1>Payments Page</h1></div>} />
                 <Route path="users" element={<div className="p-8"><h1>Users Page</h1></div>} />

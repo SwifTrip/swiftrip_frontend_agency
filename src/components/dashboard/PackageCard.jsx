@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function PackageCard({ 
   id,
@@ -14,15 +15,16 @@ export default function PackageCard({
   createdAt,
   onEdit,
   onDelete,
-  onView // Added onView prop
 }) {
+
+  const navigate = useNavigate();
+
   const statusColors = {
     ACTIVE: 'bg-green-100 text-green-700',
     DRAFT: 'bg-yellow-100 text-yellow-700',
     INACTIVE: 'bg-gray-100 text-gray-700',
   };
 
-  // Get first image or use placeholder
   const imageUrl = images && images.length > 0 
     ? images[0] 
     : 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop';
@@ -34,6 +36,11 @@ export default function PackageCard({
   // Mock rating and bookings
   const rating = 4.8;
   const bookings = 24;
+
+  // Handle view click
+  const handleViewClick = () => {
+      navigate(`${id}`);
+  };
 
   return (
     <div className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100">
@@ -121,7 +128,7 @@ export default function PackageCard({
 
             {/* View */}
             <button 
-              onClick={() => onView && onView(id)}
+              onClick={handleViewClick}
               className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
               title="View"
             >

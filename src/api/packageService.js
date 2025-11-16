@@ -21,7 +21,7 @@ export async function getPackages() {
 // Get single package by ID
 export async function getPackageById(id) {
   try {
-    const response = await axios.get(`${API_BASE_URL}/packages/${id}`, {
+    const response = await axios.get(`${API_BASE_URL}/package/${id}`, {
       headers: getAuthHeader()
     });
     return response.data;
@@ -29,7 +29,6 @@ export async function getPackageById(id) {
     throw err.response?.data || { message: "Failed to fetch package" };
   }
 }
-
 
 // src/api/packageService.js
 export const createPackage = async (packageData) => {
@@ -47,8 +46,8 @@ export const createPackage = async (packageData) => {
   // SAFE JSON
   formData.append('includes', JSON.stringify(packageData.includes || {}));
   formData.append('itineraries', JSON.stringify(packageData.itineraries || []));
-  formData.append("fromLocation", formData.fromLocation);
-  formData.append("toLocation", formData.toLocation);
+  formData.append("fromLocation", packageData.fromLocation);
+  formData.append("toLocation", packageData.toLocation);
   // Media
   packageData.media?.forEach(m => m.file && formData.append('media', m.file));
 
