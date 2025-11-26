@@ -13,7 +13,8 @@ export default function Sidebar() {
         </svg>
       ), 
       label: 'Dashboard', 
-      path: '/app/dashboard' 
+      path: '/app/dashboard' ,
+      comingSoon: true
     },
     { 
       icon: (
@@ -31,7 +32,8 @@ export default function Sidebar() {
         </svg>
       ), 
       label: 'Payments', 
-      path: '/app/payments' 
+      path: '/app/payments',
+      comingSoon: true
     },
     { 
       icon: (
@@ -40,7 +42,8 @@ export default function Sidebar() {
         </svg>
       ), 
       label: 'Users', 
-      path: '/app/users' 
+      path: '/app/users',
+      comingSoon: true
     },
     { 
       icon: (
@@ -49,7 +52,8 @@ export default function Sidebar() {
         </svg>
       ), 
       label: 'Analytics', 
-      path: '/app/analytics' 
+      path: '/app/analytics',
+      comingSoon: true 
     },
     { 
       icon: (
@@ -59,7 +63,8 @@ export default function Sidebar() {
         </svg>
       ), 
       label: 'Settings', 
-      path: '/app/settings' 
+      path: '/app/settings',
+      comingSoon: true
     },
   ];
 
@@ -68,7 +73,7 @@ export default function Sidebar() {
   return (
     <div className="w-64 bg-white border-r border-gray-200 flex flex-col h-screen">
       {/* Logo */}
-      <div className="p-5 border-b border-gray-200">
+      <div className="p-3.5 border-b border-gray-200">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-lg flex items-center justify-center">
             <span className="text-white text-xl">✈️</span>
@@ -82,21 +87,41 @@ export default function Sidebar() {
 
       {/* Menu Items */}
       <nav className="flex-1 p-4 space-y-1">
-        {menuItems.map((item) => (
-          <Link
-            key={item.path}
-            to={item.path}
-            className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
-              isActive(item.path)
-                ? 'bg-blue-50 text-blue-600 font-semibold'
-                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-            }`}
-          >
-            {item.icon}
-            <span className="text-sm">{item.label}</span>
-          </Link>
-        ))}
+        {menuItems.map((item) => {
+          const isActivePath = isActive(item.path);
+          const isComingSoon = item.comingSoon === true;
+
+          if (isComingSoon) {
+            return (
+              <div
+                key={item.path}
+                className="flex items-center justify-between gap-3 px-4 py-3 rounded-lg text-gray-400 cursor-not-allowed select-none"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="opacity-60">{item.icon}</div>
+                  <span className="text-sm">{item.label}</span>
+                </div>
+              </div>
+            );
+          }
+
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+                isActivePath
+                  ? 'bg-blue-50 text-blue-600 font-semibold'
+                  : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+              }`}
+            >
+              {item.icon}
+              <span className="text-sm">{item.label}</span>
+            </Link>
+          );
+        })}
       </nav>
+
     </div>
   );
 }

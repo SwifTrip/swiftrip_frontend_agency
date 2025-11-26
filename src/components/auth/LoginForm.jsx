@@ -49,7 +49,7 @@ export default function LoginForm() {
         )}
 
         {/* Social login buttons */}
-         <button 
+         {/* <button 
             type="button" 
             className="w-full border border-gray-300 rounded-xl p-3.5 flex items-center justify-center gap-3 hover:bg-gray-50 transition font-medium text-gray-700"
           >
@@ -63,17 +63,17 @@ export default function LoginForm() {
         >
           <span className="text-xl font-bold">f</span>
           <span>Continue with Facebook</span>
-        </button>
+        </button> */}
 
         {/* Divider */}
-        <div className="relative text-center my-6">
+        {/* <div className="relative text-center my-6">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-200"></div>
           </div>
           <div className="relative flex justify-center text-sm">
             <span className="px-4 bg-white text-gray-500">Or continue with email</span>
           </div>
-        </div>
+        </div> */}
 
         {/* Email field */}
         <div>
@@ -150,7 +150,7 @@ export default function LoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed mt-4"
         >
           {loading ? "Signing in..." : "Sign In"}
         </button>

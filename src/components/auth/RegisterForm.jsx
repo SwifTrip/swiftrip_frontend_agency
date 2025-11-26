@@ -57,7 +57,7 @@ export default function RegisterForm() {
         )}
 
         {/* Social buttons */}
-        <button 
+        {/* <button 
           type="button" 
           className="w-full border border-gray-300 rounded-xl p-3.5 flex items-center justify-center gap-3 hover:bg-gray-50 transition font-medium text-gray-700"
         >
@@ -71,17 +71,17 @@ export default function RegisterForm() {
         >
           <span className="text-xl font-bold">f</span>
           <span>Continue with Facebook</span>
-        </button>
+        </button> */}
 
         {/* Divider */}
-        <div className="relative text-center my-5">
+        {/* <div className="relative text-center my-5">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-200"></div>
           </div>
           <div className="relative flex justify-center text-sm">
             <span className="px-4 bg-white text-gray-500">or register with email</span>
           </div>
-        </div>
+        </div> */}
 
         {/* Name fields */}
         <div className="grid grid-cols-2 gap-3">

@@ -111,7 +111,7 @@ export default function CreatePackagePage() {
   const CurrentStepComponent = STEPS[currentStep - 1].component;
 
   return (
-    <DashboardLayout>
+    <>
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center justify-between">
@@ -193,6 +193,6 @@ export default function CreatePackagePage() {
           loading={loading}
         />
       </div>
-    </DashboardLayout>
+    </>
   );
 }

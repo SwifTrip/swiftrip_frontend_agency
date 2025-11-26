@@ -45,7 +45,7 @@ export default function AuthLayout({ children, mode = 'register' }) {
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           
           {/* Left side - Form */}
-          <div className="w-full max-w-md mx-auto lg:mx-0">
+          <div className="w-full max-w-md mx-auto lg:mx-0 mt-6">
             <div className="bg-white rounded-3xl shadow-2xl p-8 lg:p-10">
               <h1 className="text-3xl font-bold text-gray-800">
                 {isLogin ? 'Welcome Back' : 'Create Account'}
@@ -63,7 +63,7 @@ export default function AuthLayout({ children, mode = 'register' }) {
           </div>
 
           {/* Right side - Hero Image */}
-          <div className="hidden lg:block w-full">
+          <div className="hidden lg:block w-full mt-6">
             <div className="relative max-w-xl mx-auto">
               {/* Main image card with overlay text */}
               <div className="relative rounded-3xl overflow-hidden shadow-2xl -mt-5">

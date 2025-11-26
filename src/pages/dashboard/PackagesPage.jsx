@@ -71,7 +71,7 @@ export default function PackagesPage() {
   };
 
   return (
-    <DashboardLayout>
+    <>
       {/* Page Header */}
       <div className="mb-6">
         <div className="flex items-center justify-between">
@@ -227,6 +227,6 @@ export default function PackagesPage() {
           )}
         </div>
       )}
-    </DashboardLayout>
+    </>
   );
 }
