@@ -7,7 +7,7 @@ export const fetchPackages = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await api.getPackages();
-      return response.data; // Return the data array from API response
+      return response.data; 
     } catch (error) {
       return rejectWithValue(error.message || 'Failed to fetch packages');
     }
@@ -33,7 +33,7 @@ export const createPackage = createAsyncThunk(
   async (packageData, { rejectWithValue }) => {
     try {
       const response = await api.createPackage(packageData);
-      return response.data; 
+      return response.data || response; 
     } catch (error) {
       return rejectWithValue(error.message || 'Failed to create package');
     }
@@ -46,7 +46,8 @@ export const updatePackage = createAsyncThunk(
   async ({ id, data }, { rejectWithValue }) => {
     try {
       const response = await api.updatePackage(id, data);
-      return response.data;
+      // FIX: Extract the data property if needed
+      return response.data || response;
     } catch (error) {
       return rejectWithValue(error.message || 'Failed to update package');
     }
@@ -66,10 +67,6 @@ export const deletePackage = createAsyncThunk(
   }
 );
 
-// ============================================
-// INITIAL STATE
-// ============================================
-
 const initialState = {
   packages: [],
   currentPackage: null,
@@ -82,10 +79,6 @@ const initialState = {
     inactive: 0,
   },
 };
-
-// ============================================
-// SLICE
-// ============================================
 
 const packageSlice = createSlice({
   name: 'packages',
@@ -129,6 +122,7 @@ const packageSlice = createSlice({
       })
       .addCase(fetchPackageById.fulfilled, (state, action) => {
         state.loading = false;
+        // Now action.payload contains the actual package data
         state.currentPackage = action.payload;
       })
       .addCase(fetchPackageById.rejected, (state, action) => {
@@ -144,7 +138,7 @@ const packageSlice = createSlice({
       })
       .addCase(createPackage.fulfilled, (state, action) => {
         state.loading = false;
-        state.packages.unshift(action.payload); // Add to beginning
+        state.packages.unshift(action.payload);
         packageSlice.caseReducers.updateStats(state);
       })
       .addCase(createPackage.rejected, (state, action) => {
@@ -164,6 +158,10 @@ const packageSlice = createSlice({
         if (index !== -1) {
           state.packages[index] = action.payload;
         }
+        // Also update currentPackage if it's the same package
+        if (state.currentPackage?.id === action.payload.id) {
+          state.currentPackage = action.payload;
+        }
         packageSlice.caseReducers.updateStats(state);
       })
       .addCase(updatePackage.rejected, (state, action) => {
@@ -180,6 +178,10 @@ const packageSlice = createSlice({
       .addCase(deletePackage.fulfilled, (state, action) => {
         state.loading = false;
         state.packages = state.packages.filter(p => p.id !== action.payload);
+        // Clear currentPackage if it was deleted
+        if (state.currentPackage?.id === action.payload) {
+          state.currentPackage = null;
+        }
         packageSlice.caseReducers.updateStats(state);
       })
       .addCase(deletePackage.rejected, (state, action) => {

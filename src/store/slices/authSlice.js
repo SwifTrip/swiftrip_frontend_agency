@@ -29,7 +29,7 @@ export const loginUser = createAsyncThunk(
   }
 );
 
-// ---- NEW: fetch current user on app start ----
+
 export const fetchCurrentUser = createAsyncThunk(
   'auth/fetchCurrentUser',
   async (_, { rejectWithValue }) => {

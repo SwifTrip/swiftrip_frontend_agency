@@ -62,19 +62,19 @@ export const createPackage = async (packageData) => {
 };
 
 // Update package
-export async function updatePackage(id, packageData) {
+// src/api/packageService.js
+export const updatePackage = async (id, formData) => {
   try {
-    const response = await axios.put(`${API_BASE_URL}/packages/${id}`, packageData, {
+    const res = await axios.put(`${API_BASE_URL}/package/${id}`, formData, {
       headers: {
         ...getAuthHeader(),
-        "Content-Type": "application/json"
-      }
+      },
     });
-    return response.data;
+    return res.data;
   } catch (err) {
     throw err.response?.data || { message: "Failed to update package" };
   }
-}
+};
 
 // Delete package
 export async function deletePackage(id) {

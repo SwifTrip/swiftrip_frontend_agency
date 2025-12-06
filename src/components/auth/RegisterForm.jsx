@@ -5,6 +5,7 @@ import * as yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser, selectLoading, selectError } from "../../store/slices/authSlice";
+import { Link } from 'react-router-dom';
 
 const schema = yup.object().shape({
   firstName: yup.string().required("First Name is required"),
@@ -220,9 +221,9 @@ export default function RegisterForm() {
         {/* Sign in link */}
         <p className="text-center text-sm text-gray-600 mt-4">
           Already have an account?{" "}
-          <a href="/auth/login" className="text-blue-600 font-semibold hover:text-blue-700 hover:underline">
+          <Link to="/auth/login" className="text-blue-600 font-semibold hover:text-blue-700 hover:underline">
             Sign in
-          </a>
+          </Link>
         </p>
 
       </div>

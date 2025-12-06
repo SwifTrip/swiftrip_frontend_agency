@@ -9,17 +9,24 @@ import PackageDetailsPage from '../pages/dashboard/PackageDetailsPage';
 import DashboardLayout from '../layouts/DashboardLayout';
 import ProtectedRouter from './ProtectedRouter';
 import AuthRedirect from './AuthRedirect';
+import LandingPage from '../pages/landingPage/LandingPage';
+import VerifyEmailPage from '../pages/auth/VerifyEmailPage';
+import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage';
+import ResetPasswordPage from '../pages/auth/ResetPasswordPage';
 
 export default function AppRouter() {
   return (
     <BrowserRouter>
       <Routes>
         
-        <Route path="/" element={<Navigate to="/auth/login" replace />} />
+        <Route path="/" element={<LandingPage />} />
         
         {/* Auth routes */}
         <Route path="/auth/login" element={<LoginPage />} />
         <Route path="/auth/register" element={<RegisterPage />} />
+        <Route path="/auth/verify-email" element={<VerifyEmailPage />} />
+        <Route path="/auth/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
 
         
         {/* Protected app routes */}

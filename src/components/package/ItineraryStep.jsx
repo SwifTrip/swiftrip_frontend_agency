@@ -1,4 +1,3 @@
-// src/components/package/ItineraryStep.jsx
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 
