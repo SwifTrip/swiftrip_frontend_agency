@@ -84,7 +84,6 @@ export default function Sidebar() {
       ),
       label: "Users",
       path: "/app/users",
-      comingSoon: true,
     },
     {
       icon: (

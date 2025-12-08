@@ -13,6 +13,7 @@ import LandingPage from '../pages/landingPage/LandingPage';
 import VerifyEmailPage from '../pages/auth/VerifyEmailPage';
 import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage';
 import ResetPasswordPage from '../pages/auth/ResetPasswordPage';
+import UsersPage from '../pages/user/UsersPage';
 
 export default function AppRouter() {
   return (
@@ -42,8 +43,8 @@ export default function AppRouter() {
                   <Route path="packages/create" element={<CreatePackagePage />} />
                   <Route path="packages/:id" element={<PackageDetailsPage />} />
                   <Route path="packages/edit/:id" element={<CreatePackagePage />} />
+                  <Route path="users" element={<UsersPage />} />
                   <Route path="payments" element={<div className="p-8"><h1>Payments Page</h1></div>} />
-                  <Route path="users" element={<div className="p-8"><h1>Users Page</h1></div>} />
                   <Route path="analytics" element={<div className="p-8"><h1>Analytics Page</h1></div>} />
                   <Route path="settings" element={<div className="p-8"><h1>Settings Page</h1></div>} />
                   

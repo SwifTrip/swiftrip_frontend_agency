@@ -62,7 +62,6 @@ export const createPackage = async (packageData) => {
 };
 
 // Update package
-// src/api/packageService.js
 export const updatePackage = async (id, formData) => {
   try {
     const res = await axios.put(`${API_BASE_URL}/package/${id}`, formData, {
@@ -79,7 +78,7 @@ export const updatePackage = async (id, formData) => {
 // Delete package
 export async function deletePackage(id) {
   try {
-    const response = await axios.delete(`${API_BASE_URL}/packages/${id}`, {
+    const response = await axios.delete(`${API_BASE_URL}/package/${id}`, {
       headers: getAuthHeader()
     });
     return response.data;

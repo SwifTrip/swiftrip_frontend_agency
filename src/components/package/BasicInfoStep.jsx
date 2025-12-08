@@ -1,5 +1,6 @@
-// src/components/package/BasicInfoStep.jsx
 import React, { useState } from 'react';
+import Select from "react-select";
+import pakistanLocations from "../../data/pakistanLocations.json";
 
 const CATEGORIES = ['ADVENTURE', 'FAMILY', 'ROMANTIC', 'CULTURAL', 'RELIGIOUS', 'OTHER'];
 const STATUSES = ['DRAFT', 'ACTIVE', 'INACTIVE'];
@@ -45,9 +46,46 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
     return '';
   };
 
+  // const handleChange = (field, value) => {
+  //   updateFormData({ [field]: value });
+  //   if (errors[field]) setErrors((prev) => ({ ...prev, [field]: validateField(field, value) }));
+    
+  // };
+
   const handleChange = (field, value) => {
     updateFormData({ [field]: value });
-    if (errors[field]) setErrors((prev) => ({ ...prev, [field]: validateField(field, value) }));
+
+    // Regular field validation
+    const err = validateField(field, value);
+    setErrors((prev) => ({ ...prev, [field]: err }));
+
+    // Extra check: From & To cannot be same
+    if (
+      (field === "fromLocation" || field === "toLocation") &&
+      formData.fromLocation &&
+      formData.toLocation &&
+      ((field === "fromLocation" && value === formData.toLocation) ||
+      (field === "toLocation" && value === formData.fromLocation))
+    ) {
+      setErrors((prev) => ({
+        ...prev,
+        fromLocation: "From and To location cannot be the same",
+        toLocation: "From and To location cannot be the same",
+      }));
+    } else {
+      // If user changes again and they are no longer same → clear location errors
+      setErrors((prev) => ({
+        ...prev,
+        fromLocation:
+          prev.fromLocation === "From and To location cannot be the same"
+            ? ""
+            : prev.fromLocation,
+        toLocation:
+          prev.toLocation === "From and To location cannot be the same"
+            ? ""
+            : prev.toLocation,
+      }));
+    }
   };
 
   const handleBlur = (field) => {
@@ -114,15 +152,13 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
               <label className="block mb-2 text-sm font-medium text-gray-700">
                 From Location <span className="text-red-500">*</span>
               </label>
-              <input
-                type="text"
-                value={formData.fromLocation || ''}
-                onChange={(e) => handleChange('fromLocation', e.target.value)}
-                onBlur={() => handleBlur('fromLocation')}
-                placeholder="Enter starting point"
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition placeholder-gray-400 ${
-                  errors.fromLocation ? 'border-red-500' : 'border-gray-300'
-                }`}
+              <Select
+                options={pakistanLocations.map(loc => ({ label: loc, value: loc }))}
+                value={formData.fromLocation ? { label: formData.fromLocation, value: formData.fromLocation } : null}
+                onChange={(selected) => handleChange("fromLocation", selected?.value || "")}
+                onBlur={() => handleBlur("fromLocation")}
+                placeholder="Search & select starting point"
+                classNamePrefix="react-select"
               />
               {errors.fromLocation && <p className="mt-1 text-xs text-red-600">{errors.fromLocation}</p>}
             </div>
@@ -131,18 +167,17 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
               <label className="block mb-2 text-sm font-medium text-gray-700">
                 To Location <span className="text-red-500">*</span>
               </label>
-              <input
-                type="text"
-                value={formData.toLocation || ''}
-                onChange={(e) => handleChange('toLocation', e.target.value)}
-                onBlur={() => handleBlur('toLocation')}
-                placeholder="Enter destination"
-                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition placeholder-gray-400 ${
-                  errors.toLocation ? 'border-red-500' : 'border-gray-300'
-                }`}
+              <Select
+                options={pakistanLocations.map(loc => ({ label: loc, value: loc }))}
+                value={formData.toLocation ? { label: formData.toLocation, value: formData.toLocation } : null}
+                onChange={(selected) => handleChange("toLocation", selected?.value || "")}
+                onBlur={() => handleBlur("toLocation")}
+                placeholder="Search & select starting point"
+                classNamePrefix="react-select"
               />
               {errors.toLocation && <p className="mt-1 text-xs text-red-600">{errors.toLocation}</p>}
             </div>
+
           </div>
 
           {/* Title */}

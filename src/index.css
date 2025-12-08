@@ -1,1 +1,13 @@
 @import "tailwindcss";
+.react-select__control {
+  height: 48px;
+  border-radius: 8px;
+  border-color: #d1d5db !important;
+}
+.react-select__control--is-focused {
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
+}
+.react-select__menu {
+  z-index: 50;
+}
