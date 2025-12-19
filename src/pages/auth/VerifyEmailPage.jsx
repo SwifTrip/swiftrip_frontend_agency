@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import AuthLayout from "../../layouts/AuthLayout";
 import logoImage from "../../assets/logo.png";
 import { verifyEmail, resendVerificationEmail } from "../../api/authService";
+import { toast } from "react-toastify";
 
 export default function VerifyEmailPage() {
   const location = useLocation();
@@ -18,7 +19,9 @@ export default function VerifyEmailPage() {
 
     if (!token) {
       setStatus("error");
-      setMessage("Invalid verification link. Please check your email for the correct link.");
+      setMessage(
+        "Invalid verification link. Please check your email for the correct link."
+      );
       return;
     }
 
@@ -32,23 +35,31 @@ export default function VerifyEmailPage() {
 
       try {
         const data = await verifyEmail(token);
-        
+
         console.log("Verification response data:", data);
-        
+
         // Your backend returns: { success: true, message: "Email verified successfully" }
         if (data.success === true || data.success === "true") {
           setStatus("success");
-          setMessage(data.message || "Your email has been verified successfully!");
+          setMessage(
+            data.message || "Your email has been verified successfully!"
+          );
         } else {
           setStatus("error");
-          setMessage(data.message || "Invalid or expired verification token. Please request a new one.");
+          setMessage(
+            data.message ||
+              "Invalid or expired verification token. Please request a new one."
+          );
         }
       } catch (err) {
         console.error("Verification catch block error:", err);
-        
+
         // err should contain { success: false, message: "..." } from backend
         setStatus("error");
-        setMessage(err.message || "Unable to verify email. Please check your connection and try again.");
+        setMessage(
+          err.message ||
+            "Unable to verify email. Please check your connection and try again."
+        );
       } finally {
         isVerifying = false;
       }
@@ -64,23 +75,25 @@ export default function VerifyEmailPage() {
 
   const handleResendEmail = async () => {
     if (!email || !email.includes("@")) {
-      alert("Please enter a valid email address");
+      toast.error("Please enter a valid email address");
       return;
     }
 
     setResending(true);
     try {
       const data = await resendVerificationEmail(email);
-      
+
       if (data.success) {
-        alert("✓ Verification email sent! Please check your inbox and spam folder.");
+        toast.success("Verification email sent! Check inbox and spam.");
         setEmail("");
       } else {
-        alert(data.message || "Failed to send verification email. Please try again.");
+        toast.error(
+          data.message || "Failed to send verification email. Please try again."
+        );
       }
     } catch (err) {
       console.error("Resend error:", err);
-      alert(err.message || "Network error. Please check your connection and try again.");
+      toast.error(err.message || "Network error. Please try again.");
     } finally {
       setResending(false);
     }
@@ -209,7 +222,6 @@ export default function VerifyEmailPage() {
             </button>
           </div>
         )}
-
       </div>
     </AuthLayout>
   );

@@ -1,7 +1,12 @@
-import React, { useState } from 'react';
-import { toast } from 'react-toastify';
+import React, { useState } from "react";
+import { toast } from "react-toastify";
 
-export default function ItineraryStep({ formData, updateFormData, onNext, onPrev }) {
+export default function ItineraryStep({
+  formData,
+  updateFormData,
+  onNext,
+  onPrev,
+}) {
   const [expandedDay, setExpandedDay] = useState(null);
   const [expandedItem, setExpandedItem] = useState({});
 
@@ -9,9 +14,10 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
     const newDay = {
       dayNumber: formData.itineraries.length + 1,
       title: `Day ${formData.itineraries.length + 1}`,
-      description: '',
-      startTime: '',
-      endTime: '',
+      description: "",
+      dayStartTime: "",
+      dayEndTime: "",
+      dayTransports: [],
       itineraryItems: [],
     };
     updateFormData({ itineraries: [...formData.itineraries, newDay] });
@@ -26,7 +32,7 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
       dayNumber: idx + 1,
     }));
     updateFormData({ itineraries: renumbered });
-    toast.success('Day removed successfully');
+    toast.success("Day removed successfully");
   };
 
   const updateDay = (index, field, value) => {
@@ -35,14 +41,14 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
     updateFormData({ itineraries: updated });
   };
 
-  const addItem = (dayIndex, type, timeOfDay = 'Morning') => {
+  const addItem = (dayIndex, type, timeOfDay = "Morning") => {
     const updated = [...formData.itineraries];
     const newItem = {
-      name: '',
+      name: "",
       type: type,
-      description: '',
+      description: "",
       duration: 120, // 2 hours default in minutes
-      location: '',
+      location: "",
       price: 0,
       optional: false,
       isAddOn: false,
@@ -51,28 +57,28 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
     };
 
     // AUTO-ADD REQUIRED NESTED DETAILS based on type
-    if (type === 'MEAL') {
-      newItem.mealDetails = { 
-        mealType: 'DINNER', 
-        cuisine: '', 
-        included: true 
+    if (type === "MEAL") {
+      newItem.mealDetails = {
+        mealType: "DINNER",
+        cuisine: "",
+        included: true,
       };
     }
-    if (type === 'STAY') {
+    if (type === "STAY") {
       newItem.stayDetails = {
-        stayType: 'HOTEL',
-        hotelName: '',
-        roomType: '',
+        stayType: "HOTEL",
+        hotelName: "",
+        roomType: "",
         rating: 4,
-        checkInTime: '',
-        checkOutTime: '',
+        checkInTime: "",
+        checkOutTime: "",
       };
     }
-    if (type === 'TRANSPORT') {
+    if (type === "TRANSPORT") {
       newItem.transportDetails = {
-        vehicleType: '',
-        startLocation: '',
-        endLocation: '',
+        vehicleType: "",
+        startLocation: "",
+        endLocation: "",
         estimatedDuration: 120,
         included: true,
       };
@@ -87,41 +93,41 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
     const item = updated[dayIndex].itineraryItems[itemIndex];
 
     let finalValue = value;
-    if (['duration', 'price', 'sortOrder'].includes(field)) {
-      finalValue = value === '' ? 0 : Number(value);
+    if (["duration", "price", "sortOrder"].includes(field)) {
+      finalValue = value === "" ? 0 : Number(value);
     }
-    if (field === 'rating') {
-      finalValue = value === '' ? 0 : Number(value);
+    if (field === "rating") {
+      finalValue = value === "" ? 0 : Number(value);
     }
 
     // Handle type changes - add required nested details
-    if (field === 'type') {
+    if (field === "type") {
       // Remove all existing nested details first
       delete item.mealDetails;
       delete item.stayDetails;
       delete item.transportDetails;
 
       // Add appropriate nested details based on new type
-      if (value === 'MEAL') {
-        item.mealDetails = { 
-          mealType: 'DINNER', 
-          cuisine: '', 
-          included: true 
+      if (value === "MEAL") {
+        item.mealDetails = {
+          mealType: "DINNER",
+          cuisine: "",
+          included: true,
         };
-      } else if (value === 'STAY') {
+      } else if (value === "STAY") {
         item.stayDetails = {
-          stayType: 'HOTEL',
-          hotelName: '',
-          roomType: '',
+          stayType: "HOTEL",
+          hotelName: "",
+          roomType: "",
           rating: 4,
-          checkInTime: '',
-          checkOutTime: '',
+          checkInTime: "",
+          checkOutTime: "",
         };
-      } else if (value === 'TRANSPORT') {
+      } else if (value === "TRANSPORT") {
         item.transportDetails = {
-          vehicleType: '',
-          startLocation: '',
-          endLocation: '',
+          vehicleType: "",
+          startLocation: "",
+          endLocation: "",
           estimatedDuration: 120,
           included: true,
         };
@@ -129,22 +135,22 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
       item.type = value;
     }
     // Handle nested fields
-    else if (field.startsWith('mealDetails.')) {
-      const key = field.split('.')[1];
-      if (key === 'included') {
-        finalValue = value === 'true' || value === true;
+    else if (field.startsWith("mealDetails.")) {
+      const key = field.split(".")[1];
+      if (key === "included") {
+        finalValue = value === "true" || value === true;
       }
       item.mealDetails = { ...item.mealDetails, [key]: finalValue };
-    } else if (field.startsWith('stayDetails.')) {
-      const key = field.split('.')[1];
+    } else if (field.startsWith("stayDetails.")) {
+      const key = field.split(".")[1];
       item.stayDetails = { ...item.stayDetails, [key]: finalValue };
-    } else if (field.startsWith('transportDetails.')) {
-      const key = field.split('.')[1];
-      if (key === 'included') {
-        finalValue = value === 'true' || value === true;
+    } else if (field.startsWith("transportDetails.")) {
+      const key = field.split(".")[1];
+      if (key === "included") {
+        finalValue = value === "true" || value === true;
       }
-      if (key === 'estimatedDuration') {
-        finalValue = value === '' ? 0 : Number(value);
+      if (key === "estimatedDuration") {
+        finalValue = value === "" ? 0 : Number(value);
       }
       item.transportDetails = { ...item.transportDetails, [key]: finalValue };
     } else {
@@ -156,142 +162,313 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
 
   const removeItem = (dayIndex, itemIndex) => {
     const updated = [...formData.itineraries];
-    updated[dayIndex].itineraryItems = updated[dayIndex].itineraryItems.filter((_, i) => i !== itemIndex);
+    updated[dayIndex].itineraryItems = updated[dayIndex].itineraryItems.filter(
+      (_, i) => i !== itemIndex
+    );
     updateFormData({ itineraries: updated });
-    toast.success('Item removed successfully');
+    toast.success("Item removed successfully");
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     // Check if at least one day exists
     if (formData.itineraries.length === 0) {
-      toast.error('Please add at least one day to the itinerary');
+      toast.error("Please add at least one day to the itinerary");
       return;
     }
-    
+
     // Validate all days and items
     for (let i = 0; i < formData.itineraries.length; i++) {
       const day = formData.itineraries[i];
-      
+
       // Validate day fields
-      if (!day.title || day.title.trim() === '') {
+      if (!day.title || day.title.trim() === "") {
         toast.error(`Day ${day.dayNumber}: Title is required`);
         return;
       }
-      
-      if (!day.description || day.description.trim() === '') {
+
+      if (!day.description || day.description.trim() === "") {
         toast.error(`Day ${day.dayNumber}: Description is required`);
         return;
       }
-      
+
       // Check if day has at least one item
       if (day.itineraryItems.length === 0) {
-        toast.error(`Day ${day.dayNumber}: At least one itinerary item is required`);
+        toast.error(
+          `Day ${day.dayNumber}: At least one itinerary item is required`
+        );
         return;
       }
-      
+
+      // Validate day time bounds if provided
+      const dayStart = day.dayStartTime
+        ? (() => {
+            const [h, m] = day.dayStartTime.split(":").map(Number);
+            return h * 60 + m;
+          })()
+        : null;
+      const dayEnd = day.dayEndTime
+        ? (() => {
+            const [h, m] = day.dayEndTime.split(":").map(Number);
+            return h * 60 + m;
+          })()
+        : null;
+      if (dayStart !== null && dayEnd !== null && dayEnd <= dayStart) {
+        toast.error(
+          `Day ${day.dayNumber}: Day end time must be after start time`
+        );
+        return;
+      }
+
       // Validate each itinerary item
       for (let j = 0; j < day.itineraryItems.length; j++) {
         const item = day.itineraryItems[j];
-        
+
         // Basic item validation
-        if (!item.name || item.name.trim() === '') {
+        if (!item.name || item.name.trim() === "") {
           toast.error(`Day ${day.dayNumber}, Item ${j + 1}: Name is required`);
           return;
         }
-        
-        if (!item.description || item.description.trim() === '') {
-          toast.error(`Day ${day.dayNumber}, Item "${item.name}": Description is required`);
+
+        if (!item.description || item.description.trim() === "") {
+          toast.error(
+            `Day ${day.dayNumber}, Item "${item.name}": Description is required`
+          );
           return;
         }
-        
+
         if (!item.duration || item.duration <= 0) {
-          toast.error(`Day ${day.dayNumber}, Item "${item.name}": Duration must be positive`);
+          toast.error(
+            `Day ${day.dayNumber}, Item "${item.name}": Duration must be positive`
+          );
           return;
         }
-        
+
         if (item.price < 0) {
-          toast.error(`Day ${day.dayNumber}, Item "${item.name}": Price must be non-negative`);
+          toast.error(
+            `Day ${day.dayNumber}, Item "${item.name}": Price must be non-negative`
+          );
           return;
         }
-        
+
         // Validate nested details based on type
-        if (item.type === 'MEAL') {
-          if (!item.mealDetails) {
-            toast.error(`Day ${day.dayNumber}, Item "${item.name}": Meal details are required`);
+        // Validate item explicit time bounds
+        if (item.startTime && item.endTime) {
+          const [sH, sM] = item.startTime.split(":").map(Number);
+          const [eH, eM] = item.endTime.split(":").map(Number);
+          const starts = sH * 60 + sM;
+          const ends = eH * 60 + eM;
+          if (ends <= starts) {
+            toast.error(
+              `Day ${day.dayNumber}, Item "${item.name}": End time must be after start time`
+            );
             return;
           }
-          if (!item.mealDetails.cuisine || item.mealDetails.cuisine.trim() === '') {
-            toast.error(`Day ${day.dayNumber}, Item "${item.name}": Cuisine type is required`);
+          if (dayStart !== null && starts < dayStart) {
+            toast.error(
+              `Day ${day.dayNumber}, Item "${item.name}": Start time must be within day bounds`
+            );
+            return;
+          }
+          if (dayEnd !== null && ends > dayEnd) {
+            toast.error(
+              `Day ${day.dayNumber}, Item "${item.name}": End time must be within day bounds`
+            );
             return;
           }
         }
-        
-        if (item.type === 'STAY') {
+        if (item.type === "MEAL") {
+          if (!item.mealDetails) {
+            toast.error(
+              `Day ${day.dayNumber}, Item "${item.name}": Meal details are required`
+            );
+            return;
+          }
+          if (
+            !item.mealDetails.cuisine ||
+            item.mealDetails.cuisine.trim() === ""
+          ) {
+            toast.error(
+              `Day ${day.dayNumber}, Item "${item.name}": Cuisine type is required`
+            );
+            return;
+          }
+        }
+
+        if (item.type === "STAY") {
           if (!item.stayDetails) {
-            toast.error(`Day ${day.dayNumber}, Item "${item.name}": Stay details are required`);
+            toast.error(
+              `Day ${day.dayNumber}, Item "${item.name}": Stay details are required`
+            );
             return;
           }
-          if (!item.stayDetails.hotelName || item.stayDetails.hotelName.trim() === '') {
-            toast.error(`Day ${day.dayNumber}, Item "${item.name}": Hotel/stay name is required`);
+          if (
+            !item.stayDetails.hotelName ||
+            item.stayDetails.hotelName.trim() === ""
+          ) {
+            toast.error(
+              `Day ${day.dayNumber}, Item "${item.name}": Hotel/stay name is required`
+            );
             return;
           }
-          if (!item.stayDetails.roomType || item.stayDetails.roomType.trim() === '') {
-            toast.error(`Day ${day.dayNumber}, Item "${item.name}": Room type is required`);
+          if (
+            !item.stayDetails.roomType ||
+            item.stayDetails.roomType.trim() === ""
+          ) {
+            toast.error(
+              `Day ${day.dayNumber}, Item "${item.name}": Room type is required`
+            );
             return;
           }
           if (item.stayDetails.rating < 0 || item.stayDetails.rating > 5) {
-            toast.error(`Day ${day.dayNumber}, Item "${item.name}": Rating must be between 0 and 5`);
+            toast.error(
+              `Day ${day.dayNumber}, Item "${item.name}": Rating must be between 0 and 5`
+            );
             return;
           }
         }
-        
-        if (item.type === 'TRANSPORT') {
+
+        if (item.type === "TRANSPORT") {
           if (!item.transportDetails) {
-            toast.error(`Day ${day.dayNumber}, Item "${item.name}": Transport details are required`);
+            toast.error(
+              `Day ${day.dayNumber}, Item "${item.name}": Transport details are required`
+            );
             return;
           }
-          if (!item.transportDetails.vehicleType || item.transportDetails.vehicleType.trim() === '') {
-            toast.error(`Day ${day.dayNumber}, Item "${item.name}": Vehicle type is required`);
+          if (
+            !item.transportDetails.vehicleType ||
+            item.transportDetails.vehicleType.trim() === ""
+          ) {
+            toast.error(
+              `Day ${day.dayNumber}, Item "${item.name}": Vehicle type is required`
+            );
             return;
           }
-          if (!item.transportDetails.startLocation || item.transportDetails.startLocation.trim() === '') {
-            toast.error(`Day ${day.dayNumber}, Item "${item.name}": Start location is required`);
+          if (
+            !item.transportDetails.startLocation ||
+            item.transportDetails.startLocation.trim() === ""
+          ) {
+            toast.error(
+              `Day ${day.dayNumber}, Item "${item.name}": Start location is required`
+            );
             return;
           }
-          if (!item.transportDetails.endLocation || item.transportDetails.endLocation.trim() === '') {
-            toast.error(`Day ${day.dayNumber}, Item "${item.name}": End location is required`);
+          if (
+            !item.transportDetails.endLocation ||
+            item.transportDetails.endLocation.trim() === ""
+          ) {
+            toast.error(
+              `Day ${day.dayNumber}, Item "${item.name}": End location is required`
+            );
             return;
           }
-          if (!item.transportDetails.estimatedDuration || item.transportDetails.estimatedDuration <= 0) {
-            toast.error(`Day ${day.dayNumber}, Item "${item.name}": Estimated duration must be positive`);
+          if (
+            !item.transportDetails.estimatedDuration ||
+            item.transportDetails.estimatedDuration <= 0
+          ) {
+            toast.error(
+              `Day ${day.dayNumber}, Item "${item.name}": Estimated duration must be positive`
+            );
             return;
+          }
+        }
+
+        // Validate transport for activities that require it
+        if (item.requiresTransport) {
+          if (!item.transportId) {
+            toast.error(
+              `Day ${day.dayNumber}, Item "${item.name}": Please select or create a transport`
+            );
+            return;
+          }
+          if (item.transportId === "custom") {
+            if (!item.customTransport) {
+              toast.error(
+                `Day ${day.dayNumber}, Item "${item.name}": Custom transport details are required`
+              );
+              return;
+            }
+            if (
+              !item.customTransport.vehicleType ||
+              item.customTransport.vehicleType.trim() === ""
+            ) {
+              toast.error(
+                `Day ${day.dayNumber}, Item "${item.name}": Vehicle type is required for custom transport`
+              );
+              return;
+            }
+            if (
+              !item.customTransport.startLocation ||
+              item.customTransport.startLocation.trim() === ""
+            ) {
+              toast.error(
+                `Day ${day.dayNumber}, Item "${item.name}": Start location is required for custom transport`
+              );
+              return;
+            }
+            if (
+              !item.customTransport.endLocation ||
+              item.customTransport.endLocation.trim() === ""
+            ) {
+              toast.error(
+                `Day ${day.dayNumber}, Item "${item.name}": End location is required for custom transport`
+              );
+              return;
+            }
           }
         }
       }
     }
-    
+
     onNext();
   };
 
   const toggleItemExpand = (dayIndex, itemIndex) => {
     const key = `${dayIndex}-${itemIndex}`;
-    setExpandedItem(prev => ({
+    setExpandedItem((prev) => ({
       ...prev,
-      [key]: !prev[key]
+      [key]: !prev[key],
     }));
   };
 
   const getItemsByTimeOfDay = (items, timeOfDay) => {
-    return items.filter(item => item.timeOfDay === timeOfDay);
+    return items.filter((item) => item.timeOfDay === timeOfDay);
   };
 
   const getTimeIcon = (timeOfDay) => {
-    if (timeOfDay === 'Morning') return '🌅';
-    if (timeOfDay === 'Afternoon') return '☀️';
-    if (timeOfDay === 'Evening') return '🌆';
-    return '⭐';
+    if (timeOfDay === "Morning") return "🌅";
+    if (timeOfDay === "Afternoon") return "☀️";
+    if (timeOfDay === "Evening") return "🌆";
+    return "⭐";
+  };
+
+  // Calculate time used and remaining for a day
+  const calculateDayTime = (day) => {
+    if (!day.dayStartTime || !day.dayEndTime) return null;
+
+    const [startH, startM] = day.dayStartTime.split(":").map(Number);
+    const [endH, endM] = day.dayEndTime.split(":").map(Number);
+    const totalMinutes = endH * 60 + endM - (startH * 60 + startM);
+
+    const usedMinutes = (day.itineraryItems || []).reduce((sum, item) => {
+      return sum + (item.duration || 0);
+    }, 0);
+
+    const remainingMinutes = totalMinutes - usedMinutes;
+
+    return {
+      totalMinutes,
+      usedMinutes,
+      remainingMinutes,
+      totalHours: Math.floor(totalMinutes / 60),
+      totalMins: totalMinutes % 60,
+      usedHours: Math.floor(usedMinutes / 60),
+      usedMins: usedMinutes % 60,
+      remainingHours: Math.floor(Math.abs(remainingMinutes) / 60),
+      remainingMins: Math.abs(remainingMinutes) % 60,
+      isOvertime: remainingMinutes < 0,
+    };
   };
 
   return (
@@ -316,10 +493,18 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
       `}</style>
       <div className="mb-6 flex items-start justify-between">
         <div>
-          <h3 className="text-2xl font-bold text-gray-900">Day-by-Day Itinerary</h3>
-          <p className="text-gray-500 text-sm mt-1">Build a detailed timeline for your package</p>
+          <h3 className="text-2xl font-bold text-gray-900">
+            Day-by-Day Itinerary
+          </h3>
+          <p className="text-gray-500 text-sm mt-1">
+            Build a detailed timeline for your package
+          </p>
         </div>
-        <button type="button" onClick={addDay} className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm">
+        <button
+          type="button"
+          onClick={addDay}
+          className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm"
+        >
           + Add Day
         </button>
       </div>
@@ -327,25 +512,38 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
       {formData.itineraries.length === 0 ? (
         <div className="text-center py-16 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50">
           <p className="text-gray-600 font-medium mb-2">No days added yet</p>
-          <button type="button" onClick={addDay} className="mt-2 text-blue-600 font-semibold hover:text-blue-700">
+          <button
+            type="button"
+            onClick={addDay}
+            className="mt-2 text-blue-600 font-semibold hover:text-blue-700"
+          >
             + Add First Day
           </button>
         </div>
       ) : (
         <div className="space-y-4">
           {formData.itineraries.map((day, dayIndex) => (
-            <div key={dayIndex} className="border-2 border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm">
+            <div
+              key={dayIndex}
+              className="border-2 border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm"
+            >
               <div
                 className="flex items-center justify-between p-4 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors"
-                onClick={() => setExpandedDay(expandedDay === dayIndex ? null : dayIndex)}
+                onClick={() =>
+                  setExpandedDay(expandedDay === dayIndex ? null : dayIndex)
+                }
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
                     {day.dayNumber}
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-900">{day.title || `Day ${day.dayNumber}`}</p>
-                    <p className="text-sm text-gray-500">{day.description || 'No description'}</p>
+                    <p className="font-semibold text-gray-900">
+                      {day.title || `Day ${day.dayNumber}`}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {day.description || "No description"}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -360,12 +558,32 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
                     Remove
                   </button>
                   {expandedDay === dayIndex ? (
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 15l7-7 7 7"
+                      />
                     </svg>
                   ) : (
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    <svg
+                      className="w-5 h-5 text-gray-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
                     </svg>
                   )}
                 </div>
@@ -382,7 +600,9 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
                       <input
                         type="text"
                         value={day.title}
-                        onChange={(e) => updateDay(dayIndex, 'title', e.target.value)}
+                        onChange={(e) =>
+                          updateDay(dayIndex, "title", e.target.value)
+                        }
                         placeholder="e.g., Arrival and City Tour"
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       />
@@ -393,7 +613,9 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
                       </label>
                       <textarea
                         value={day.description}
-                        onChange={(e) => updateDay(dayIndex, 'description', e.target.value)}
+                        onChange={(e) =>
+                          updateDay(dayIndex, "description", e.target.value)
+                        }
                         placeholder="Describe what happens on this day"
                         rows={2}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
@@ -401,40 +623,404 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="text-sm font-medium text-gray-700 block mb-2">Start Time (Optional)</label>
+                        <label className="text-sm font-medium text-gray-700 block mb-2">
+                          Day Start Time
+                        </label>
                         <input
                           type="time"
-                          value={day.startTime}
-                          onChange={(e) => updateDay(dayIndex, 'startTime', e.target.value)}
+                          value={day.dayStartTime || ""}
+                          onChange={(e) =>
+                            updateDay(dayIndex, "dayStartTime", e.target.value)
+                          }
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-gray-700 block mb-2">End Time (Optional)</label>
+                        <label className="text-sm font-medium text-gray-700 block mb-2">
+                          Day End Time
+                        </label>
                         <input
                           type="time"
-                          value={day.endTime}
-                          onChange={(e) => updateDay(dayIndex, 'endTime', e.target.value)}
+                          value={day.dayEndTime || ""}
+                          onChange={(e) =>
+                            updateDay(dayIndex, "dayEndTime", e.target.value)
+                          }
                           className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                       </div>
                     </div>
+
+                    {(() => {
+                      const timeCalc = calculateDayTime(day);
+                      if (!timeCalc) return null;
+                      return (
+                        <div
+                          className={`mt-3 p-4 rounded-lg border ${
+                            timeCalc.isOvertime
+                              ? "bg-red-50 border-red-200"
+                              : "bg-blue-50 border-blue-200"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between text-sm">
+                            <div>
+                              <span className="font-semibold text-gray-700">
+                                Total Day Duration:
+                              </span>
+                              <span className="ml-2 text-gray-900">
+                                {timeCalc.totalHours}h {timeCalc.totalMins}m
+                              </span>
+                            </div>
+                            <div>
+                              <span className="font-semibold text-gray-700">
+                                Activities Duration:
+                              </span>
+                              <span className="ml-2 text-gray-900">
+                                {timeCalc.usedHours}h {timeCalc.usedMins}m
+                              </span>
+                            </div>
+                            <div>
+                              <span
+                                className={`font-semibold ${
+                                  timeCalc.isOvertime
+                                    ? "text-red-700"
+                                    : "text-green-700"
+                                }`}
+                              >
+                                {timeCalc.isOvertime
+                                  ? "Overtime:"
+                                  : "Time Remaining:"}
+                              </span>
+                              <span
+                                className={`ml-2 font-bold ${
+                                  timeCalc.isOvertime
+                                    ? "text-red-900"
+                                    : "text-green-900"
+                                }`}
+                              >
+                                {timeCalc.isOvertime ? "+" : ""}
+                                {timeCalc.remainingHours}h{" "}
+                                {timeCalc.remainingMins}m
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Day-level transports */}
+                    <div className="mt-4">
+                      <div className="flex items-center justify-between">
+                        <label className="text-sm font-medium text-gray-700">
+                          Day Transports
+                        </label>
+                        <div className="flex items-center gap-2">
+                          {(formData.tourTransports || []).length > 0 && (
+                            <select
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                if (!val) return;
+                                const transportIdx = Number(val);
+                                const sharedTransport =
+                                  formData.tourTransports[transportIdx];
+                                if (sharedTransport) {
+                                  const updated = [...formData.itineraries];
+                                  updated[dayIndex].dayTransports = [
+                                    ...(updated[dayIndex].dayTransports || []),
+                                    {
+                                      isPrimary: false,
+                                      sharedTransportId: transportIdx,
+                                      transportDetails: {
+                                        vehicleType:
+                                          sharedTransport.vehicleType,
+                                        startLocation:
+                                          sharedTransport.startLocation,
+                                        endLocation:
+                                          sharedTransport.endLocation,
+                                        capacity: sharedTransport.capacity,
+                                        included: sharedTransport.included,
+                                        isReusable: false,
+                                        estimatedDuration:
+                                          sharedTransport.estimatedDuration,
+                                      },
+                                    },
+                                  ];
+                                  updateFormData({ itineraries: updated });
+                                }
+                                e.target.value = "";
+                              }}
+                              className="px-2 py-1 border border-blue-300 rounded text-sm bg-white focus:ring-2 focus:ring-blue-500"
+                            >
+                              <option value="">Use Shared Transport</option>
+                              {formData.tourTransports.map((t, idx) => (
+                                <option key={idx} value={idx}>
+                                  {t.vehicleType} • {t.startLocation} →{" "}
+                                  {t.endLocation}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                          <button
+                            type="button"
+                            className="text-sm text-blue-600 hover:text-blue-700"
+                            onClick={() => {
+                              const updated = [...formData.itineraries];
+                              updated[dayIndex].dayTransports = [
+                                ...(updated[dayIndex].dayTransports || []),
+                                {
+                                  isPrimary: false,
+                                  transportDetails: {
+                                    vehicleType: "",
+                                    startLocation: "",
+                                    endLocation: "",
+                                    capacity: undefined,
+                                    included: true,
+                                    isReusable: false,
+                                    estimatedDuration: 120,
+                                  },
+                                },
+                              ];
+                              updateFormData({ itineraries: updated });
+                            }}
+                          >
+                            + Add Custom
+                          </button>
+                        </div>
+                      </div>
+                      {(day.dayTransports || []).length > 0 && (
+                        <div className="mt-2 space-y-3">
+                          {(day.dayTransports || []).map((dt, idx) => (
+                            <div
+                              key={idx}
+                              className="p-3 border border-gray-200 rounded-lg"
+                            >
+                              <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                  <label className="text-xs text-gray-600 block mb-1">
+                                    Vehicle Type
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={
+                                      dt.transportDetails?.vehicleType || ""
+                                    }
+                                    onChange={(e) => {
+                                      const updated = [...formData.itineraries];
+                                      const curr =
+                                        updated[dayIndex].dayTransports[idx];
+                                      curr.transportDetails = {
+                                        ...(curr.transportDetails || {}),
+                                        vehicleType: e.target.value,
+                                      };
+                                      updateFormData({ itineraries: updated });
+                                    }}
+                                    className="w-full px-2 py-2 border border-gray-300 rounded text-sm"
+                                  />
+                                </div>
+                                <div className="flex items-center gap-2 mt-6">
+                                  <label className="text-xs text-gray-600">
+                                    Primary
+                                  </label>
+                                  <input
+                                    type="checkbox"
+                                    checked={!!dt.isPrimary}
+                                    onChange={(e) => {
+                                      const updated = [...formData.itineraries];
+                                      updated[dayIndex].dayTransports[
+                                        idx
+                                      ].isPrimary = e.target.checked;
+                                      updateFormData({ itineraries: updated });
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-2 gap-3 mt-3">
+                                <div>
+                                  <label className="text-xs text-gray-600 block mb-1">
+                                    From
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={
+                                      dt.transportDetails?.startLocation || ""
+                                    }
+                                    onChange={(e) => {
+                                      const updated = [...formData.itineraries];
+                                      const curr =
+                                        updated[dayIndex].dayTransports[idx];
+                                      curr.transportDetails = {
+                                        ...(curr.transportDetails || {}),
+                                        startLocation: e.target.value,
+                                      };
+                                      updateFormData({ itineraries: updated });
+                                    }}
+                                    className="w-full px-2 py-2 border border-gray-300 rounded text-sm"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-xs text-gray-600 block mb-1">
+                                    To
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={
+                                      dt.transportDetails?.endLocation || ""
+                                    }
+                                    onChange={(e) => {
+                                      const updated = [...formData.itineraries];
+                                      const curr =
+                                        updated[dayIndex].dayTransports[idx];
+                                      curr.transportDetails = {
+                                        ...(curr.transportDetails || {}),
+                                        endLocation: e.target.value,
+                                      };
+                                      updateFormData({ itineraries: updated });
+                                    }}
+                                    className="w-full px-2 py-2 border border-gray-300 rounded text-sm"
+                                  />
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-3 gap-3 mt-3">
+                                <div>
+                                  <label className="text-xs text-gray-600 block mb-1">
+                                    Capacity
+                                  </label>
+                                  <input
+                                    type="number"
+                                    value={dt.transportDetails?.capacity ?? ""}
+                                    onChange={(e) => {
+                                      const updated = [...formData.itineraries];
+                                      const curr =
+                                        updated[dayIndex].dayTransports[idx];
+                                      curr.transportDetails = {
+                                        ...(curr.transportDetails || {}),
+                                        capacity: Number(e.target.value || 0),
+                                      };
+                                      updateFormData({ itineraries: updated });
+                                    }}
+                                    className="w-full px-2 py-2 border border-gray-300 rounded text-sm"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-xs text-gray-600 block mb-1">
+                                    Est. Duration (mins)
+                                  </label>
+                                  <input
+                                    type="number"
+                                    value={
+                                      dt.transportDetails?.estimatedDuration ??
+                                      ""
+                                    }
+                                    onChange={(e) => {
+                                      const updated = [...formData.itineraries];
+                                      const curr =
+                                        updated[dayIndex].dayTransports[idx];
+                                      curr.transportDetails = {
+                                        ...(curr.transportDetails || {}),
+                                        estimatedDuration: Number(
+                                          e.target.value || 120
+                                        ),
+                                      };
+                                      updateFormData({ itineraries: updated });
+                                    }}
+                                    className="w-full px-2 py-2 border border-gray-300 rounded text-sm"
+                                  />
+                                </div>
+                                <div className="flex items-end">
+                                  <label className="text-xs text-gray-600 flex items-center gap-2">
+                                    <input
+                                      type="checkbox"
+                                      checked={
+                                        !!dt.transportDetails?.isReusable
+                                      }
+                                      onChange={(e) => {
+                                        const updated = [
+                                          ...formData.itineraries,
+                                        ];
+                                        const curr =
+                                          updated[dayIndex].dayTransports[idx];
+                                        curr.transportDetails = {
+                                          ...(curr.transportDetails || {}),
+                                          isReusable: e.target.checked,
+                                        };
+                                        updateFormData({
+                                          itineraries: updated,
+                                        });
+                                      }}
+                                    />
+                                    Reusable
+                                  </label>
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-2 gap-3 mt-3">
+                                <div>
+                                  <label className="text-xs text-gray-600 block mb-1">
+                                    Reuse from Day
+                                  </label>
+                                  <input
+                                    type="number"
+                                    value={dt.reusedFromDay ?? ""}
+                                    onChange={(e) => {
+                                      const updated = [...formData.itineraries];
+                                      updated[dayIndex].dayTransports[
+                                        idx
+                                      ].reusedFromDay = Number(
+                                        e.target.value || 0
+                                      );
+                                      updateFormData({ itineraries: updated });
+                                    }}
+                                    className="w-full px-2 py-2 border border-gray-300 rounded text-sm"
+                                  />
+                                </div>
+                                <div className="flex justify-end items-center">
+                                  <button
+                                    type="button"
+                                    className="text-sm text-red-600 hover:text-red-700"
+                                    onClick={() => {
+                                      const updated = [...formData.itineraries];
+                                      updated[dayIndex].dayTransports = updated[
+                                        dayIndex
+                                      ].dayTransports.filter(
+                                        (_, i) => i !== idx
+                                      );
+                                      updateFormData({ itineraries: updated });
+                                    }}
+                                  >
+                                    Remove Transport
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {/* Time Period Sections */}
-                  {['Morning', 'Afternoon', 'Evening'].map(timeOfDay => {
-                    const items = getItemsByTimeOfDay(day.itineraryItems, timeOfDay);
+                  {["Morning", "Afternoon", "Evening"].map((timeOfDay) => {
+                    const items = getItemsByTimeOfDay(
+                      day.itineraryItems,
+                      timeOfDay
+                    );
                     return (
                       <div key={timeOfDay} className="space-y-3">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <span className="text-lg">{getTimeIcon(timeOfDay)}</span>
-                            <span className="font-semibold text-gray-800">{timeOfDay}</span>
-                            <span className="text-sm text-gray-500">{items.length} items</span>
+                            <span className="text-lg">
+                              {getTimeIcon(timeOfDay)}
+                            </span>
+                            <span className="font-semibold text-gray-800">
+                              {timeOfDay}
+                            </span>
+                            <span className="text-sm text-gray-500">
+                              {items.length} items
+                            </span>
                           </div>
                           <button
                             type="button"
-                            onClick={() => addItem(dayIndex, 'ACTIVITY', timeOfDay)}
+                            onClick={() =>
+                              addItem(dayIndex, "ACTIVITY", timeOfDay)
+                            }
                             className="text-sm text-gray-600 hover:text-blue-600 font-medium"
                           >
                             + Add Item
@@ -442,23 +1028,38 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
                         </div>
 
                         {items.map((item, itemIndex) => {
-                          const actualIndex = day.itineraryItems.findIndex(i => i === item);
-                          const isExpanded = expandedItem[`${dayIndex}-${actualIndex}`];
-                          
+                          const actualIndex = day.itineraryItems.findIndex(
+                            (i) => i === item
+                          );
+                          const isExpanded =
+                            expandedItem[`${dayIndex}-${actualIndex}`];
+
                           return (
-                            <div key={actualIndex} className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                            <div
+                              key={actualIndex}
+                              className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm"
+                            >
                               <div
                                 className="p-4 cursor-pointer hover:bg-gray-50 transition-colors"
-                                onClick={() => toggleItemExpand(dayIndex, actualIndex)}
+                                onClick={() =>
+                                  toggleItemExpand(dayIndex, actualIndex)
+                                }
                               >
                                 <div className="flex items-start justify-between mb-2">
                                   <div className="flex items-center gap-2">
-                                    <span className="text-sm font-medium text-gray-500">🎯</span>
+                                    <span className="text-sm font-medium text-gray-500">
+                                      🎯
+                                    </span>
                                     <select
                                       value={item.type}
                                       onChange={(e) => {
                                         e.stopPropagation();
-                                        updateItem(dayIndex, actualIndex, 'type', e.target.value);
+                                        updateItem(
+                                          dayIndex,
+                                          actualIndex,
+                                          "type",
+                                          e.target.value
+                                        );
                                       }}
                                       onClick={(e) => e.stopPropagation()}
                                       className="text-sm font-medium text-gray-700 border-none bg-transparent focus:outline-none cursor-pointer"
@@ -466,7 +1067,6 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
                                       <option value="ACTIVITY">Activity</option>
                                       <option value="MEAL">Meal</option>
                                       <option value="STAY">Stay</option>
-                                      <option value="TRANSPORT">Transport</option>
                                       <option value="OTHER">Other</option>
                                     </select>
                                   </div>
@@ -485,14 +1085,20 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
                                 <div className="grid grid-cols-2 gap-3 mb-3">
                                   <div>
                                     <label className="text-xs text-gray-600 block mb-1">
-                                      Name <span className="text-red-500">*</span>
+                                      Name{" "}
+                                      <span className="text-red-500">*</span>
                                     </label>
                                     <input
                                       type="text"
                                       value={item.name}
                                       onChange={(e) => {
                                         e.stopPropagation();
-                                        updateItem(dayIndex, actualIndex, 'name', e.target.value);
+                                        updateItem(
+                                          dayIndex,
+                                          actualIndex,
+                                          "name",
+                                          e.target.value
+                                        );
                                       }}
                                       onClick={(e) => e.stopPropagation()}
                                       placeholder="Item name"
@@ -500,13 +1106,20 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
                                     />
                                   </div>
                                   <div>
-                                    <label className="text-xs text-gray-600 block mb-1">Location</label>
+                                    <label className="text-xs text-gray-600 block mb-1">
+                                      Location
+                                    </label>
                                     <input
                                       type="text"
-                                      value={item.location || ''}
+                                      value={item.location || ""}
                                       onChange={(e) => {
                                         e.stopPropagation();
-                                        updateItem(dayIndex, actualIndex, 'location', e.target.value);
+                                        updateItem(
+                                          dayIndex,
+                                          actualIndex,
+                                          "location",
+                                          e.target.value
+                                        );
                                       }}
                                       onClick={(e) => e.stopPropagation()}
                                       placeholder="Location (optional)"
@@ -517,13 +1130,19 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
 
                                 <div>
                                   <label className="text-xs text-gray-600 block mb-1">
-                                    Description <span className="text-red-500">*</span>
+                                    Description{" "}
+                                    <span className="text-red-500">*</span>
                                   </label>
                                   <textarea
                                     value={item.description}
                                     onChange={(e) => {
                                       e.stopPropagation();
-                                      updateItem(dayIndex, actualIndex, 'description', e.target.value);
+                                      updateItem(
+                                        dayIndex,
+                                        actualIndex,
+                                        "description",
+                                        e.target.value
+                                      );
                                     }}
                                     onClick={(e) => e.stopPropagation()}
                                     placeholder="Describe this activity"
@@ -535,14 +1154,20 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
                                 <div className="grid grid-cols-3 gap-3 mt-3">
                                   <div>
                                     <label className="text-xs text-gray-600 block mb-1">
-                                      Duration (min) <span className="text-red-500">*</span>
+                                      Duration (min){" "}
+                                      <span className="text-red-500">*</span>
                                     </label>
                                     <input
                                       type="number"
                                       value={item.duration}
                                       onChange={(e) => {
                                         e.stopPropagation();
-                                        updateItem(dayIndex, actualIndex, 'duration', e.target.value);
+                                        updateItem(
+                                          dayIndex,
+                                          actualIndex,
+                                          "duration",
+                                          e.target.value
+                                        );
                                       }}
                                       onClick={(e) => e.stopPropagation()}
                                       placeholder="120"
@@ -552,14 +1177,20 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
                                   </div>
                                   <div>
                                     <label className="text-xs text-gray-600 block mb-1">
-                                      Price (PKR) <span className="text-red-500">*</span>
+                                      Price (PKR){" "}
+                                      <span className="text-red-500">*</span>
                                     </label>
                                     <input
                                       type="number"
                                       value={item.price}
                                       onChange={(e) => {
                                         e.stopPropagation();
-                                        updateItem(dayIndex, actualIndex, 'price', e.target.value);
+                                        updateItem(
+                                          dayIndex,
+                                          actualIndex,
+                                          "price",
+                                          e.target.value
+                                        );
                                       }}
                                       onClick={(e) => e.stopPropagation()}
                                       placeholder="0"
@@ -568,17 +1199,68 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
                                     />
                                   </div>
                                   <div>
-                                    <label className="text-xs text-gray-600 block mb-1">Sort Order</label>
+                                    <label className="text-xs text-gray-600 block mb-1">
+                                      Sort Order
+                                    </label>
                                     <input
                                       type="number"
                                       value={item.sortOrder || 0}
                                       onChange={(e) => {
                                         e.stopPropagation();
-                                        updateItem(dayIndex, actualIndex, 'sortOrder', e.target.value);
+                                        updateItem(
+                                          dayIndex,
+                                          actualIndex,
+                                          "sortOrder",
+                                          e.target.value
+                                        );
                                       }}
                                       onClick={(e) => e.stopPropagation()}
                                       placeholder="1"
                                       min="0"
+                                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
+                                  </div>
+                                </div>
+
+                                {/* Item timing */}
+                                <div className="grid grid-cols-2 gap-3 mt-3">
+                                  <div>
+                                    <label className="text-xs text-gray-600 block mb-1">
+                                      Start Time (HH:mm)
+                                    </label>
+                                    <input
+                                      type="time"
+                                      value={item.startTime || ""}
+                                      onChange={(e) => {
+                                        e.stopPropagation();
+                                        updateItem(
+                                          dayIndex,
+                                          actualIndex,
+                                          "startTime",
+                                          e.target.value
+                                        );
+                                      }}
+                                      onClick={(e) => e.stopPropagation()}
+                                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="text-xs text-gray-600 block mb-1">
+                                      End Time (HH:mm)
+                                    </label>
+                                    <input
+                                      type="time"
+                                      value={item.endTime || ""}
+                                      onChange={(e) => {
+                                        e.stopPropagation();
+                                        updateItem(
+                                          dayIndex,
+                                          actualIndex,
+                                          "endTime",
+                                          e.target.value
+                                        );
+                                      }}
+                                      onClick={(e) => e.stopPropagation()}
                                       className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     />
                                   </div>
@@ -591,12 +1273,19 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
                                       checked={item.optional}
                                       onChange={(e) => {
                                         e.stopPropagation();
-                                        updateItem(dayIndex, actualIndex, 'optional', e.target.checked);
+                                        updateItem(
+                                          dayIndex,
+                                          actualIndex,
+                                          "optional",
+                                          e.target.checked
+                                        );
                                       }}
                                       onClick={(e) => e.stopPropagation()}
                                       className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                                     />
-                                    <span className="text-sm text-gray-700">Optional</span>
+                                    <span className="text-sm text-gray-700">
+                                      Optional
+                                    </span>
                                   </label>
                                   <label className="flex items-center gap-2 cursor-pointer">
                                     <input
@@ -604,46 +1293,72 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
                                       checked={item.isAddOn}
                                       onChange={(e) => {
                                         e.stopPropagation();
-                                        updateItem(dayIndex, actualIndex, 'isAddOn', e.target.checked);
+                                        updateItem(
+                                          dayIndex,
+                                          actualIndex,
+                                          "isAddOn",
+                                          e.target.checked
+                                        );
                                       }}
                                       onClick={(e) => e.stopPropagation()}
                                       className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                                     />
-                                    <span className="text-sm text-gray-700">Add-on</span>
+                                    <span className="text-sm text-gray-700">
+                                      Add-on
+                                    </span>
                                   </label>
                                 </div>
 
                                 {/* MEAL DETAILS */}
-                                {item.type === 'MEAL' && item.mealDetails && (
+                                {item.type === "MEAL" && item.mealDetails && (
                                   <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                                    <p className="text-xs font-semibold text-blue-900 mb-3">Meal Details</p>
+                                    <p className="text-xs font-semibold text-blue-900 mb-3">
+                                      Meal Details
+                                    </p>
                                     <div className="grid grid-cols-2 gap-3">
                                       <div>
-                                        <label className="text-xs text-gray-600 block mb-1">Meal Type</label>
+                                        <label className="text-xs text-gray-600 block mb-1">
+                                          Meal Type
+                                        </label>
                                         <select
                                           value={item.mealDetails.mealType}
                                           onChange={(e) => {
                                             e.stopPropagation();
-                                            updateItem(dayIndex, actualIndex, 'mealDetails.mealType', e.target.value);
+                                            updateItem(
+                                              dayIndex,
+                                              actualIndex,
+                                              "mealDetails.mealType",
+                                              e.target.value
+                                            );
                                           }}
                                           onClick={(e) => e.stopPropagation()}
                                           className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500"
                                         >
-                                          <option value="BREAKFAST">Breakfast</option>
+                                          <option value="BREAKFAST">
+                                            Breakfast
+                                          </option>
                                           <option value="LUNCH">Lunch</option>
                                           <option value="DINNER">Dinner</option>
                                         </select>
                                       </div>
                                       <div>
                                         <label className="text-xs text-gray-600 block mb-1">
-                                          Cuisine <span className="text-red-500">*</span>
+                                          Cuisine{" "}
+                                          <span className="text-red-500">
+                                            *
+                                          </span>
                                         </label>
                                         <input
                                           type="text"
                                           value={item.mealDetails.cuisine}
                                           onChange={(e) => {
                                             e.stopPropagation();
-                                            updateItem(dayIndex, actualIndex, 'mealDetails.cuisine', e.target.value);
+                                            updateItem(
+                                              dayIndex,
+                                              actualIndex,
+                                              "mealDetails.cuisine",
+                                              e.target.value
+                                            );
                                           }}
                                           onClick={(e) => e.stopPropagation()}
                                           placeholder="e.g., Pakistani"
@@ -658,49 +1373,147 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
                                           checked={item.mealDetails.included}
                                           onChange={(e) => {
                                             e.stopPropagation();
-                                            updateItem(dayIndex, actualIndex, 'mealDetails.included', e.target.checked);
+                                            updateItem(
+                                              dayIndex,
+                                              actualIndex,
+                                              "mealDetails.included",
+                                              e.target.checked
+                                            );
                                           }}
                                           onClick={(e) => e.stopPropagation()}
                                           className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                                         />
-                                        <span className="text-sm text-gray-700">Included in package</span>
+                                        <span className="text-sm text-gray-700">
+                                          Included in package
+                                        </span>
                                       </label>
                                     </div>
                                   </div>
                                 )}
 
                                 {/* STAY DETAILS */}
-                                {item.type === 'STAY' && item.stayDetails && (
+                                {item.type === "STAY" && item.stayDetails && (
                                   <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-100">
-                                    <p className="text-xs font-semibold text-green-900 mb-3">Stay Details</p>
+                                    <p className="text-xs font-semibold text-green-900 mb-3">
+                                      Stay Details
+                                    </p>
                                     <div className="space-y-3">
+                                      {/* Option to use tour-level stay */}
+                                      {formData.tourStays &&
+                                        formData.tourStays.length > 0 && (
+                                          <div className="mb-3 p-2 bg-blue-50 rounded border border-blue-200">
+                                            <label className="text-xs text-gray-700 block mb-2 font-medium">
+                                              Use Tour-Level Stay (from Basic
+                                              Info)
+                                            </label>
+                                            <select
+                                              onChange={(e) => {
+                                                e.stopPropagation();
+                                                const selectedStayId =
+                                                  e.target.value;
+                                                if (selectedStayId === "custom")
+                                                  return;
+
+                                                const tourStay =
+                                                  formData.tourStays.find(
+                                                    (s) =>
+                                                      s.hotelName ===
+                                                      selectedStayId
+                                                  );
+                                                if (tourStay) {
+                                                  updateItem(
+                                                    dayIndex,
+                                                    actualIndex,
+                                                    "stayDetails",
+                                                    {
+                                                      stayType:
+                                                        tourStay.stayType,
+                                                      hotelName:
+                                                        tourStay.hotelName,
+                                                      roomType:
+                                                        tourStay.stayDetails
+                                                          ?.roomType || "",
+                                                      rating:
+                                                        tourStay.rating || 4,
+                                                      checkInTime:
+                                                        tourStay.stayDetails
+                                                          ?.checkInTime || "",
+                                                      checkOutTime:
+                                                        tourStay.stayDetails
+                                                          ?.checkOutTime || "",
+                                                    }
+                                                  );
+                                                }
+                                              }}
+                                              onClick={(e) =>
+                                                e.stopPropagation()
+                                              }
+                                              className="w-full px-2 py-2 border border-blue-300 rounded text-sm focus:ring-2 focus:ring-blue-500 bg-white"
+                                            >
+                                              <option value="custom">
+                                                Add Custom Stay
+                                              </option>
+                                              {formData.tourStays.map(
+                                                (stay, idx) => (
+                                                  <option
+                                                    key={idx}
+                                                    value={stay.hotelName}
+                                                  >
+                                                    {stay.hotelName} (
+                                                    {stay.stayType}) - Days{" "}
+                                                    {stay.checkInDay} to{" "}
+                                                    {stay.checkOutDay}
+                                                  </option>
+                                                )
+                                              )}
+                                            </select>
+                                          </div>
+                                        )}
+
                                       <div>
-                                        <label className="text-xs text-gray-600 block mb-1">Stay Type</label>
+                                        <label className="text-xs text-gray-600 block mb-1">
+                                          Stay Type
+                                        </label>
                                         <select
                                           value={item.stayDetails.stayType}
                                           onChange={(e) => {
                                             e.stopPropagation();
-                                            updateItem(dayIndex, actualIndex, 'stayDetails.stayType', e.target.value);
+                                            updateItem(
+                                              dayIndex,
+                                              actualIndex,
+                                              "stayDetails.stayType",
+                                              e.target.value
+                                            );
                                           }}
                                           onClick={(e) => e.stopPropagation()}
                                           className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-green-500"
                                         >
                                           <option value="HOTEL">Hotel</option>
-                                          <option value="GUESTHOUSE">Guesthouse</option>
+                                          <option value="GUESTHOUSE">
+                                            Guesthouse
+                                          </option>
                                           <option value="CAMP">Camp</option>
                                           <option value="OTHER">Other</option>
                                         </select>
                                       </div>
                                       <div>
                                         <label className="text-xs text-gray-600 block mb-1">
-                                          Hotel/Stay Name <span className="text-red-500">*</span>
+                                          Hotel/Stay Name{" "}
+                                          <span className="text-red-500">
+                                            *
+                                          </span>
                                         </label>
                                         <input
                                           type="text"
                                           value={item.stayDetails.hotelName}
                                           onChange={(e) => {
                                             e.stopPropagation();
-                                            updateItem(dayIndex, actualIndex, 'stayDetails.hotelName', e.target.value);
+                                            updateItem(
+                                              dayIndex,
+                                              actualIndex,
+                                              "stayDetails.hotelName",
+                                              e.target.value
+                                            );
                                           }}
                                           onClick={(e) => e.stopPropagation()}
                                           placeholder="Hotel name"
@@ -710,14 +1523,22 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
                                       <div className="grid grid-cols-2 gap-3">
                                         <div>
                                           <label className="text-xs text-gray-600 block mb-1">
-                                            Room Type <span className="text-red-500">*</span>
+                                            Room Type{" "}
+                                            <span className="text-red-500">
+                                              *
+                                            </span>
                                           </label>
                                           <input
                                             type="text"
                                             value={item.stayDetails.roomType}
                                             onChange={(e) => {
                                               e.stopPropagation();
-                                              updateItem(dayIndex, actualIndex, 'stayDetails.roomType', e.target.value);
+                                              updateItem(
+                                                dayIndex,
+                                                actualIndex,
+                                                "stayDetails.roomType",
+                                                e.target.value
+                                              );
                                             }}
                                             onClick={(e) => e.stopPropagation()}
                                             placeholder="e.g., Standard"
@@ -726,14 +1547,22 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
                                         </div>
                                         <div>
                                           <label className="text-xs text-gray-600 block mb-1">
-                                            Rating (0-5) <span className="text-red-500">*</span>
+                                            Rating (0-5){" "}
+                                            <span className="text-red-500">
+                                              *
+                                            </span>
                                           </label>
                                           <input
                                             type="number"
                                             value={item.stayDetails.rating}
                                             onChange={(e) => {
                                               e.stopPropagation();
-                                              updateItem(dayIndex, actualIndex, 'stayDetails.rating', e.target.value);
+                                              updateItem(
+                                                dayIndex,
+                                                actualIndex,
+                                                "stayDetails.rating",
+                                                e.target.value
+                                              );
                                             }}
                                             onClick={(e) => e.stopPropagation()}
                                             placeholder="4"
@@ -746,26 +1575,45 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
                                       </div>
                                       <div className="grid grid-cols-2 gap-3">
                                         <div>
-                                          <label className="text-xs text-gray-600 block mb-1">Check-in Time</label>
+                                          <label className="text-xs text-gray-600 block mb-1">
+                                            Check-in Time
+                                          </label>
                                           <input
                                             type="time"
-                                            value={item.stayDetails.checkInTime || ''}
+                                            value={
+                                              item.stayDetails.checkInTime || ""
+                                            }
                                             onChange={(e) => {
                                               e.stopPropagation();
-                                              updateItem(dayIndex, actualIndex, 'stayDetails.checkInTime', e.target.value);
+                                              updateItem(
+                                                dayIndex,
+                                                actualIndex,
+                                                "stayDetails.checkInTime",
+                                                e.target.value
+                                              );
                                             }}
                                             onClick={(e) => e.stopPropagation()}
                                             className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-green-500"
                                           />
                                         </div>
                                         <div>
-                                          <label className="text-xs text-gray-600 block mb-1">Check-out Time</label>
+                                          <label className="text-xs text-gray-600 block mb-1">
+                                            Check-out Time
+                                          </label>
                                           <input
                                             type="time"
-                                            value={item.stayDetails.checkOutTime || ''}
+                                            value={
+                                              item.stayDetails.checkOutTime ||
+                                              ""
+                                            }
                                             onChange={(e) => {
                                               e.stopPropagation();
-                                              updateItem(dayIndex, actualIndex, 'stayDetails.checkOutTime', e.target.value);
+                                              updateItem(
+                                                dayIndex,
+                                                actualIndex,
+                                                "stayDetails.checkOutTime",
+                                                e.target.value
+                                              );
                                             }}
                                             onClick={(e) => e.stopPropagation()}
                                             className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-green-500"
@@ -777,95 +1625,513 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
                                 )}
 
                                 {/* TRANSPORT DETAILS */}
-                                {item.type === 'TRANSPORT' && item.transportDetails && (
-                                  <div className="mt-4 p-3 bg-purple-50 rounded-lg border border-purple-100">
-                                    <p className="text-xs font-semibold text-purple-900 mb-3">Transport Details</p>
-                                    <div className="space-y-3">
-                                      <div>
-                                        <label className="text-xs text-gray-600 block mb-1">
-                                          Vehicle Type <span className="text-red-500">*</span>
-                                        </label>
-                                        <input
-                                          type="text"
-                                          value={item.transportDetails.vehicleType}
-                                          onChange={(e) => {
-                                            e.stopPropagation();
-                                            updateItem(dayIndex, actualIndex, 'transportDetails.vehicleType', e.target.value);
-                                          }}
-                                          onClick={(e) => e.stopPropagation()}
-                                          placeholder="e.g., Bus, Car, Train"
-                                          className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-purple-500"
-                                        />
-                                      </div>
-                                      <div className="grid grid-cols-2 gap-3">
+                                {item.type === "TRANSPORT" &&
+                                  item.transportDetails && (
+                                    <div className="mt-4 p-3 bg-purple-50 rounded-lg border border-purple-100">
+                                      <p className="text-xs font-semibold text-purple-900 mb-3">
+                                        Transport Details
+                                      </p>
+                                      <div className="space-y-3">
                                         <div>
                                           <label className="text-xs text-gray-600 block mb-1">
-                                            From <span className="text-red-500">*</span>
+                                            Vehicle Type{" "}
+                                            <span className="text-red-500">
+                                              *
+                                            </span>
                                           </label>
                                           <input
                                             type="text"
-                                            value={item.transportDetails.startLocation}
+                                            value={
+                                              item.transportDetails.vehicleType
+                                            }
                                             onChange={(e) => {
                                               e.stopPropagation();
-                                              updateItem(dayIndex, actualIndex, 'transportDetails.startLocation', e.target.value);
+                                              updateItem(
+                                                dayIndex,
+                                                actualIndex,
+                                                "transportDetails.vehicleType",
+                                                e.target.value
+                                              );
                                             }}
                                             onClick={(e) => e.stopPropagation()}
-                                            placeholder="Start location"
+                                            placeholder="e.g., Bus, Car, Train"
+                                            className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-purple-500"
+                                          />
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-3">
+                                          <div>
+                                            <label className="text-xs text-gray-600 block mb-1">
+                                              From{" "}
+                                              <span className="text-red-500">
+                                                *
+                                              </span>
+                                            </label>
+                                            <input
+                                              type="text"
+                                              value={
+                                                item.transportDetails
+                                                  .startLocation
+                                              }
+                                              onChange={(e) => {
+                                                e.stopPropagation();
+                                                updateItem(
+                                                  dayIndex,
+                                                  actualIndex,
+                                                  "transportDetails.startLocation",
+                                                  e.target.value
+                                                );
+                                              }}
+                                              onClick={(e) =>
+                                                e.stopPropagation()
+                                              }
+                                              placeholder="Start location"
+                                              className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-purple-500"
+                                            />
+                                          </div>
+                                          <div>
+                                            <label className="text-xs text-gray-600 block mb-1">
+                                              To{" "}
+                                              <span className="text-red-500">
+                                                *
+                                              </span>
+                                            </label>
+                                            <input
+                                              type="text"
+                                              value={
+                                                item.transportDetails
+                                                  .endLocation
+                                              }
+                                              onChange={(e) => {
+                                                e.stopPropagation();
+                                                updateItem(
+                                                  dayIndex,
+                                                  actualIndex,
+                                                  "transportDetails.endLocation",
+                                                  e.target.value
+                                                );
+                                              }}
+                                              onClick={(e) =>
+                                                e.stopPropagation()
+                                              }
+                                              placeholder="End location"
+                                              className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-purple-500"
+                                            />
+                                          </div>
+                                        </div>
+                                        <div>
+                                          <label className="text-xs text-gray-600 block mb-1">
+                                            Est. Duration (min){" "}
+                                            <span className="text-red-500">
+                                              *
+                                            </span>
+                                          </label>
+                                          <input
+                                            type="number"
+                                            value={
+                                              item.transportDetails
+                                                .estimatedDuration
+                                            }
+                                            onChange={(e) => {
+                                              e.stopPropagation();
+                                              updateItem(
+                                                dayIndex,
+                                                actualIndex,
+                                                "transportDetails.estimatedDuration",
+                                                e.target.value
+                                              );
+                                            }}
+                                            onClick={(e) => e.stopPropagation()}
+                                            placeholder="120"
+                                            min="1"
                                             className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-purple-500"
                                           />
                                         </div>
                                         <div>
-                                          <label className="text-xs text-gray-600 block mb-1">
-                                            To <span className="text-red-500">*</span>
+                                          <label className="flex items-center gap-2 cursor-pointer">
+                                            <input
+                                              type="checkbox"
+                                              checked={
+                                                item.transportDetails.included
+                                              }
+                                              onChange={(e) => {
+                                                e.stopPropagation();
+                                                updateItem(
+                                                  dayIndex,
+                                                  actualIndex,
+                                                  "transportDetails.included",
+                                                  e.target.checked
+                                                );
+                                              }}
+                                              onClick={(e) =>
+                                                e.stopPropagation()
+                                              }
+                                              className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                                            />
+                                            <span className="text-sm text-gray-700">
+                                              Included in package
+                                            </span>
                                           </label>
-                                          <input
-                                            type="text"
-                                            value={item.transportDetails.endLocation}
-                                            onChange={(e) => {
-                                              e.stopPropagation();
-                                              updateItem(dayIndex, actualIndex, 'transportDetails.endLocation', e.target.value);
-                                            }}
-                                            onClick={(e) => e.stopPropagation()}
-                                            placeholder="End location"
-                                            className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-purple-500"
-                                          />
                                         </div>
-                                      </div>
-                                      <div>
-                                        <label className="text-xs text-gray-600 block mb-1">
-                                          Est. Duration (min) <span className="text-red-500">*</span>
-                                        </label>
-                                        <input
-                                          type="number"
-                                          value={item.transportDetails.estimatedDuration}
-                                          onChange={(e) => {
-                                            e.stopPropagation();
-                                            updateItem(dayIndex, actualIndex, 'transportDetails.estimatedDuration', e.target.value);
-                                          }}
-                                          onClick={(e) => e.stopPropagation()}
-                                          placeholder="120"
-                                          min="1"
-                                          className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-purple-500"
-                                        />
-                                      </div>
-                                      <div>
-                                        <label className="flex items-center gap-2 cursor-pointer">
-                                          <input
-                                            type="checkbox"
-                                            checked={item.transportDetails.included}
-                                            onChange={(e) => {
-                                              e.stopPropagation();
-                                              updateItem(dayIndex, actualIndex, 'transportDetails.included', e.target.checked);
-                                            }}
-                                            onClick={(e) => e.stopPropagation()}
-                                            className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
-                                          />
-                                          <span className="text-sm text-gray-700">Included in package</span>
-                                        </label>
                                       </div>
                                     </div>
+                                  )}
+
+                                {/* Activity-specific transport linkage */}
+                                <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                  <div className="flex items-center gap-4 flex-wrap mb-3">
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                      <input
+                                        type="checkbox"
+                                        checked={!!item.requiresTransport}
+                                        onChange={(e) => {
+                                          e.stopPropagation();
+                                          updateItem(
+                                            dayIndex,
+                                            actualIndex,
+                                            "requiresTransport",
+                                            e.target.checked
+                                          );
+                                        }}
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                      />
+                                      <span className="text-sm text-gray-700">
+                                        Requires Transport
+                                      </span>
+                                    </label>
+
+                                    {item.requiresTransport && (
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-xs text-gray-600">
+                                          Link Day Transport
+                                        </span>
+                                        <select
+                                          value={
+                                            item.transportId === "custom"
+                                              ? "custom"
+                                              : item.transportId ?? ""
+                                          }
+                                          onChange={(e) => {
+                                            e.stopPropagation();
+                                            const val = e.target.value;
+                                            if (val === "custom") {
+                                              updateItem(
+                                                dayIndex,
+                                                actualIndex,
+                                                "transportId",
+                                                "custom"
+                                              );
+                                              if (!item.customTransport) {
+                                                updateItem(
+                                                  dayIndex,
+                                                  actualIndex,
+                                                  "customTransport",
+                                                  {
+                                                    vehicleType: "",
+                                                    startLocation: "",
+                                                    endLocation: "",
+                                                    capacity: undefined,
+                                                    included: true,
+                                                  }
+                                                );
+                                              }
+                                            } else if (
+                                              val.startsWith("shared-")
+                                            ) {
+                                              const sharedId = val.replace(
+                                                "shared-",
+                                                ""
+                                              );
+                                              updateItem(
+                                                dayIndex,
+                                                actualIndex,
+                                                "transportId",
+                                                `shared-${sharedId}`
+                                              );
+                                              updateItem(
+                                                dayIndex,
+                                                actualIndex,
+                                                "customTransport",
+                                                undefined
+                                              );
+                                            } else {
+                                              updateItem(
+                                                dayIndex,
+                                                actualIndex,
+                                                "transportId",
+                                                val === "" ? null : Number(val)
+                                              );
+                                              updateItem(
+                                                dayIndex,
+                                                actualIndex,
+                                                "customTransport",
+                                                undefined
+                                              );
+                                            }
+                                          }}
+                                          onClick={(e) => e.stopPropagation()}
+                                          className="px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 bg-white"
+                                        >
+                                          <option value="">
+                                            Select a transport
+                                          </option>
+                                          {(formData.tourTransports || [])
+                                            .length > 0 && (
+                                            <optgroup label="Shared Transports">
+                                              {(
+                                                formData.tourTransports || []
+                                              ).map((st, idx) => (
+                                                <option
+                                                  key={idx}
+                                                  value={`shared-${idx}`}
+                                                >
+                                                  {st.vehicleType} •{" "}
+                                                  {st.startLocation} →{" "}
+                                                  {st.endLocation}
+                                                </option>
+                                              ))}
+                                            </optgroup>
+                                          )}
+                                          {(day.dayTransports || []).length >
+                                            0 && (
+                                            <optgroup label="Day Transports">
+                                              {(day.dayTransports || []).map(
+                                                (dt, idx) => (
+                                                  <option
+                                                    key={idx}
+                                                    value={idx + 1}
+                                                  >
+                                                    #{idx + 1}{" "}
+                                                    {dt.transportDetails
+                                                      ?.vehicleType ||
+                                                      "Transport"}
+                                                    {dt.transportDetails
+                                                      ?.startLocation
+                                                      ? ` • ${
+                                                          dt.transportDetails
+                                                            .startLocation
+                                                        } → ${
+                                                          dt.transportDetails
+                                                            .endLocation || ""
+                                                        }`
+                                                      : ""}
+                                                  </option>
+                                                )
+                                              )}
+                                            </optgroup>
+                                          )}
+                                          <option value="custom">
+                                            + Add Custom Transport
+                                          </option>
+                                        </select>
+                                      </div>
+                                    )}
                                   </div>
-                                )}
+
+                                  {/* Custom Transport Form */}
+                                  {item.requiresTransport &&
+                                    item.transportId === "custom" &&
+                                    item.customTransport && (
+                                      <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                        <p className="text-xs font-semibold text-blue-900 mb-3">
+                                          Custom Transport Details
+                                        </p>
+                                        <div className="space-y-2">
+                                          <div>
+                                            <label className="text-xs text-gray-600 block mb-1">
+                                              Vehicle Type
+                                            </label>
+                                            <input
+                                              type="text"
+                                              value={
+                                                item.customTransport
+                                                  .vehicleType || ""
+                                              }
+                                              onChange={(e) => {
+                                                e.stopPropagation();
+                                                const updated = [
+                                                  ...formData.itineraries,
+                                                ];
+                                                updated[
+                                                  dayIndex
+                                                ].itineraryItems[
+                                                  actualIndex
+                                                ].customTransport = {
+                                                  ...(updated[dayIndex]
+                                                    .itineraryItems[actualIndex]
+                                                    .customTransport || {}),
+                                                  vehicleType: e.target.value,
+                                                };
+                                                updateFormData({
+                                                  itineraries: updated,
+                                                });
+                                              }}
+                                              onClick={(e) =>
+                                                e.stopPropagation()
+                                              }
+                                              placeholder="e.g., Bus, Car, Van"
+                                              className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500"
+                                            />
+                                          </div>
+                                          <div className="grid grid-cols-2 gap-2">
+                                            <div>
+                                              <label className="text-xs text-gray-600 block mb-1">
+                                                From
+                                              </label>
+                                              <input
+                                                type="text"
+                                                value={
+                                                  item.customTransport
+                                                    .startLocation || ""
+                                                }
+                                                onChange={(e) => {
+                                                  e.stopPropagation();
+                                                  const updated = [
+                                                    ...formData.itineraries,
+                                                  ];
+                                                  updated[
+                                                    dayIndex
+                                                  ].itineraryItems[
+                                                    actualIndex
+                                                  ].customTransport = {
+                                                    ...(updated[dayIndex]
+                                                      .itineraryItems[
+                                                      actualIndex
+                                                    ].customTransport || {}),
+                                                    startLocation:
+                                                      e.target.value,
+                                                  };
+                                                  updateFormData({
+                                                    itineraries: updated,
+                                                  });
+                                                }}
+                                                onClick={(e) =>
+                                                  e.stopPropagation()
+                                                }
+                                                placeholder="Start location"
+                                                className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500"
+                                              />
+                                            </div>
+                                            <div>
+                                              <label className="text-xs text-gray-600 block mb-1">
+                                                To
+                                              </label>
+                                              <input
+                                                type="text"
+                                                value={
+                                                  item.customTransport
+                                                    .endLocation || ""
+                                                }
+                                                onChange={(e) => {
+                                                  e.stopPropagation();
+                                                  const updated = [
+                                                    ...formData.itineraries,
+                                                  ];
+                                                  updated[
+                                                    dayIndex
+                                                  ].itineraryItems[
+                                                    actualIndex
+                                                  ].customTransport = {
+                                                    ...(updated[dayIndex]
+                                                      .itineraryItems[
+                                                      actualIndex
+                                                    ].customTransport || {}),
+                                                    endLocation: e.target.value,
+                                                  };
+                                                  updateFormData({
+                                                    itineraries: updated,
+                                                  });
+                                                }}
+                                                onClick={(e) =>
+                                                  e.stopPropagation()
+                                                }
+                                                placeholder="End location"
+                                                className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500"
+                                              />
+                                            </div>
+                                          </div>
+                                          <div>
+                                            <label className="text-xs text-gray-600 block mb-1">
+                                              Capacity (optional)
+                                            </label>
+                                            <input
+                                              type="number"
+                                              value={
+                                                item.customTransport.capacity ??
+                                                ""
+                                              }
+                                              onChange={(e) => {
+                                                e.stopPropagation();
+                                                const updated = [
+                                                  ...formData.itineraries,
+                                                ];
+                                                updated[
+                                                  dayIndex
+                                                ].itineraryItems[
+                                                  actualIndex
+                                                ].customTransport = {
+                                                  ...(updated[dayIndex]
+                                                    .itineraryItems[actualIndex]
+                                                    .customTransport || {}),
+                                                  capacity: Number(
+                                                    e.target.value || 0
+                                                  ),
+                                                };
+                                                updateFormData({
+                                                  itineraries: updated,
+                                                });
+                                              }}
+                                              onClick={(e) =>
+                                                e.stopPropagation()
+                                              }
+                                              placeholder="e.g., 50"
+                                              className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500"
+                                            />
+                                          </div>
+                                          <label className="flex items-center gap-2 cursor-pointer mt-2">
+                                            <input
+                                              type="checkbox"
+                                              checked={
+                                                item.customTransport.included ??
+                                                true
+                                              }
+                                              onChange={(e) => {
+                                                e.stopPropagation();
+                                                const updated = [
+                                                  ...formData.itineraries,
+                                                ];
+                                                updated[
+                                                  dayIndex
+                                                ].itineraryItems[
+                                                  actualIndex
+                                                ].customTransport = {
+                                                  ...(updated[dayIndex]
+                                                    .itineraryItems[actualIndex]
+                                                    .customTransport || {}),
+                                                  included: e.target.checked,
+                                                };
+                                                updateFormData({
+                                                  itineraries: updated,
+                                                });
+                                              }}
+                                              onClick={(e) =>
+                                                e.stopPropagation()
+                                              }
+                                              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                            />
+                                            <span className="text-sm text-gray-700">
+                                              Included in package
+                                            </span>
+                                          </label>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                  <p className="mt-2 text-xs text-gray-500">
+                                    Select from day transports or add a custom
+                                    transport for this activity.
+                                  </p>
+                                </div>
                               </div>
                             </div>
                           );
@@ -881,10 +2147,17 @@ export default function ItineraryStep({ formData, updateFormData, onNext, onPrev
       )}
 
       <div className="flex justify-between mt-8 pt-6 border-t border-gray-200">
-        <button type="button" onClick={onPrev} className="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium">
+        <button
+          type="button"
+          onClick={onPrev}
+          className="px-6 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium"
+        >
           ← Previous
         </button>
-        <button type="submit" className="px-8 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+        <button
+          type="submit"
+          className="px-8 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+        >
           Next →
         </button>
       </div>

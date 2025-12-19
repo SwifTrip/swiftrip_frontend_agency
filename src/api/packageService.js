@@ -3,14 +3,14 @@ import axios from "axios";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const getAuthHeader = () => {
-  const token = localStorage.getItem('access_token');
+  const token = localStorage.getItem("access_token");
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
 export async function getPackages() {
   try {
     const response = await axios.get(`${API_BASE_URL}/packages`, {
-      headers: getAuthHeader()
+      headers: getAuthHeader(),
     });
     return response.data;
   } catch (err) {
@@ -22,7 +22,7 @@ export async function getPackages() {
 export async function getPackageById(id) {
   try {
     const response = await axios.get(`${API_BASE_URL}/package/${id}`, {
-      headers: getAuthHeader()
+      headers: getAuthHeader(),
     });
     return response.data;
   } catch (err) {
@@ -34,27 +34,51 @@ export async function getPackageById(id) {
 export const createPackage = async (packageData) => {
   const formData = new FormData();
 
-  formData.append('companyId', packageData.companyId);
-  formData.append('title', packageData.title);
-  formData.append('description', packageData.description || 'A beautiful tour package');
-  formData.append('category', packageData.category);
-  formData.append('basePrice', packageData.basePrice);
-  formData.append('currency', packageData.currency);
-  formData.append('maxGroupSize', packageData.maxGroupSize);
-  formData.append('status', packageData.status);
+  formData.append("companyId", packageData.companyId);
+  formData.append("title", packageData.title);
+  formData.append(
+    "description",
+    packageData.description || "A beautiful tour package"
+  );
+  formData.append("category", packageData.category);
+  formData.append("basePrice", packageData.basePrice);
+  formData.append("currency", packageData.currency);
+  // Group tour fields
+  if (
+    packageData.maxGroupSize !== undefined &&
+    packageData.maxGroupSize !== null
+  ) {
+    formData.append("maxGroupSize", packageData.maxGroupSize);
+  }
+  if (
+    packageData.minGroupSize !== undefined &&
+    packageData.minGroupSize !== null
+  ) {
+    formData.append("minGroupSize", packageData.minGroupSize);
+  }
+  if (packageData.isPublic !== undefined && packageData.isPublic !== null) {
+    formData.append("isPublic", packageData.isPublic);
+  }
+  if (packageData.bookingDeadline) {
+    formData.append("bookingDeadline", packageData.bookingDeadline);
+  }
+  formData.append("status", packageData.status);
 
   // SAFE JSON
-  formData.append('includes', JSON.stringify(packageData.includes || {}));
-  formData.append('itineraries', JSON.stringify(packageData.itineraries || []));
+  formData.append("includes", JSON.stringify(packageData.includes || {}));
+  // Itineraries with day-level timing & transports
+  formData.append("itineraries", JSON.stringify(packageData.itineraries || []));
+  // Shared stays across days
+  formData.append("tourStays", JSON.stringify(packageData.tourStays || []));
   formData.append("fromLocation", packageData.fromLocation);
   formData.append("toLocation", packageData.toLocation);
   // Media
-  packageData.media?.forEach(m => m.file && formData.append('media', m.file));
+  packageData.media?.forEach((m) => m.file && formData.append("media", m.file));
 
-  const res = await axios.post('http://localhost:3000/api/package/create', formData, {
-    headers: { 
+  const res = await axios.post(`${API_BASE_URL}/package/create`, formData, {
+    headers: {
       ...getAuthHeader(),
-      'Content-Type': 'multipart/form-data',
+      "Content-Type": "multipart/form-data",
     },
   });
 
@@ -79,7 +103,7 @@ export const updatePackage = async (id, formData) => {
 export async function deletePackage(id) {
   try {
     const response = await axios.delete(`${API_BASE_URL}/package/${id}`, {
-      headers: getAuthHeader()
+      headers: getAuthHeader(),
     });
     return response.data;
   } catch (err) {
