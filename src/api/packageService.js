@@ -32,6 +32,13 @@ export async function getPackageById(id) {
 
 // src/api/packageService.js
 export const createPackage = async (packageData) => {
+  console.log("API Service - packageData received:", {
+    departureDate: packageData.departureDate,
+    arrivalDate: packageData.arrivalDate,
+    isPublic: packageData.isPublic,
+    maxGroupSize: packageData.maxGroupSize,
+  });
+
   const formData = new FormData();
 
   formData.append("companyId", packageData.companyId);
@@ -58,6 +65,12 @@ export const createPackage = async (packageData) => {
   }
   if (packageData.isPublic !== undefined && packageData.isPublic !== null) {
     formData.append("isPublic", packageData.isPublic);
+  }
+  if (packageData.departureDate) {
+    formData.append("departureDate", packageData.departureDate);
+  }
+  if (packageData.arrivalDate) {
+    formData.append("arrivalDate", packageData.arrivalDate);
   }
   if (packageData.bookingDeadline) {
     formData.append("bookingDeadline", packageData.bookingDeadline);
@@ -86,15 +99,91 @@ export const createPackage = async (packageData) => {
 };
 
 // Update package
-export const updatePackage = async (id, formData) => {
+export const updatePackage = async (id, packageData) => {
   try {
-    const res = await axios.put(`${API_BASE_URL}/package/${id}`, formData, {
-      headers: {
-        ...getAuthHeader(),
-      },
-    });
+    console.log("=== UPDATE PACKAGE START ===");
+    console.log("Package ID:", id);
+    console.log("Package Data to send:", packageData);
+
+    const formData = new FormData();
+
+    if (packageData.companyId)
+      formData.append("companyId", packageData.companyId);
+    if (packageData.title) formData.append("title", packageData.title);
+    if (packageData.description)
+      formData.append("description", packageData.description);
+    if (packageData.category) formData.append("category", packageData.category);
+
+    if (packageData.basePrice !== undefined)
+      formData.append("basePrice", packageData.basePrice);
+    if (packageData.currency) formData.append("currency", packageData.currency);
+
+    if (
+      packageData.maxGroupSize !== undefined &&
+      packageData.maxGroupSize !== null
+    )
+      formData.append("maxGroupSize", packageData.maxGroupSize);
+    if (
+      packageData.minGroupSize !== undefined &&
+      packageData.minGroupSize !== null
+    )
+      formData.append("minGroupSize", packageData.minGroupSize);
+    if (packageData.isPublic !== undefined && packageData.isPublic !== null)
+      formData.append("isPublic", packageData.isPublic);
+    if (packageData.departureDate)
+      formData.append("departureDate", packageData.departureDate);
+    if (packageData.arrivalDate)
+      formData.append("arrivalDate", packageData.arrivalDate);
+    if (packageData.bookingDeadline)
+      formData.append("bookingDeadline", packageData.bookingDeadline);
+    if (packageData.status) formData.append("status", packageData.status);
+
+    if (packageData.includes !== undefined)
+      formData.append("includes", JSON.stringify(packageData.includes || {}));
+    if (packageData.itineraries !== undefined) {
+      console.log("Sending itineraries:", packageData.itineraries);
+      formData.append(
+        "itineraries",
+        JSON.stringify(packageData.itineraries || [])
+      );
+    }
+    if (packageData.tourStays !== undefined)
+      formData.append("tourStays", JSON.stringify(packageData.tourStays || []));
+    if (packageData.keepMedia !== undefined)
+      formData.append("keepMedia", JSON.stringify(packageData.keepMedia || []));
+
+    if (packageData.fromLocation)
+      formData.append("fromLocation", packageData.fromLocation);
+    if (packageData.toLocation)
+      formData.append("toLocation", packageData.toLocation);
+
+    // New media uploads
+    packageData.media?.forEach(
+      (m) => m.file && formData.append("media", m.file)
+    );
+
+    console.log(
+      "FormData ready, sending to:",
+      `${API_BASE_URL}/package/update/${id}`
+    );
+
+    const res = await axios.put(
+      `${API_BASE_URL}/package/update/${id}`,
+      formData,
+      {
+        headers: {
+          ...getAuthHeader(),
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    console.log("✅ Update response SUCCESS:", res.data);
     return res.data;
   } catch (err) {
+    console.error("❌ Update API error full error:", err);
+    console.error("❌ Error response data:", err.response?.data);
+    console.error("❌ Error message:", err.message);
+    console.error("❌ Error status:", err.response?.status);
     throw err.response?.data || { message: "Failed to update package" };
   }
 };
@@ -110,3 +199,37 @@ export async function deletePackage(id) {
     throw err.response?.data || { message: "Failed to delete package" };
   }
 }
+
+// Extract package information from PDF using Gemini AI
+export const extractPackageFromPDF = async (pdfFile) => {
+  try {
+    const formData = new FormData();
+    formData.append("pdf", pdfFile);
+
+    console.log("📤 Sending PDF to backend:", pdfFile.name);
+    console.log("📤 File size:", (pdfFile.size / 1024).toFixed(2), "KB");
+
+    const res = await axios.post(
+      `${API_BASE_URL}/package/extract-from-pdf`,
+      formData,
+      {
+        headers: {
+          ...getAuthHeader(),
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    console.log("📥 Response received from backend");
+    console.log("📥 Extracted data keys:", Object.keys(res.data.data || {}));
+    console.log("📥 Full response:", res.data);
+
+    return res.data.data; // Return the extracted data
+  } catch (err) {
+    console.error("❌ API Error:", err.response?.data || err.message);
+    console.error("❌ Full error:", err);
+    throw (
+      err.response?.data || { message: "Failed to extract package from PDF" }
+    );
+  }
+};

@@ -1,14 +1,14 @@
-// src/pages/CreatePackagePage.jsx
+// src/pages/EditPackagePage.jsx
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import DashboardLayout from "../../layouts/DashboardLayout";
+import { useNavigate, useParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import BasicInfoStep from "../../components/package/BasicInfoStep";
 import ItineraryStep from "../../components/package/ItineraryStep";
 import MediaUploadStep from "../../components/package/MediaUploadStep";
 import ReviewStep from "../../components/package/ReviewStep";
-import { createPackage } from "../../store/slices/packageSlice";
+import { updatePackage as updatePackageAction } from "../../store/slices/packageSlice";
+import { getPackageById } from "../../api/packageService";
 
 // Heroicons
 import {
@@ -46,45 +46,117 @@ const STEPS = [
   },
 ];
 
-export default function CreatePackagePage() {
+export default function EditPackagePage() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { id } = useParams();
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
-
-  const user = useSelector((state) => state.auth.user);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   const [formData, setFormData] = useState({
     companyId: null,
     fromLocation: "",
     toLocation: "",
     title: "",
-    description: "This is the description",
+    description: "",
     category: "ADVENTURE",
     basePrice: 0,
     currency: "PKR",
-    // Group tour fields
     maxGroupSize: 10,
     minGroupSize: undefined,
     isPublic: true,
     departureDate: undefined,
     arrivalDate: undefined,
-    bookingDeadline: undefined, // ISO string
+    bookingDeadline: undefined,
     status: "DRAFT",
     includes: {},
-    // Shared stays across days
     tourStays: [],
-    // Itineraries with day-level timing and transports
+    tourTransports: [],
     itineraries: [],
     media: [],
+    keepMedia: [], // Track existing media URLs to keep
   });
 
-  // Set companyId from logged-in user
+  // Load existing package data
   useEffect(() => {
-    if (user?.companyId) {
-      setFormData((prev) => ({ ...prev, companyId: user.companyId }));
+    const loadPackage = async () => {
+      try {
+        setInitialLoading(true);
+        const payload = await getPackageById(id);
+        const pkg = payload?.data ?? payload;
+
+        // Map existing media to the format expected by MediaUploadStep
+        const existingMedia = (pkg.media || []).map((m) => ({
+          id: m.id,
+          url: m.url,
+          isExisting: true, // Mark as existing
+        }));
+
+        // Parse dates to YYYY-MM-DD format for date inputs
+        const formatDateForInput = (dateString) => {
+          if (!dateString) return undefined;
+          const date = new Date(dateString);
+          return date.toISOString().split("T")[0];
+        };
+
+        // Calculate timeOfDay from startTime for itinerary items
+        const getTimeOfDay = (startTime) => {
+          if (!startTime) return "Morning";
+          const [hour] = startTime.split(":").map(Number);
+          if (hour >= 5 && hour < 12) return "Morning";
+          if (hour >= 12 && hour < 17) return "Afternoon";
+          if (hour >= 17) return "Evening";
+          return "Morning";
+        };
+
+        // Process itineraries to add timeOfDay field to items
+        const processedItineraries = (pkg.itineraries || []).map(
+          (itinerary) => ({
+            ...itinerary,
+            itineraryItems: (itinerary.itineraryItems || []).map((item) => ({
+              ...item,
+              timeOfDay: getTimeOfDay(item.startTime),
+            })),
+          })
+        );
+
+        setFormData({
+          companyId: pkg.companyId,
+          fromLocation: pkg.fromLocation || "",
+          toLocation: pkg.toLocation || "",
+          title: pkg.title || "",
+          description: pkg.description || "",
+          category: pkg.category || "ADVENTURE",
+          basePrice: pkg.basePrice || 0,
+          currency: pkg.currency || "PKR",
+          maxGroupSize: pkg.maxGroupSize || 10,
+          minGroupSize: pkg.minGroupSize,
+          isPublic: pkg.isPublic !== undefined ? pkg.isPublic : true,
+          departureDate: formatDateForInput(pkg.departureDate),
+          arrivalDate: formatDateForInput(pkg.arrivalDate),
+          bookingDeadline: formatDateForInput(pkg.bookingDeadline),
+          status: pkg.status || "DRAFT",
+          includes: pkg.includes || {},
+          tourStays: pkg.tourStays || [],
+          tourTransports: pkg.tourTransports || [],
+          itineraries: processedItineraries,
+          media: existingMedia,
+          keepMedia: existingMedia.map((m) => m.url), // Initially keep all
+        });
+      } catch (err) {
+        console.error("Error loading package:", err);
+        toast.error("Failed to load package data");
+        navigate("/app/packages");
+      } finally {
+        setInitialLoading(false);
+      }
+    };
+
+    if (id) {
+      loadPackage();
     }
-  }, [user]);
+  }, [id, navigate]);
 
   // Safe update: preserve arrays & nested objects
   const updateFormData = (data) => {
@@ -92,11 +164,15 @@ export default function CreatePackagePage() {
       ...prev,
       ...data,
       includes: { ...prev.includes, ...(data.includes || {}) },
-      // arrays: keep previous if not provided
       itineraries:
         data.itineraries !== undefined ? data.itineraries : prev.itineraries,
       tourStays: data.tourStays !== undefined ? data.tourStays : prev.tourStays,
+      tourTransports:
+        data.tourTransports !== undefined
+          ? data.tourTransports
+          : prev.tourTransports,
       media: data.media !== undefined ? data.media : prev.media,
+      keepMedia: data.keepMedia !== undefined ? data.keepMedia : prev.keepMedia,
     }));
   };
 
@@ -109,14 +185,12 @@ export default function CreatePackagePage() {
   };
 
   const handleCancel = () => {
-    toast.info("Creation cancelled. Returning to packages...");
+    toast.info("Edit cancelled. Returning to packages...");
     navigate("/app/packages");
   };
 
   const handleSubmit = async (publishNow = false) => {
-    console.log("FINAL PAYLOAD →", JSON.stringify(formData, null, 2));
-    console.log("Departure Date:", formData.departureDate);
-    console.log("Arrival Date:", formData.arrivalDate);
+    console.log("UPDATE PAYLOAD →", JSON.stringify(formData, null, 2));
 
     // Final validation
     if (!formData.fromLocation || !formData.toLocation) {
@@ -150,21 +224,44 @@ export default function CreatePackagePage() {
     try {
       const payload = {
         ...formData,
-        status: publishNow ? "ACTIVE" : "DRAFT",
+        status: publishNow ? "ACTIVE" : formData.status,
       };
 
-      await dispatch(createPackage(payload)).unwrap();
-      toast.success(publishNow ? "Package published!" : "Saved as draft.");
+      console.log(
+        "🔵 EditPackagePage: Submitting update with payload:",
+        payload
+      );
+      const result = await dispatch(
+        updatePackageAction({ id, data: payload })
+      ).unwrap();
+      console.log("🟢 EditPackagePage: Update successful, result:", result);
+      toast.success("Package updated successfully!");
       navigate("/app/packages");
     } catch (err) {
-      console.error("Create package error:", err);
-      toast.error(
-        err?.message ? String(err.message) : "Error creating package"
-      );
+      console.error("🔴 EditPackagePage: Update package error:", err);
+      console.error("🔴 Full error object:", err);
+      const errorMessage =
+        err?.message ||
+        err?.response?.data?.message ||
+        String(err) ||
+        "Error updating package";
+      console.error("🔴 Error message to show:", errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
   };
+
+  if (initialLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading package...</p>
+        </div>
+      </div>
+    );
+  }
 
   const CurrentStepComponent = STEPS[currentStep - 1].component;
 
@@ -174,9 +271,7 @@ export default function CreatePackagePage() {
       <div className="mb-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-800">
-              Create New Package
-            </h2>
+            <h2 className="text-2xl font-bold text-gray-800">Edit Package</h2>
             <p className="text-gray-600 mt-1">
               Step {currentStep} of {STEPS.length}
             </p>
@@ -270,6 +365,7 @@ export default function CreatePackagePage() {
           onSubmit={handleSubmit}
           isLastStep={currentStep === STEPS.length}
           loading={loading}
+          isEditMode={true} // Flag to indicate edit mode
         />
       </div>
     </>

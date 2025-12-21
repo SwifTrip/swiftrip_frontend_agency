@@ -1,7 +1,13 @@
 import React from "react";
 import { toast } from "react-toastify";
 
-export default function ReviewStep({ formData, onPrev, onSubmit, loading }) {
+export default function ReviewStep({
+  formData,
+  onPrev,
+  onSubmit,
+  loading,
+  isEditMode,
+}) {
   const handleDraftSave = (e) => {
     e.preventDefault();
 
@@ -108,9 +114,13 @@ export default function ReviewStep({ formData, onPrev, onSubmit, loading }) {
       `}</style>
 
       <div className="mb-6">
-        <h3 className="text-xl font-bold text-gray-800">Review & Publish</h3>
+        <h3 className="text-xl font-bold text-gray-800">
+          {isEditMode ? "Review & Update" : "Review & Publish"}
+        </h3>
         <p className="text-gray-600 text-sm mt-1">
-          Review all details before publishing your package
+          {isEditMode
+            ? "Review all details before updating your package"
+            : "Review all details before publishing your package"}
         </p>
       </div>
 
@@ -390,8 +400,8 @@ export default function ReviewStep({ formData, onPrev, onSubmit, loading }) {
               {formData.media.map((media, index) => (
                 <div key={index} className="relative">
                   <img
-                    src={media.preview}
-                    alt={media.name}
+                    src={media.preview || media.url}
+                    alt={media.name || "Existing image"}
                     className="w-full h-24 object-cover rounded-lg"
                   />
                   {index === 0 && (
@@ -495,7 +505,13 @@ export default function ReviewStep({ formData, onPrev, onSubmit, loading }) {
             disabled={loading}
             className="px-6 py-3 text-gray-700 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition disabled:opacity-50"
           >
-            {loading ? "Saving..." : "Save as Draft"}
+            {loading
+              ? isEditMode
+                ? "Updating..."
+                : "Saving..."
+              : isEditMode
+              ? "Update"
+              : "Save as Draft"}
           </button>
           <button
             type="button"
@@ -503,7 +519,13 @@ export default function ReviewStep({ formData, onPrev, onSubmit, loading }) {
             disabled={loading}
             className="px-8 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition shadow-lg hover:shadow-xl disabled:opacity-50"
           >
-            {loading ? "Publishing..." : "Publish"}
+            {loading
+              ? isEditMode
+                ? "Updating..."
+                : "Publishing..."
+              : isEditMode
+              ? "Update & Publish"
+              : "Publish"}
           </button>
         </div>
       </div>

@@ -1,16 +1,21 @@
-import React, { useState } from 'react';
-import { toast } from 'react-toastify';
+import React, { useState } from "react";
+import { toast } from "react-toastify";
 
-export default function MediaUploadStep({ formData, updateFormData, onNext, onPrev }) {
+export default function MediaUploadStep({
+  formData,
+  updateFormData,
+  onNext,
+  onPrev,
+}) {
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
 
   const handleDrag = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    if (e.type === "dragenter" || e.type === "dragover") {
       setDragActive(true);
-    } else if (e.type === 'dragleave') {
+    } else if (e.type === "dragleave") {
       setDragActive(false);
     }
   };
@@ -53,7 +58,7 @@ export default function MediaUploadStep({ formData, updateFormData, onNext, onPr
         continue;
       }
 
-      if (!file.type.startsWith('image/')) {
+      if (!file.type.startsWith("image/")) {
         toast.error(`${file.name} is not an image file`);
         processedCount++;
         continue;
@@ -82,20 +87,30 @@ export default function MediaUploadStep({ formData, updateFormData, onNext, onPr
   };
 
   const removeImage = (index) => {
-    const updated = formData.media.filter((_, i) => i !== index);
-    updateFormData({ media: updated });
-    toast.success('Image removed successfully');
+    const removed = formData.media[index];
+    const updatedMedia = formData.media.filter((_, i) => i !== index);
+    let updatedKeepMedia = formData.keepMedia;
+
+    // If removing an existing media, also remove from keep list
+    if (removed?.isExisting && removed?.url) {
+      updatedKeepMedia = (formData.keepMedia || []).filter(
+        (u) => u !== removed.url
+      );
+    }
+
+    updateFormData({ media: updatedMedia, keepMedia: updatedKeepMedia });
+    toast.success("Image removed successfully");
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     // Validation: Check if at least one image is uploaded
     if (formData.media.length === 0) {
-      toast.error('Please upload at least one image for your package');
+      toast.error("Please upload at least one image for your package");
       return;
     }
-    
+
     onNext();
   };
 
@@ -107,18 +122,22 @@ export default function MediaUploadStep({ formData, updateFormData, onNext, onPr
           opacity: 1;
         }
       `}</style>
-      
+
       <div className="mb-6">
-        <h3 className="text-xl font-bold text-gray-800">Upload Package Images</h3>
-        <p className="text-gray-600 text-sm mt-1">Add up to 10 high-quality images to showcase your tour package</p>
+        <h3 className="text-xl font-bold text-gray-800">
+          Upload Package Images
+        </h3>
+        <p className="text-gray-600 text-sm mt-1">
+          Add up to 10 high-quality images to showcase your tour package
+        </p>
       </div>
 
       {/* Upload Area */}
       <div
         className={`relative border-2 border-dashed rounded-xl p-12 text-center transition-all ${
           dragActive
-            ? 'border-blue-500 bg-blue-50'
-            : 'border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100'
+            ? "border-blue-500 bg-blue-50"
+            : "border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100"
         }`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
@@ -149,14 +168,23 @@ export default function MediaUploadStep({ formData, updateFormData, onNext, onPr
             />
           </svg>
 
-          <p className="text-lg font-medium text-gray-700 mb-2">Drag and drop images here</p>
-          <p className="text-sm text-gray-500 mb-4">or click to browse from your computer</p>
+          <p className="text-lg font-medium text-gray-700 mb-2">
+            Drag and drop images here
+          </p>
+          <p className="text-sm text-gray-500 mb-4">
+            or click to browse from your computer
+          </p>
 
           <label
             htmlFor="file-upload"
             className="inline-flex items-center gap-2 px-6 py-3 bg-white border-2 border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 hover:border-gray-400 transition"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -167,7 +195,9 @@ export default function MediaUploadStep({ formData, updateFormData, onNext, onPr
             Choose Files
           </label>
 
-          <p className="text-xs text-gray-500 mt-4">Maximum 10 images, each up to 5MB</p>
+          <p className="text-xs text-gray-500 mt-4">
+            Maximum 10 images, each up to 5MB
+          </p>
         </div>
 
         {uploading && (
@@ -188,10 +218,13 @@ export default function MediaUploadStep({ formData, updateFormData, onNext, onPr
 
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {formData.media.map((media, index) => (
-              <div key={index} className="relative group rounded-lg overflow-hidden border border-gray-200">
+              <div
+                key={index}
+                className="relative group rounded-lg overflow-hidden border border-gray-200"
+              >
                 <img
-                  src={media.preview}
-                  alt={media.name}
+                  src={media.preview || media.url}
+                  alt={media.name || "Existing image"}
                   className="w-full h-40 object-cover"
                 />
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -200,7 +233,12 @@ export default function MediaUploadStep({ formData, updateFormData, onNext, onPr
                     onClick={() => removeImage(index)}
                     className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg
+                      className="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"

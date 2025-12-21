@@ -1,68 +1,80 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import * as api from '../../api/packageService';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import * as api from "../../api/packageService";
 
 // Fetch all packages
 export const fetchPackages = createAsyncThunk(
-  'packages/fetchAll',
+  "packages/fetchAll",
   async (_, { rejectWithValue }) => {
     try {
       const response = await api.getPackages();
-      return response.data; 
+      return response.data;
     } catch (error) {
-      return rejectWithValue(error.message || 'Failed to fetch packages');
+      return rejectWithValue(error.message || "Failed to fetch packages");
     }
   }
 );
 
 // Fetch single package by ID
 export const fetchPackageById = createAsyncThunk(
-  'packages/fetchById',
+  "packages/fetchById",
   async (id, { rejectWithValue }) => {
     try {
       const response = await api.getPackageById(id);
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.message || 'Failed to fetch package');
+      return rejectWithValue(error.message || "Failed to fetch package");
     }
   }
 );
 
 // Create new package
 export const createPackage = createAsyncThunk(
-  'packages/create',
+  "packages/create",
   async (packageData, { rejectWithValue }) => {
     try {
       const response = await api.createPackage(packageData);
-      return response.data || response; 
+      return response.data || response;
     } catch (error) {
-      return rejectWithValue(error.message || 'Failed to create package');
+      return rejectWithValue(error.message || "Failed to create package");
     }
   }
 );
 
 // Update package
 export const updatePackage = createAsyncThunk(
-  'packages/update',
+  "packages/update",
   async ({ id, data }, { rejectWithValue }) => {
     try {
+      console.log("🟦 Redux updatePackage thunk called with id:", id);
       const response = await api.updatePackage(id, data);
+      console.log("🟩 Redux received response:", response);
       // FIX: Extract the data property if needed
-      return response.data || response;
+      const result = response.data || response;
+      console.log("🟩 Redux returning result:", result);
+      return result;
     } catch (error) {
-      return rejectWithValue(error.message || 'Failed to update package');
+      console.error("🟥 Redux updatePackage error caught:", error);
+      console.error("🟥 Error object:", error);
+      // Handle axios error response structure
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to update package";
+      console.error("🟥 Redux rejecting with message:", errorMessage);
+      return rejectWithValue(errorMessage);
     }
   }
 );
 
 // Delete package
 export const deletePackage = createAsyncThunk(
-  'packages/delete',
+  "packages/delete",
   async (id, { rejectWithValue }) => {
     try {
       await api.deletePackage(id);
       return id;
     } catch (error) {
-      return rejectWithValue(error.message || 'Failed to delete package');
+      return rejectWithValue(error.message || "Failed to delete package");
     }
   }
 );
@@ -81,7 +93,7 @@ const initialState = {
 };
 
 const packageSlice = createSlice({
-  name: 'packages',
+  name: "packages",
   initialState,
   reducers: {
     setCurrentPackage: (state, action) => {
@@ -92,9 +104,15 @@ const packageSlice = createSlice({
     },
     updateStats: (state) => {
       state.stats.total = state.packages.length;
-      state.stats.active = state.packages.filter(p => p.status === 'ACTIVE').length;
-      state.stats.draft = state.packages.filter(p => p.status === 'DRAFT').length;
-      state.stats.inactive = state.packages.filter(p => p.status === 'INACTIVE').length;
+      state.stats.active = state.packages.filter(
+        (p) => p.status === "ACTIVE"
+      ).length;
+      state.stats.draft = state.packages.filter(
+        (p) => p.status === "DRAFT"
+      ).length;
+      state.stats.inactive = state.packages.filter(
+        (p) => p.status === "INACTIVE"
+      ).length;
     },
   },
   extraReducers: (builder) => {
@@ -149,22 +167,39 @@ const packageSlice = createSlice({
     // Update package
     builder
       .addCase(updatePackage.pending, (state) => {
+        console.log("🟦 updatePackage.pending triggered");
         state.loading = true;
         state.error = null;
       })
       .addCase(updatePackage.fulfilled, (state, action) => {
+        console.log("🟩 updatePackage.fulfilled triggered");
+        console.log("🟩 Action payload:", action.payload);
         state.loading = false;
-        const index = state.packages.findIndex(p => p.id === action.payload.id);
-        if (index !== -1) {
-          state.packages[index] = action.payload;
-        }
-        // Also update currentPackage if it's the same package
-        if (state.currentPackage?.id === action.payload.id) {
-          state.currentPackage = action.payload;
+        state.error = null;
+        // Handle both direct payload and nested data structure
+        const updatedPackage = action.payload?.data || action.payload;
+        console.log("🟩 Updated package to store:", updatedPackage);
+        if (updatedPackage?.id) {
+          const index = state.packages.findIndex(
+            (p) => p.id === updatedPackage.id
+          );
+          if (index !== -1) {
+            state.packages[index] = updatedPackage;
+            console.log("🟩 Updated package at index:", index);
+          }
+          // Also update currentPackage if it's the same package
+          if (state.currentPackage?.id === updatedPackage.id) {
+            state.currentPackage = updatedPackage;
+            console.log("🟩 Updated currentPackage");
+          }
+        } else {
+          console.warn("⚠️ Updated package has no id:", updatedPackage);
         }
         packageSlice.caseReducers.updateStats(state);
       })
       .addCase(updatePackage.rejected, (state, action) => {
+        console.error("🟥 updatePackage.rejected triggered");
+        console.error("🟥 Error payload:", action.payload);
         state.loading = false;
         state.error = action.payload;
       });
@@ -177,7 +212,7 @@ const packageSlice = createSlice({
       })
       .addCase(deletePackage.fulfilled, (state, action) => {
         state.loading = false;
-        state.packages = state.packages.filter(p => p.id !== action.payload);
+        state.packages = state.packages.filter((p) => p.id !== action.payload);
         // Clear currentPackage if it was deleted
         if (state.currentPackage?.id === action.payload) {
           state.currentPackage = null;
@@ -192,7 +227,8 @@ const packageSlice = createSlice({
 });
 
 // Export actions
-export const { setCurrentPackage, clearError, updateStats } = packageSlice.actions;
+export const { setCurrentPackage, clearError, updateStats } =
+  packageSlice.actions;
 
 // Export selectors
 export const selectPackages = (state) => state.packages.packages;
