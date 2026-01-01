@@ -1,15 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   loginUser,
   selectLoading,
   selectError,
+  clearError,
 } from "../../store/slices/authSlice";
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
 const schema = yup.object().shape({
   email: yup.string().email().required("Email is required"),
@@ -19,9 +20,35 @@ const schema = yup.object().shape({
 export default function LoginForm() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const loading = useSelector(selectLoading);
   const error = useSelector(selectError);
   const [showPassword, setShowPassword] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(
+    location.state?.successMessage || null
+  );
+
+  // Auto-clear success message after 5 seconds
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage(null);
+        // Clear the location state
+        window.history.replaceState({}, document.title);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
+
+  // Auto-clear error after 3 seconds
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        dispatch(clearError());
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, dispatch]);
 
   const {
     register,
@@ -31,7 +58,6 @@ export default function LoginForm() {
 
   const onSubmit = async (data) => {
     try {
-      
       const resultAction = await dispatch(loginUser(data));
 
       if (loginUser.fulfilled.match(resultAction)) {
@@ -47,6 +73,26 @@ export default function LoginForm() {
   return (
     <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
       <div className="space-y-5">
+        {/* Show success message if exists */}
+        {successMessage && (
+          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl text-sm flex items-center gap-2">
+            <svg
+              className="w-5 h-5 flex-shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            {successMessage}
+          </div>
+        )}
+
         {/* Show error message if exists */}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
@@ -211,7 +257,7 @@ export default function LoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+          className="w-full py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-orange-600 to-emerald-600 hover:from-orange-700 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed mt-4"
         >
           {loading ? "Signing in..." : "Sign In"}
         </button>

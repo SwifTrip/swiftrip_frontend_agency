@@ -104,7 +104,7 @@ export default function VerifyEmailPage() {
       <div className="bg-white rounded-3xl shadow-2xl p-8 lg:p-10 text-center">
         {/* Logo */}
         {/* <div className="flex justify-center mb-6">
-          <div className="w-20 h-20 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-2xl flex items-center justify-center shadow-lg">
+          <div className="w-20 h-20 bg-gradient-to-br from-orange-100 to-emerald-100 rounded-2xl flex items-center justify-center shadow-lg">
             <img
               src={logoImage}
               alt="SwifTrip"
@@ -117,8 +117,8 @@ export default function VerifyEmailPage() {
         {status === "verifying" && (
           <div className="py-8">
             <div className="relative w-20 h-20 mx-auto mb-6">
-              <div className="absolute inset-0 border-4 border-blue-100 rounded-full"></div>
-              <div className="absolute inset-0 border-4 border-transparent border-t-blue-600 rounded-full animate-spin"></div>
+              <div className="absolute inset-0 border-4 border-orange-100 rounded-full"></div>
+              <div className="absolute inset-0 border-4 border-transparent border-t-orange-600 rounded-full animate-spin"></div>
             </div>
             <h2 className="text-2xl font-bold text-gray-800 mb-2">
               Verifying Your Email
@@ -159,7 +159,7 @@ export default function VerifyEmailPage() {
 
             <button
               onClick={() => navigate("/auth/login")}
-              className="w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold rounded-xl hover:shadow-xl hover:shadow-blue-500/30 transition-all transform hover:scale-105"
+              className="w-full py-4 bg-gradient-to-r from-orange-600 to-emerald-500 text-white font-bold rounded-xl hover:shadow-xl hover:shadow-orange-500/30 transition-all transform hover:scale-105"
             >
               Continue to Login →
             </button>
@@ -194,7 +194,7 @@ export default function VerifyEmailPage() {
             <p className="text-gray-600 mb-8 max-w-sm mx-auto">{message}</p>
 
             {/* Resend Section */}
-            <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 mb-6">
+            <div className="bg-gradient-to-br from-gray-50 to-orange-50 rounded-2xl p-6 mb-6">
               <p className="text-sm font-medium text-gray-700 mb-4">
                 Need a new verification link?
               </p>
@@ -203,12 +203,12 @@ export default function VerifyEmailPage() {
                 placeholder="Enter your email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-3"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent mb-3"
               />
               <button
                 onClick={handleResendEmail}
                 disabled={resending}
-                className="w-full py-3 bg-white border-2 border-blue-600 text-blue-600 font-semibold rounded-xl hover:bg-blue-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-3 bg-white border-2 border-orange-600 text-orange-600 font-semibold rounded-xl hover:bg-orange-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {resending ? "Sending..." : "Resend Verification Email"}
               </button>
@@ -216,7 +216,7 @@ export default function VerifyEmailPage() {
 
             <button
               onClick={() => navigate("/auth/login")}
-              className="w-full py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-orange-600 to-emerald-600 hover:from-orange-700 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Back to Login
             </button>

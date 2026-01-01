@@ -70,7 +70,7 @@ export default function CreatePackagePage() {
     departureDate: undefined,
     arrivalDate: undefined,
     bookingDeadline: undefined, // ISO string
-    status: "DRAFT",
+    status: "ACTIVE",
     includes: {},
     // Shared stays across days
     tourStays: [],
@@ -217,7 +217,7 @@ export default function CreatePackagePage() {
                   <div
                     className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300
                       ${isCompleted ? "bg-green-500 text-white" : ""}
-                      ${isActive ? "bg-blue-600 text-white scale-110" : ""}
+                      ${isActive ? "bg-orange-600 text-white scale-110" : ""}
                       ${
                         !isCompleted && !isActive
                           ? "bg-gray-200 text-gray-400"

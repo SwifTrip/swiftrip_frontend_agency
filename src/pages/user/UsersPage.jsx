@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { UserPlus } from 'lucide-react';
-import TabNavigation from '../../components/user/TabNavigation';
-import SearchBar from '../../components/user/SearchBar';
-import FilterDropdown from '../../components/user/FilterDropdown';
-import UserTable from '../../components/user/UserTable';
-import RoleCard from '../../components/user/RoleCard';
-import AddEditUserModal from '../../components/user/AddEditUserModal';
-import AddEditRoleModal from '../../components/user/AddEditRoleModal';
-import DeleteConfirmModal from '../../components/user/DeleteConfirmModal';
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { UserPlus } from "lucide-react";
+import TabNavigation from "../../components/user/TabNavigation";
+import SearchBar from "../../components/user/SearchBar";
+import FilterDropdown from "../../components/user/FilterDropdown";
+import UserTable from "../../components/user/UserTable";
+import RoleCard from "../../components/user/RoleCard";
+import AddEditUserModal from "../../components/user/AddEditUserModal";
+import AddEditRoleModal from "../../components/user/AddEditRoleModal";
+import DeleteConfirmModal from "../../components/user/DeleteConfirmModal";
 
 // Redux actions and selectors
 import {
@@ -22,7 +22,7 @@ import {
   selectUsersSuccess,
   clearUserError,
   clearUserSuccess,
-} from '../../store/slices/userSlice';
+} from "../../store/slices/userSlice";
 
 import {
   fetchRolesAsync,
@@ -35,11 +35,11 @@ import {
   selectRolesSuccess,
   clearRoleError,
   clearRoleSuccess,
-} from '../../store/slices/roleSlice';
+} from "../../store/slices/roleSlice";
 
 const UsersPage = () => {
   const dispatch = useDispatch();
-  
+
   // Redux state
   const users = useSelector(selectUsers);
   const roles = useSelector(selectRoles);
@@ -51,10 +51,10 @@ const UsersPage = () => {
   const rolesSuccess = useSelector(selectRolesSuccess);
 
   // Local state
-  const [activeTab, setActiveTab] = useState('users');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All Status');
-  const [roleFilter, setRoleFilter] = useState('All Roles');
+  const [activeTab, setActiveTab] = useState("users");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All Status");
+  const [roleFilter, setRoleFilter] = useState("All Roles");
 
   // Modal states
   const [userModalOpen, setUserModalOpen] = useState(false);
@@ -94,35 +94,39 @@ const UsersPage = () => {
   }, [rolesSuccess, rolesError, dispatch]);
 
   // Calculate roles with user counts
-  const rolesWithCounts = roles.map(role => ({
+  const rolesWithCounts = roles.map((role) => ({
     ...role,
-    userCount: users.filter(user => 
-      user.companyRoles?.[0]?.role?.name === role.name
-    ).length
+    userCount: users.filter(
+      (user) => user.companyRoles?.[0]?.role?.name === role.name
+    ).length,
   }));
 
   const getRoleName = (user) => {
-    return user.companyRoles?.[0]?.role?.name || 'No Role';
+    return user.companyRoles?.[0]?.role?.name || "No Role";
   };
 
   // Filter users
-  const filteredUsers = users.filter(user => {
-    const matchesSearch = 
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch =
       user.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = statusFilter === 'All Status' || 
-      (statusFilter === 'active' && user.isVerified) ||
-      (statusFilter === 'inactive' && !user.isVerified);
-    
+
+    const matchesStatus =
+      statusFilter === "All Status" ||
+      (statusFilter === "active" && user.isVerified) ||
+      (statusFilter === "inactive" && !user.isVerified);
+
     const roleName = getRoleName(user);
-    const matchesRole = roleFilter === 'All Roles' || roleName === roleFilter;
-    
+    const matchesRole = roleFilter === "All Roles" || roleName === roleFilter;
+
     return matchesSearch && matchesStatus && matchesRole;
   });
 
-  const uniqueRoles = ['All Roles', ...new Set(users.map(user => getRoleName(user)))];
+  const uniqueRoles = [
+    "All Roles",
+    ...new Set(users.map((user) => getRoleName(user))),
+  ];
 
   // ===== USER HANDLERS =====
   const handleAddUser = () => {
@@ -141,7 +145,7 @@ const UsersPage = () => {
   };
 
   const handleDeleteUser = (user) => {
-    setDeleteTarget({ type: 'user', item: user });
+    setDeleteTarget({ type: "user", item: user });
     setDeleteModalOpen(true);
   };
 
@@ -172,7 +176,7 @@ const UsersPage = () => {
   };
 
   const handleDeleteRole = (role) => {
-    setDeleteTarget({ type: 'role', item: role });
+    setDeleteTarget({ type: "role", item: role });
     setDeleteModalOpen(true);
   };
 
@@ -194,9 +198,9 @@ const UsersPage = () => {
   // ===== DELETE HANDLER =====
   const handleConfirmDelete = async () => {
     const { type, item } = deleteTarget;
-    
+
     try {
-      if (type === 'user') {
+      if (type === "user") {
         await dispatch(deleteUserAsync(item.id)).unwrap();
         dispatch(fetchUsersAsync());
       } else {
@@ -206,7 +210,7 @@ const UsersPage = () => {
       setDeleteModalOpen(false);
       setDeleteTarget({ type: null, item: null });
     } catch (error) {
-      console.error('Delete error:', error);
+      console.error("Delete error:", error);
     }
   };
 
@@ -215,7 +219,7 @@ const UsersPage = () => {
   if (loading && users.length === 0 && roles.length === 0) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
       </div>
     );
   }
@@ -225,7 +229,9 @@ const UsersPage = () => {
       {/* Page Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Users</h1>
-        <p className="text-gray-600 mt-1">Welcome back, Explore Pakistan Tours</p>
+        <p className="text-gray-600 mt-1">
+          Welcome back, Explore Pakistan Tours
+        </p>
       </div>
 
       {/* Error Messages */}
@@ -238,7 +244,9 @@ const UsersPage = () => {
       {/* Success Messages */}
       {(usersSuccess || rolesSuccess) && (
         <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-          <p className="text-sm text-green-600">{usersSuccess || rolesSuccess}</p>
+          <p className="text-sm text-green-600">
+            {usersSuccess || rolesSuccess}
+          </p>
         </div>
       )}
 
@@ -246,17 +254,21 @@ const UsersPage = () => {
       <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
       {/* Users Tab Content */}
-      {activeTab === 'users' && (
+      {activeTab === "users" && (
         <div className="bg-white rounded-lg shadow-sm">
           <div className="p-6 border-b border-gray-200">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">User Management</h2>
-                <p className="text-sm text-gray-600 mt-1">Manage user accounts and permissions</p>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  User Management
+                </h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  Manage user accounts and permissions
+                </p>
               </div>
-              <button 
+              <button
                 onClick={handleAddUser}
-                className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                className="flex items-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors"
                 disabled={usersLoading}
               >
                 <UserPlus size={18} />
@@ -266,16 +278,16 @@ const UsersPage = () => {
 
             {/* Search and Filters */}
             <div className="flex items-center gap-4">
-              <SearchBar 
+              <SearchBar
                 value={searchTerm}
                 onChange={setSearchTerm}
                 placeholder="Search users by name or email..."
               />
-              
+
               <FilterDropdown
                 value={statusFilter}
                 onChange={setStatusFilter}
-                options={['All Status', 'active', 'inactive']}
+                options={["All Status", "active", "inactive"]}
               />
 
               <FilterDropdown
@@ -287,7 +299,7 @@ const UsersPage = () => {
           </div>
 
           {/* Users Table */}
-          <UserTable 
+          <UserTable
             users={filteredUsers}
             onEdit={handleEditUser}
             onChangeRole={handleChangeRole}
@@ -297,16 +309,20 @@ const UsersPage = () => {
       )}
 
       {/* Roles Tab Content */}
-      {activeTab === 'roles' && (
+      {activeTab === "roles" && (
         <div>
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-2xl font-semibold text-gray-900">Role Management</h2>
-              <p className="text-sm text-gray-600 mt-1">Configure roles and permissions</p>
+              <h2 className="text-2xl font-semibold text-gray-900">
+                Role Management
+              </h2>
+              <p className="text-sm text-gray-600 mt-1">
+                Configure roles and permissions
+              </p>
             </div>
-            <button 
+            <button
               onClick={handleAddRole}
-              className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+              className="flex items-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors"
               disabled={rolesLoading}
             >
               <UserPlus size={18} />
@@ -316,8 +332,8 @@ const UsersPage = () => {
 
           {/* Roles Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {rolesWithCounts.map(role => (
-              <RoleCard 
+            {rolesWithCounts.map((role) => (
+              <RoleCard
                 key={role.id}
                 role={role}
                 onEdit={handleEditRole}
@@ -362,14 +378,14 @@ const UsersPage = () => {
           setDeleteTarget({ type: null, item: null });
         }}
         onConfirm={handleConfirmDelete}
-        title={`Delete ${deleteTarget.type === 'user' ? 'User' : 'Role'}`}
+        title={`Delete ${deleteTarget.type === "user" ? "User" : "Role"}`}
         message={`Are you sure you want to delete ${
-          deleteTarget.type === 'user' 
-            ? `${deleteTarget.item?.firstName} ${deleteTarget.item?.lastName}` 
+          deleteTarget.type === "user"
+            ? `${deleteTarget.item?.firstName} ${deleteTarget.item?.lastName}`
             : deleteTarget.item?.name
         }? This action cannot be undone.`}
         itemName={
-          deleteTarget.type === 'user'
+          deleteTarget.type === "user"
             ? `${deleteTarget.item?.firstName} ${deleteTarget.item?.lastName}`
             : deleteTarget.item?.name
         }

@@ -136,7 +136,7 @@ export default function MediaUploadStep({
       <div
         className={`relative border-2 border-dashed rounded-xl p-12 text-center transition-all ${
           dragActive
-            ? "border-blue-500 bg-blue-50"
+            ? "border-orange-500 bg-orange-50"
             : "border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100"
         }`}
         onDragEnter={handleDrag}
@@ -202,7 +202,7 @@ export default function MediaUploadStep({
 
         {uploading && (
           <div className="absolute inset-0 bg-white/80 rounded-xl flex items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
           </div>
         )}
       </div>
@@ -249,7 +249,7 @@ export default function MediaUploadStep({
                   </button>
                 </div>
                 {index === 0 && (
-                  <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded">
+                  <div className="absolute top-2 left-2 bg-orange-600 text-white text-xs px-2 py-1 rounded">
                     Cover
                   </div>
                 )}
@@ -270,7 +270,7 @@ export default function MediaUploadStep({
         </button>
         <button
           type="submit"
-          className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition shadow-lg hover:shadow-xl"
+          className="px-8 py-3 bg-orange-600 text-white font-semibold rounded-lg hover:bg-orange-700 transition shadow-lg hover:shadow-xl"
         >
           Next →
         </button>

@@ -21,7 +21,7 @@ const CATEGORIES = [
   "RELIGIOUS",
   "OTHER",
 ];
-const STATUSES = ["DRAFT", "ACTIVE", "INACTIVE"];
+const STATUSES = ["ACTIVE", "DRAFT", "INACTIVE"];
 const CURRENCIES = ["PKR", "USD", "EUR", "GBP"];
 
 export default function BasicInfoStep({ formData, updateFormData, onNext }) {
@@ -213,7 +213,7 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
   const selectBase = `
     w-full px-3 py-2 pr-8 bg-white border rounded-md
     text-gray-900 placeholder-gray-400
-    focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+    focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent
     appearance-none cursor-pointer text-sm
   `;
 
@@ -284,22 +284,24 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
       className="p-6 md:p-8 bg-white rounded-lg shadow-sm w-full"
     >
       {/* Header */}
-      <div className="mb-8">
-        <h3 className="text-2xl font-bold text-gray-900">
-          Basic Package Information
-        </h3>
-        <p className="mt-1 text-sm text-gray-500">
-          Provide essential details about your tour package
-        </p>
+      <div className="mb-8 flex items-start justify-between">
+        <div>
+          <h3 className="text-2xl font-bold text-gray-900">
+            Basic Package Information
+          </h3>
+          <p className="mt-1 text-sm text-gray-500">
+            Provide essential details about your tour package
+          </p>
+        </div>
 
-        {/* PDF Upload Button */}
+        {/* PDF Upload Button - Right side */}
         <button
           type="button"
           onClick={() => setShowPDFModal(true)}
-          className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-600 rounded-lg hover:from-blue-100 hover:to-indigo-100 transition border border-blue-200 font-medium"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-50 to-indigo-50 text-orange-600 rounded-lg hover:from-orange-100 hover:to-indigo-100 transition border border-orange-200 font-medium"
         >
           <DocumentArrowUpIcon className="w-5 h-5" />
-           Generate from PDF
+          Import from PDF
         </button>
       </div>
 
@@ -429,7 +431,7 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
               onChange={(e) => handleChange("title", e.target.value)}
               onBlur={() => handleBlur("title")}
               placeholder="e.g., Northern Pakistan Explorer"
-              className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition placeholder-gray-400 ${
+              className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition placeholder-gray-400 ${
                 errors.title
                   ? "border-red-500 bg-red-50"
                   : "border-gray-300 bg-white"
@@ -499,7 +501,7 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
                 onBlur={() => handleBlur("basePrice")}
                 placeholder="5000"
                 min="0"
-                className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition placeholder-gray-400 ${
+                className={`w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition placeholder-gray-400 ${
                   errors.basePrice
                     ? "border-red-500 bg-red-50"
                     : "border-gray-300 bg-white"
@@ -582,7 +584,7 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
             </label>
             <div className="relative">
               <select
-                value={formData.status || "DRAFT"}
+                value={formData.status || "ACTIVE"}
                 onChange={(e) => handleChange("status", e.target.value)}
                 className={`${selectBase} border-gray-300 bg-white`}
                 style={{
@@ -616,7 +618,7 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
               onBlur={() => handleBlur("description")}
               placeholder="Describe your tour package..."
               rows={5}
-              className={`mt-1 w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition placeholder-gray-400 resize-none ${
+              className={`mt-1 w-full px-3 py-2 text-sm border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition placeholder-gray-400 resize-none ${
                 errors.description
                   ? "border-red-500 bg-red-50"
                   : "border-gray-300 bg-white"
@@ -682,7 +684,7 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
         </button>
         <button
           type="submit"
-          className="px-8 py-3 text-white bg-blue-600 rounded-lg font-semibold hover:bg-blue-700 transition shadow-md hover:shadow-lg"
+          className="px-8 py-3 text-white bg-orange-600 rounded-lg font-semibold hover:bg-orange-700 transition shadow-md hover:shadow-lg"
         >
           Next
         </button>

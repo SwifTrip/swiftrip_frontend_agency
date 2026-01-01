@@ -53,7 +53,7 @@ const SchedulePicker = ({
       },
       COMPLETED: {
         label: "Completed",
-        class: "bg-blue-100 text-blue-800",
+        class: "bg-orange-100 text-orange-800",
         icon: CheckCircle2,
       },
     };
@@ -123,7 +123,7 @@ const SchedulePicker = ({
                 key={schedule.id}
                 className={`relative p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
                   selectedSchedule?.id === schedule.id
-                    ? "border-blue-500 bg-blue-50 shadow-md"
+                    ? "border-orange-500 bg-orange-50 shadow-md"
                     : hoveredId === schedule.id
                     ? "border-gray-400 shadow-sm"
                     : "border-gray-200 hover:border-gray-300"
@@ -141,7 +141,7 @@ const SchedulePicker = ({
 
                 {/* Date Range */}
                 <div className="flex items-start gap-3 mb-3">
-                  <Calendar className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                  <Calendar className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0" />
                   <div>
                     <div className="font-medium text-gray-900">
                       {formatDate(schedule.departureDate)}
@@ -189,7 +189,7 @@ const SchedulePicker = ({
 
                 {/* Selected Indicator */}
                 {selectedSchedule?.id === schedule.id && (
-                  <div className="absolute inset-0 bg-blue-500 opacity-10 rounded-lg pointer-events-none" />
+                  <div className="absolute inset-0 bg-orange-500 opacity-10 rounded-lg pointer-events-none" />
                 )}
               </div>
             ))}

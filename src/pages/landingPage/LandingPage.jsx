@@ -51,9 +51,14 @@ export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
+  // Simplified animations for better performance
   const fadeInUp = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0 },
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.3 },
+    },
   };
 
   const staggerContainer = {
@@ -61,14 +66,18 @@ export default function LandingPage() {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.15,
+        staggerChildren: 0.05, // Reduced from 0.15 for faster appearance
       },
     },
   };
 
   const scaleIn = {
-    hidden: { opacity: 0, scale: 0.8 },
-    visible: { opacity: 1, scale: 1 },
+    hidden: { opacity: 0, scale: 0.95 }, // Less dramatic scale
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: { duration: 0.2 },
+    },
   };
 
   // Tourist Features
@@ -85,7 +94,7 @@ export default function LandingPage() {
       title: "Custom Tour Builder",
       description:
         "Design your perfect trip with full transparency on pricing and itinerary",
-      gradient: "from-blue-500 to-cyan-500",
+      gradient: "from-orange-500 to-emerald-500",
     },
     {
       icon: DollarSign,
@@ -112,14 +121,14 @@ export default function LandingPage() {
       title: "In-App Communication",
       description:
         "Chat directly with agencies and guides without sharing personal contact info",
-      gradient: "from-indigo-500 to-blue-500",
+      gradient: "from-orange-500 to-amber-500",
     },
     {
       icon: CreditCard,
       title: "Secure Payments & Refunds",
       description:
         "Safe online transactions with refund protection and payment guarantees",
-      gradient: "from-teal-500 to-cyan-500",
+      gradient: "from-emerald-500 to-green-500",
     },
     {
       icon: Bell,
@@ -320,84 +329,78 @@ export default function LandingPage() {
         transition={{ duration: 0.3 }}
         className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-b border-gray-100 shadow-sm w-full"
       >
-        <div className="w-full px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto">
-            <div className="flex justify-between items-center h-16">
-              <div
-                className="flex items-center gap-2 cursor-pointer"
-                onClick={() => navigate("/")}
-              >
-                <img
-                  src={logoImage}
-                  alt="SwifTrip Logo"
-                  className="w-10 h-10 object-contain"
-                />
-                <div>
-                  <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
-                    SwifTrip
+        <div className="w-full px-3 sm:px-6">
+          <div className="flex justify-between items-center h-16">
+            <div
+              className="flex items-center gap-2 cursor-pointer"
+              onClick={() => navigate("/")}
+            >
+              <img
+                src={logoImage}
+                alt="SwifTrip Logo"
+                className="w-10 h-10 object-contain"
+              />
+              <div>
+                <span className="text-xl font-bold bg-gradient-to-r from-orange-600 to-emerald-500 bg-clip-text text-transparent">
+                  SwifTrip
+                </span>
+                <div className="flex items-center gap-1">
+                  <span className="text-[10px] text-gray-500">
+                    AI-Powered Travel
                   </span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-[10px] text-gray-500">
-                      AI-Powered Travel
-                    </span>
-                  </div>
                 </div>
               </div>
-
-              {/* Desktop Menu */}
-              <div className="hidden lg:flex items-center gap-6">
-                <a
-                  href="#features"
-                  className="text-gray-600 hover:text-blue-600 transition-colors"
-                >
-                  Features
-                </a>
-                <a
-                  href="#for-agencies"
-                  className="text-gray-600 hover:text-blue-600 transition-colors"
-                >
-                  For Agencies
-                </a>
-                <a
-                  href="#for-guides"
-                  className="text-gray-600 hover:text-blue-600 transition-colors"
-                >
-                  For Guides
-                </a>
-                <a
-                  href="#use-cases"
-                  className="text-gray-600 hover:text-blue-600 transition-colors"
-                >
-                  Success Stories
-                </a>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => navigate("/auth/login")}
-                    className="px-5 py-2 text-gray-700 hover:text-blue-600 transition-colors"
-                  >
-                    Login
-                  </button>
-                  <button
-                    onClick={() => navigate("/auth/register")}
-                    className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-xl hover:shadow-lg hover:shadow-blue-500/50 transition-all"
-                  >
-                    Get Started
-                  </button>
-                </div>
-              </div>
-
-              {/* Mobile Menu Button */}
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              >
-                {mobileMenuOpen ? (
-                  <ArrowRight className="rotate-90" />
-                ) : (
-                  <Menu />
-                )}
-              </button>
             </div>
+
+            {/* Desktop Menu */}
+            <div className="hidden lg:flex items-center gap-6">
+              <a
+                href="#features"
+                className="text-gray-600 hover:text-orange-600 transition-colors"
+              >
+                Features
+              </a>
+              <a
+                href="#for-agencies"
+                className="text-gray-600 hover:text-orange-600 transition-colors"
+              >
+                For Agencies
+              </a>
+              <a
+                href="#for-guides"
+                className="text-gray-600 hover:text-orange-600 transition-colors"
+              >
+                For Guides
+              </a>
+              <a
+                href="#use-cases"
+                className="text-gray-600 hover:text-orange-600 transition-colors"
+              >
+                Success Stories
+              </a>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => navigate("/auth/login")}
+                  className="px-5 py-2 text-gray-700 hover:text-orange-600 transition-colors"
+                >
+                  Login
+                </button>
+                <button
+                  onClick={() => navigate("/auth/register")}
+                  className="px-6 py-2.5 bg-gradient-to-r from-orange-600 to-emerald-500 text-white rounded-xl hover:shadow-lg hover:shadow-orange-500/50 transition-all"
+                >
+                  Get Started
+                </button>
+              </div>
+            </div>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              {mobileMenuOpen ? <ArrowRight className="rotate-90" /> : <Menu />}
+            </button>
           </div>
         </div>
 
@@ -412,25 +415,25 @@ export default function LandingPage() {
               <div className="max-w-7xl mx-auto py-4 space-y-3">
                 <a
                   href="#features"
-                  className="block text-gray-600 hover:text-blue-600 py-2"
+                  className="block text-gray-600 hover:text-orange-600 py-2"
                 >
                   Features
                 </a>
                 <a
                   href="#for-agencies"
-                  className="block text-gray-600 hover:text-blue-600 py-2"
+                  className="block text-gray-600 hover:text-orange-600 py-2"
                 >
                   For Agencies
                 </a>
                 <a
                   href="#for-guides"
-                  className="block text-gray-600 hover:text-blue-600 py-2"
+                  className="block text-gray-600 hover:text-orange-600 py-2"
                 >
                   For Guides
                 </a>
                 <a
                   href="#use-cases"
-                  className="block text-gray-600 hover:text-blue-600 py-2"
+                  className="block text-gray-600 hover:text-orange-600 py-2"
                 >
                   Success Stories
                 </a>
@@ -448,7 +451,7 @@ export default function LandingPage() {
                     navigate("/register");
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full px-6 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-xl"
+                  className="w-full px-6 py-2.5 bg-gradient-to-r from-orange-600 to-emerald-500 text-white rounded-xl"
                 >
                   Get Started
                 </button>
@@ -461,14 +464,14 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="relative pt-24 pb-20 sm:pt-32 sm:pb-28 px-4 sm:px-6 lg:px-8 overflow-hidden">
         {/* Animated Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-white to-cyan-50 -z-10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-orange-50 via-white to-emerald-50 -z-10" />
         <motion.div
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.5, 0.3],
           }}
           transition={{ duration: 8, repeat: Infinity }}
-          className="absolute top-20 right-20 w-96 h-96 bg-gradient-to-br from-cyan-400/30 to-blue-600/30 rounded-full blur-3xl -z-10"
+          className="absolute top-20 right-20 w-96 h-96 bg-gradient-to-br from-emerald-400/30 to-orange-600/30 rounded-full blur-3xl -z-10"
         />
         <motion.div
           animate={{
@@ -476,7 +479,7 @@ export default function LandingPage() {
             opacity: [0.2, 0.4, 0.2],
           }}
           transition={{ duration: 10, repeat: Infinity }}
-          className="absolute bottom-20 left-20 w-96 h-96 bg-gradient-to-br from-blue-500/20 to-cyan-400/20 rounded-full blur-3xl -z-10"
+          className="absolute bottom-20 left-20 w-96 h-96 bg-gradient-to-br from-orange-500/20 to-emerald-400/20 rounded-full blur-3xl -z-10"
         />
 
         <div className="max-w-7xl mx-auto">
@@ -490,14 +493,14 @@ export default function LandingPage() {
             >
               <motion.div
                 variants={fadeInUp}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-100 to-cyan-100 rounded-full mb-8 border border-blue-200"
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-100 to-emerald-100 rounded-full mb-8 border border-orange-200"
               >
                 <img
                   src={logoImage}
                   alt="SwifTrip"
                   className="w-4 h-4 object-contain"
                 />
-                <span className="text-sm text-blue-700">
+                <span className="text-sm text-orange-700">
                   Pakistan's First AI-Powered Travel Platform
                 </span>
               </motion.div>
@@ -507,7 +510,7 @@ export default function LandingPage() {
                 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl mb-6 leading-tight"
               >
                 Plan, Explore &
-                <span className="block bg-gradient-to-r from-blue-600 via-cyan-500 to-blue-600 bg-clip-text text-transparent mt-2">
+                <span className="block bg-gradient-to-r from-orange-600 via-emerald-500 to-orange-600 bg-clip-text text-transparent mt-2">
                   Travel Pakistan
                 </span>
                 <span className="block text-3xl sm:text-4xl lg:text-5xl mt-3 text-gray-700">
@@ -529,22 +532,28 @@ export default function LandingPage() {
                 variants={fadeInUp}
                 className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-10"
               >
-                <button className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl hover:shadow-blue-500/50 transition-all">
-                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <button
+                  onClick={() => navigate("/auth/register")}
+                  className="group relative px-8 py-4 bg-gradient-to-r from-orange-600 to-emerald-500 text-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl hover:shadow-orange-500/50 transition-all"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-orange-600 opacity-0 group-hover:opacity-100 transition-opacity" />
                   <div className="relative flex items-center justify-center gap-2">
                     <Sparkles className="w-5 h-5" />
-                    <span className="font-semibold">Start Planning Free</span>
+                    <span className="font-semibold">Get Started Free</span>
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </button>
-                <button className="group px-8 py-4 bg-white text-gray-700 rounded-2xl border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2">
-                  <Play className="w-5 h-5 text-blue-600" />
-                  <span className="font-semibold">Watch Demo</span>
+                <button
+                  onClick={() => navigate("/auth/login")}
+                  className="group px-8 py-4 bg-white text-gray-700 rounded-2xl border-2 border-gray-200 hover:border-orange-400 hover:bg-orange-50 transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2"
+                >
+                  <Users className="w-5 h-5 text-orange-600" />
+                  <span className="font-semibold">Login to Dashboard</span>
                 </button>
               </motion.div>
 
               {/* Secondary CTAs */}
-              <motion.div
+              {/* <motion.div
                 variants={fadeInUp}
                 className="flex flex-wrap gap-3 justify-center lg:justify-start"
               >
@@ -558,7 +567,7 @@ export default function LandingPage() {
                   <span className="text-sm font-medium">Become a Guide</span>
                   <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </button>
-              </motion.div>
+              </motion.div> */}
             </motion.div>
 
             {/* Right Content - Hero Visual */}
@@ -577,10 +586,10 @@ export default function LandingPage() {
                     repeat: Infinity,
                     ease: "easeInOut",
                   }}
-                  className="absolute -top-6 -left-6 bg-white p-5 rounded-2xl shadow-2xl z-20 border border-blue-100"
+                  className="absolute -top-6 -left-6 bg-white p-5 rounded-2xl shadow-2xl z-20 border border-orange-100"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-xl flex items-center justify-center">
+                    <div className="w-12 h-12 bg-gradient-to-br from-orange-600 to-emerald-500 rounded-xl flex items-center justify-center">
                       <Brain className="w-6 h-6 text-white" />
                     </div>
                     <div>
@@ -610,11 +619,9 @@ export default function LandingPage() {
                     </div>
                     <div>
                       <div className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                        50M+
+                        Customize
                       </div>
-                      <div className="text-xs text-gray-600">
-                        Annual Tourists
-                      </div>
+                      <div className="text-xs text-gray-600">Tour</div>
                     </div>
                   </div>
                 </motion.div>
@@ -646,10 +653,10 @@ export default function LandingPage() {
 
                 {/* Main Hero Image */}
                 <div className="rounded-3xl overflow-hidden shadow-2xl border-8 border-white">
-                  <ImageWithFallback
-                    src="https://images.unsplash.com/photo-1632760306935-c3fca6862dbf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwYWtpc3RhbiUyMG1vdW50YWlucyUyMHRvdXJpc218ZW58MXx8fHwxNzY0Njk2MTA4fDA&ixlib=rb-4.1.0&q=80&w=1080"
-                    alt="Pakistan Tourism"
-                    className="w-full h-auto object-cover"
+                  <img
+                    src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1080&q=80"
+                    alt="Pakistan Mountains Tourism"
+                    className="w-full h-[400px] object-cover"
                   />
                 </div>
               </div>
@@ -673,7 +680,7 @@ export default function LandingPage() {
               className="text-3xl sm:text-4xl lg:text-5xl mb-4"
             >
               Pakistan's Tourism is
-              <span className="block bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+              <span className="block bg-gradient-to-r from-orange-600 to-emerald-500 bg-clip-text text-transparent">
                 Ready to Boom
               </span>
             </motion.h2>
@@ -699,9 +706,9 @@ export default function LandingPage() {
                 whileHover={{ scale: 1.05 }}
                 className="relative p-8 bg-white rounded-3xl shadow-lg hover:shadow-xl transition-all border border-gray-100 group"
               >
-                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-400/10 to-cyan-400/10 rounded-full blur-2xl group-hover:blur-3xl transition-all" />
+                <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-orange-400/10 to-emerald-400/10 rounded-full blur-2xl group-hover:blur-3xl transition-all" />
                 <div className="relative">
-                  <div className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent mb-2">
+                  <div className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-orange-600 to-emerald-500 bg-clip-text text-transparent mb-2">
                     {stat.value}
                   </div>
                   <div className="text-lg text-gray-900 mb-1">{stat.label}</div>
@@ -731,8 +738,8 @@ export default function LandingPage() {
                 variants={fadeInUp}
                 className="text-center"
               >
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-2xl flex items-center justify-center mb-4 mx-auto">
-                  <value.icon className="w-8 h-8 text-blue-600" />
+                <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-emerald-100 rounded-2xl flex items-center justify-center mb-4 mx-auto">
+                  <value.icon className="w-8 h-8 text-orange-600" />
                 </div>
                 <h3 className="text-lg font-semibold mb-2">{value.title}</h3>
                 <p className="text-sm text-gray-600">{value.description}</p>
@@ -743,7 +750,7 @@ export default function LandingPage() {
       </section>
 
       {/* Value Proposition Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 via-cyan-50 to-white">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-orange-50 via-emerald-50 to-white">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial="hidden"
@@ -754,17 +761,19 @@ export default function LandingPage() {
           >
             <motion.div
               variants={fadeInUp}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 rounded-full mb-4"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-orange-100 rounded-full mb-4"
             >
-              <Target className="w-4 h-4 text-blue-600" />
-              <span className="text-sm text-blue-600">Complete Ecosystem</span>
+              <Target className="w-4 h-4 text-orange-600" />
+              <span className="text-sm text-orange-600">
+                Complete Ecosystem
+              </span>
             </motion.div>
             <motion.h2
               variants={fadeInUp}
               className="text-3xl sm:text-4xl lg:text-5xl mb-6"
             >
               One Platform,
-              <span className="block bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+              <span className="block bg-gradient-to-r from-orange-600 to-emerald-500 bg-clip-text text-transparent">
                 Three Communities
               </span>
             </motion.h2>
@@ -788,33 +797,33 @@ export default function LandingPage() {
             <motion.div
               variants={fadeInUp}
               whileHover={{ y: -10 }}
-              className="relative p-8 bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all border border-blue-100 group overflow-hidden"
+              className="relative p-8 bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all border border-orange-100 group overflow-hidden"
             >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/10 to-cyan-400/10 rounded-full blur-2xl group-hover:scale-150 transition-transform" />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-400/10 to-emerald-400/10 rounded-full blur-2xl group-hover:scale-150 transition-transform" />
               <div className="relative">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform">
+                <div className="w-16 h-16 bg-gradient-to-br from-orange-600 to-emerald-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform">
                   <Users className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-2xl mb-4">For Tourists</h3>
                 <div className="space-y-3 text-gray-600">
                   <div className="flex items-start gap-3">
-                    <CircleDot className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                    <CircleDot className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
                     <span>AI-powered personalized itineraries</span>
                   </div>
                   <div className="flex items-start gap-3">
-                    <CircleDot className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                    <CircleDot className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
                     <span>Custom tour builder with bidding</span>
                   </div>
                   <div className="flex items-start gap-3">
-                    <CircleDot className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                    <CircleDot className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
                     <span>Event-focused interactive maps</span>
                   </div>
                   <div className="flex items-start gap-3">
-                    <CircleDot className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                    <CircleDot className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
                     <span>Book verified local guides</span>
                   </div>
                   <div className="flex items-start gap-3">
-                    <CircleDot className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                    <CircleDot className="w-5 h-5 text-orange-500 flex-shrink-0 mt-0.5" />
                     <span>Secure payments & refunds</span>
                   </div>
                 </div>
@@ -903,7 +912,7 @@ export default function LandingPage() {
             viewport={{ once: true }}
             className="relative p-12 bg-white rounded-3xl shadow-2xl overflow-hidden"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-cyan-50/50" />
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-50/50 to-emerald-50/50" />
             <div className="relative text-center mb-10">
               <h3 className="text-2xl sm:text-3xl mb-2">
                 Seamless Integration
@@ -914,7 +923,7 @@ export default function LandingPage() {
             </div>
             <div className="relative flex flex-col md:flex-row items-center justify-center gap-8">
               <div className="flex items-center gap-4">
-                <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg">
+                <div className="w-20 h-20 bg-gradient-to-br from-orange-600 to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg">
                   <Users className="w-10 h-10 text-white" />
                 </div>
                 <div>
@@ -926,7 +935,7 @@ export default function LandingPage() {
               <ChevronRight className="w-8 h-8 text-gray-400 hidden md:block" />
               <Route className="w-8 h-8 text-gray-400 md:hidden rotate-90" />
 
-              <div className="relative px-10 py-6 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-2xl text-white text-center shadow-xl">
+              <div className="relative px-10 py-6 bg-gradient-to-r from-orange-600 to-emerald-500 rounded-2xl text-white text-center shadow-xl">
                 <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full animate-pulse" />
                 <Brain className="w-10 h-10 mx-auto mb-2" />
                 <div className="font-bold text-lg">SwifTrip</div>
@@ -969,17 +978,17 @@ export default function LandingPage() {
           >
             <motion.div
               variants={fadeInUp}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 rounded-full mb-4"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-orange-100 rounded-full mb-4"
             >
-              <Users className="w-4 h-4 text-blue-600" />
-              <span className="text-sm text-blue-600">For Tourists</span>
+              <Users className="w-4 h-4 text-orange-600" />
+              <span className="text-sm text-orange-600">For Tourists</span>
             </motion.div>
             <motion.h2
               variants={fadeInUp}
               className="text-3xl sm:text-4xl lg:text-5xl mb-6"
             >
               Your Perfect Journey
-              <span className="block bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+              <span className="block bg-gradient-to-r from-orange-600 to-emerald-500 bg-clip-text text-transparent">
                 Starts Here
               </span>
             </motion.h2>
@@ -1225,7 +1234,7 @@ export default function LandingPage() {
                 <div className="flex items-center gap-4 mb-4">
                   <div className="relative">
                     <div className="w-16 h-16 bg-gradient-to-br from-orange-600 to-amber-500 rounded-full" />
-                    <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center border-2 border-white">
+                    <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-orange-600 rounded-full flex items-center justify-center border-2 border-white">
                       <Shield className="w-3 h-3 text-white" />
                     </div>
                   </div>
@@ -1277,17 +1286,17 @@ export default function LandingPage() {
           >
             <motion.div
               variants={fadeInUp}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 rounded-full mb-4"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-orange-100 rounded-full mb-4"
             >
-              <Star className="w-4 h-4 text-blue-600" />
-              <span className="text-sm text-blue-600">Success Stories</span>
+              <Star className="w-4 h-4 text-orange-600" />
+              <span className="text-sm text-orange-600">Success Stories</span>
             </motion.div>
             <motion.h2
               variants={fadeInUp}
               className="text-3xl sm:text-4xl lg:text-5xl mb-6"
             >
               Real Results from
-              <span className="block bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+              <span className="block bg-gradient-to-r from-orange-600 to-emerald-500 bg-clip-text text-transparent">
                 Real Users
               </span>
             </motion.h2>
@@ -1312,9 +1321,9 @@ export default function LandingPage() {
                 key={index}
                 variants={fadeInUp}
                 whileHover={{ y: -10 }}
-                className="relative bg-gradient-to-br from-gray-50 to-blue-50 p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all border border-gray-100 overflow-hidden group"
+                className="relative bg-gradient-to-br from-gray-50 to-orange-50 p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all border border-gray-100 overflow-hidden group"
               >
-                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/10 to-cyan-400/10 rounded-full blur-2xl group-hover:scale-150 transition-transform" />
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-400/10 to-emerald-400/10 rounded-full blur-2xl group-hover:scale-150 transition-transform" />
                 <div className="relative">
                   <div className="flex items-center gap-4 mb-6">
                     <ImageWithFallback
@@ -1334,7 +1343,7 @@ export default function LandingPage() {
                   <p className="text-gray-700 mb-6 leading-relaxed italic">
                     "{useCase.story}"
                   </p>
-                  <div className="p-4 bg-white rounded-xl border border-blue-200 shadow-sm">
+                  <div className="p-4 bg-white rounded-xl border border-orange-200 shadow-sm">
                     <div className="flex items-center gap-2 text-green-600">
                       <TrendingUp className="w-5 h-5" />
                       <span className="font-semibold text-sm">
@@ -1350,7 +1359,7 @@ export default function LandingPage() {
       </section>
 
       {/* Final CTA Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-600 via-cyan-500 to-blue-600 relative overflow-hidden">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-orange-600 via-emerald-500 to-orange-600 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent" />
         <motion.div
           animate={{
@@ -1386,7 +1395,7 @@ export default function LandingPage() {
 
             <motion.p
               variants={fadeInUp}
-              className="text-lg sm:text-xl text-blue-100 mb-12 max-w-3xl mx-auto leading-relaxed"
+              className="text-lg sm:text-xl text-orange-100 mb-12 max-w-3xl mx-auto leading-relaxed"
             >
               Whether you're a traveler seeking adventure, an agency looking to
               grow, or a guide building your reputation - SwifTrip is your
@@ -1397,15 +1406,15 @@ export default function LandingPage() {
               variants={fadeInUp}
               className="flex flex-col sm:flex-row gap-4 justify-center mb-10"
             >
-              <button className="group relative px-10 py-5 bg-white text-blue-600 rounded-2xl overflow-hidden shadow-2xl hover:shadow-white/30 transition-all">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-cyan-50 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <button className="group relative px-10 py-5 bg-white text-orange-600 rounded-2xl overflow-hidden shadow-2xl hover:shadow-white/30 transition-all">
+                <div className="absolute inset-0 bg-gradient-to-r from-orange-50 to-emerald-50 opacity-0 group-hover:opacity-100 transition-opacity" />
                 <div className="relative flex items-center justify-center gap-2 text-lg font-semibold">
                   <Download className="w-6 h-6" />
                   Download App
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </div>
               </button>
-              <button className="px-10 py-5 bg-transparent text-white rounded-2xl border-2 border-white hover:bg-white hover:text-blue-600 transition-all text-lg font-semibold">
+              <button className="px-10 py-5 bg-transparent text-white rounded-2xl border-2 border-white hover:bg-white hover:text-orange-600 transition-all text-lg font-semibold">
                 Start Free Trial
               </button>
             </motion.div>
@@ -1462,13 +1471,13 @@ export default function LandingPage() {
               <div className="flex gap-3">
                 <a
                   href="#"
-                  className="w-10 h-10 bg-gray-800 hover:bg-blue-600 rounded-xl flex items-center justify-center transition-colors"
+                  className="w-10 h-10 bg-gray-800 hover:bg-orange-600 rounded-xl flex items-center justify-center transition-colors"
                 >
                   <Facebook className="w-5 h-5" />
                 </a>
                 <a
                   href="#"
-                  className="w-10 h-10 bg-gray-800 hover:bg-blue-400 rounded-xl flex items-center justify-center transition-colors"
+                  className="w-10 h-10 bg-gray-800 hover:bg-emerald-500 rounded-xl flex items-center justify-center transition-colors"
                 >
                   <Twitter className="w-5 h-5" />
                 </a>
@@ -1480,7 +1489,7 @@ export default function LandingPage() {
                 </a>
                 <a
                   href="#"
-                  className="w-10 h-10 bg-gray-800 hover:bg-blue-700 rounded-xl flex items-center justify-center transition-colors"
+                  className="w-10 h-10 bg-gray-800 hover:bg-orange-700 rounded-xl flex items-center justify-center transition-colors"
                 >
                   <Linkedin className="w-5 h-5" />
                 </a>
@@ -1494,28 +1503,40 @@ export default function LandingPage() {
                 <li>
                   <a
                     href="#features"
-                    className="hover:text-blue-400 transition-colors"
+                    className="hover:text-orange-400 transition-colors"
                   >
                     Features
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-blue-400 transition-colors">
+                  <a
+                    href="#"
+                    className="hover:text-orange-400 transition-colors"
+                  >
                     Pricing
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-blue-400 transition-colors">
+                  <a
+                    href="#"
+                    className="hover:text-orange-400 transition-colors"
+                  >
                     Mobile App
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-blue-400 transition-colors">
+                  <a
+                    href="#"
+                    className="hover:text-orange-400 transition-colors"
+                  >
                     API Access
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-blue-400 transition-colors">
+                  <a
+                    href="#"
+                    className="hover:text-orange-400 transition-colors"
+                  >
                     Integrations
                   </a>
                 </li>
@@ -1529,7 +1550,7 @@ export default function LandingPage() {
                 <li>
                   <a
                     href="#features"
-                    className="hover:text-blue-400 transition-colors"
+                    className="hover:text-orange-400 transition-colors"
                   >
                     For Tourists
                   </a>
@@ -1537,7 +1558,7 @@ export default function LandingPage() {
                 <li>
                   <a
                     href="#for-agencies"
-                    className="hover:text-blue-400 transition-colors"
+                    className="hover:text-orange-400 transition-colors"
                   >
                     For Agencies
                   </a>
@@ -1545,7 +1566,7 @@ export default function LandingPage() {
                 <li>
                   <a
                     href="#for-guides"
-                    className="hover:text-blue-400 transition-colors"
+                    className="hover:text-orange-400 transition-colors"
                   >
                     For Guides
                   </a>
@@ -1553,13 +1574,16 @@ export default function LandingPage() {
                 <li>
                   <a
                     href="#use-cases"
-                    className="hover:text-blue-400 transition-colors"
+                    className="hover:text-orange-400 transition-colors"
                   >
                     Success Stories
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-blue-400 transition-colors">
+                  <a
+                    href="#"
+                    className="hover:text-orange-400 transition-colors"
+                  >
                     Help Center
                   </a>
                 </li>
@@ -1571,27 +1595,42 @@ export default function LandingPage() {
               <h4 className="text-white mb-4 font-semibold">Company</h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <a href="#" className="hover:text-blue-400 transition-colors">
+                  <a
+                    href="#"
+                    className="hover:text-orange-400 transition-colors"
+                  >
                     About Us
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-blue-400 transition-colors">
+                  <a
+                    href="#"
+                    className="hover:text-orange-400 transition-colors"
+                  >
                     Careers
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-blue-400 transition-colors">
+                  <a
+                    href="#"
+                    className="hover:text-orange-400 transition-colors"
+                  >
                     Blog
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-blue-400 transition-colors">
+                  <a
+                    href="#"
+                    className="hover:text-orange-400 transition-colors"
+                  >
                     Press Kit
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-blue-400 transition-colors">
+                  <a
+                    href="#"
+                    className="hover:text-orange-400 transition-colors"
+                  >
                     Contact
                   </a>
                 </li>
@@ -1604,7 +1643,7 @@ export default function LandingPage() {
             <div className="grid sm:grid-cols-3 gap-6">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gray-800 rounded-xl flex items-center justify-center">
-                  <Mail className="w-5 h-5 text-blue-400" />
+                  <Mail className="w-5 h-5 text-orange-400" />
                 </div>
                 <div>
                   <div className="text-xs text-gray-500">Email</div>
@@ -1613,7 +1652,7 @@ export default function LandingPage() {
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gray-800 rounded-xl flex items-center justify-center">
-                  <Phone className="w-5 h-5 text-blue-400" />
+                  <Phone className="w-5 h-5 text-orange-400" />
                 </div>
                 <div>
                   <div className="text-xs text-gray-500">Phone</div>
@@ -1622,7 +1661,7 @@ export default function LandingPage() {
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-gray-800 rounded-xl flex items-center justify-center">
-                  <MapPinned className="w-5 h-5 text-blue-400" />
+                  <MapPinned className="w-5 h-5 text-orange-400" />
                 </div>
                 <div>
                   <div className="text-xs text-gray-500">Location</div>
@@ -1640,25 +1679,25 @@ export default function LandingPage() {
             <div className="flex flex-wrap gap-6 text-sm">
               <a
                 href="#"
-                className="text-gray-400 hover:text-blue-400 transition-colors"
+                className="text-gray-400 hover:text-orange-400 transition-colors"
               >
                 Privacy Policy
               </a>
               <a
                 href="#"
-                className="text-gray-400 hover:text-blue-400 transition-colors"
+                className="text-gray-400 hover:text-orange-400 transition-colors"
               >
                 Terms of Service
               </a>
               <a
                 href="#"
-                className="text-gray-400 hover:text-blue-400 transition-colors"
+                className="text-gray-400 hover:text-orange-400 transition-colors"
               >
                 Cookie Policy
               </a>
               <a
                 href="#"
-                className="text-gray-400 hover:text-blue-400 transition-colors"
+                className="text-gray-400 hover:text-orange-400 transition-colors"
               >
                 Disclaimer
               </a>

@@ -44,10 +44,10 @@ export default function ForgotPasswordPage() {
         <div className="bg-white rounded-3xl shadow-2xl p-8 lg:p-10 text-center">
           {/* Success Icon */}
           <div className="relative w-24 h-24 mx-auto mb-6">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-full animate-pulse"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-400 to-emerald-500 rounded-full animate-pulse"></div>
             <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center">
               <svg
-                className="w-12 h-12 text-blue-600"
+                className="w-12 h-12 text-orange-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -73,7 +73,7 @@ export default function ForgotPasswordPage() {
 
           <button
             onClick={() => navigate("/auth/login")}
-            className="w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold rounded-xl hover:shadow-xl hover:shadow-blue-500/30 transition-all transform hover:scale-105"
+            className="w-full py-4 bg-gradient-to-r from-orange-600 to-emerald-500 text-white font-bold rounded-xl hover:shadow-xl hover:shadow-orange-500/30 transition-all transform hover:scale-105"
           >
             Back to Login
           </button>
@@ -84,7 +84,7 @@ export default function ForgotPasswordPage() {
                 setSuccess(false);
                 setEmail("");
               }}
-              className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+              className="text-sm text-orange-600 hover:text-orange-700 font-medium"
             >
               Didn't receive the email? Try again
             </button>
@@ -98,9 +98,9 @@ export default function ForgotPasswordPage() {
     <AuthLayout mode="login" showFormWrapper={false}>
       <div className="bg-white rounded-3xl shadow-2xl p-8 lg:p-10">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <svg
-              className="w-8 h-8 text-blue-600"
+              className="w-8 h-8 text-orange-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -141,7 +141,7 @@ export default function ForgotPasswordPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
               disabled={loading}
             />
           </div>
@@ -150,7 +150,7 @@ export default function ForgotPasswordPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold rounded-xl hover:shadow-xl hover:shadow-blue-500/30 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            className="w-full py-4 bg-gradient-to-r from-orange-600 to-emerald-500 text-white font-bold rounded-xl hover:shadow-xl hover:shadow-orange-500/30 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
             {loading ? "Sending..." : "Send Reset Link"}
           </button>
@@ -160,7 +160,7 @@ export default function ForgotPasswordPage() {
             <button
               type="button"
               onClick={() => navigate("/auth/login")}
-              className="text-sm text-gray-600 hover:text-blue-600 font-medium transition-colors"
+              className="text-sm text-gray-600 hover:text-orange-600 font-medium transition-colors"
             >
               ← Back to Login
             </button>

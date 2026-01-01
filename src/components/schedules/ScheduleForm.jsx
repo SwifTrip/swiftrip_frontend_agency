@@ -81,7 +81,7 @@ const ScheduleForm = ({ packageData, onSubmit, onCancel }) => {
             type="button"
             className={`pb-3 px-4 font-medium transition-colors relative ${
               mode === "single"
-                ? "text-blue-600 border-b-2 border-blue-600"
+                ? "text-orange-600 border-b-2 border-orange-600"
                 : "text-gray-600 hover:text-gray-900"
             }`}
             onClick={() => setMode("single")}
@@ -92,7 +92,7 @@ const ScheduleForm = ({ packageData, onSubmit, onCancel }) => {
             type="button"
             className={`pb-3 px-4 font-medium transition-colors relative ${
               mode === "recurring"
-                ? "text-blue-600 border-b-2 border-blue-600"
+                ? "text-orange-600 border-b-2 border-orange-600"
                 : "text-gray-600 hover:text-gray-900"
             }`}
             onClick={() => setMode("recurring")}
@@ -125,7 +125,7 @@ const ScheduleForm = ({ packageData, onSubmit, onCancel }) => {
                         e.target.value
                       )
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                     required
                   />
                 </div>
@@ -145,7 +145,7 @@ const ScheduleForm = ({ packageData, onSubmit, onCancel }) => {
                       )
                     }
                     min="1"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                     required
                   />
                 </div>
@@ -165,7 +165,7 @@ const ScheduleForm = ({ packageData, onSubmit, onCancel }) => {
                       )
                     }
                     placeholder="Optional"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 </div>
 
@@ -184,7 +184,7 @@ const ScheduleForm = ({ packageData, onSubmit, onCancel }) => {
             <button
               type="button"
               onClick={handleAddSchedule}
-              className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-blue-500 hover:text-blue-600 transition-colors flex items-center justify-center gap-2"
+              className="w-full py-2 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-orange-500 hover:text-orange-600 transition-colors flex items-center justify-center gap-2"
             >
               <Plus className="w-4 h-4" />
               Add Another Date
@@ -203,7 +203,7 @@ const ScheduleForm = ({ packageData, onSubmit, onCancel }) => {
                   onChange={(e) =>
                     handleRecurrenceChange("startDate", e.target.value)
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                   required
                 />
               </div>
@@ -217,7 +217,7 @@ const ScheduleForm = ({ packageData, onSubmit, onCancel }) => {
                   onChange={(e) =>
                     handleRecurrenceChange("frequency", e.target.value)
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                   required
                 >
                   <option value="WEEKLY">Weekly</option>
@@ -240,7 +240,7 @@ const ScheduleForm = ({ packageData, onSubmit, onCancel }) => {
                   }
                   min="1"
                   max="52"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                   required
                 />
               </div>
@@ -255,7 +255,7 @@ const ScheduleForm = ({ packageData, onSubmit, onCancel }) => {
                   onChange={(e) =>
                     handleRecurrenceChange("until", e.target.value)
                   }
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
             </div>
@@ -275,7 +275,7 @@ const ScheduleForm = ({ packageData, onSubmit, onCancel }) => {
                     )
                   }
                   min="1"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                   required
                 />
               </div>
@@ -294,13 +294,13 @@ const ScheduleForm = ({ packageData, onSubmit, onCancel }) => {
                     )
                   }
                   placeholder="Optional"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                 />
               </div>
             </div>
 
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <p className="text-sm text-blue-800">
+            <div className="bg-orange-50 p-4 rounded-lg">
+              <p className="text-sm text-orange-800">
                 This will create <strong>{recurrence.count}</strong> departures,{" "}
                 <strong>{recurrence.frequency.toLowerCase()}</strong> starting
                 from <strong>{recurrence.startDate || "[select date]"}</strong>.
@@ -320,7 +320,7 @@ const ScheduleForm = ({ packageData, onSubmit, onCancel }) => {
           </button>
           <button
             type="submit"
-            className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            className="flex-1 px-6 py-3 bg-orange-600 text-white rounded-lg font-medium hover:bg-orange-700 transition-colors"
           >
             Create Schedules
           </button>

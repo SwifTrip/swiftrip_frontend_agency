@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Shield, Edit2, Trash2, Check, X } from 'lucide-react';
+import React, { useState } from "react";
+import { Shield, Edit2, Trash2, Check, X } from "lucide-react";
 
 const RoleCard = ({ role, onEdit, onDelete }) => {
   const [showAll, setShowAll] = useState(false);
@@ -11,9 +11,9 @@ const RoleCard = ({ role, onEdit, onDelete }) => {
   const formatLabel = (label) =>
     label
       .toLowerCase()
-      .split('_')
+      .split("_")
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+      .join(" ");
 
   // Generate permission list dynamically
   const getPermissionsList = () => {
@@ -21,7 +21,7 @@ const RoleCard = ({ role, onEdit, onDelete }) => {
 
     return role.permissions.map((p) => ({
       label: formatLabel(p.permission.action),
-      hasPermission: true
+      hasPermission: true,
     }));
   };
 
@@ -35,26 +35,25 @@ const RoleCard = ({ role, onEdit, onDelete }) => {
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center">
-            <Shield className="text-blue-600" size={20} />
+          <div className="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center">
+            <Shield className="text-orange-600" size={20} />
           </div>
           <div>
             <h3 className="text-lg font-semibold text-gray-900">{role.name}</h3>
             <p className="text-sm text-gray-500 mt-0.5">
-              {role.description || (
-                role.name === 'Admin'
-                  ? 'Full system access and management'
-                  : role.name === 'Manager'
-                  ? 'Department management and oversight'
-                  : 'Basic operational access'
-              )}
+              {role.description ||
+                (role.name === "Admin"
+                  ? "Full system access and management"
+                  : role.name === "Manager"
+                  ? "Department management and oversight"
+                  : "Basic operational access")}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-1">
           <button
             onClick={() => onEdit(role)}
-            className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+            className="p-2 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
           >
             <Edit2 size={16} />
           </button>
@@ -69,7 +68,7 @@ const RoleCard = ({ role, onEdit, onDelete }) => {
 
       {/* User Count */}
       <div className="text-sm text-gray-500 mb-4">
-        {getUserCount()} {getUserCount() === 1 ? 'user' : 'users'}
+        {getUserCount()} {getUserCount() === 1 ? "user" : "users"}
       </div>
 
       {/* Permissions */}
@@ -88,9 +87,9 @@ const RoleCard = ({ role, onEdit, onDelete }) => {
         {permissions.length > 5 && (
           <button
             onClick={() => setShowAll(!showAll)}
-            className="mt-2 text-sm text-blue-600 hover:underline"
+            className="mt-2 text-sm text-orange-600 hover:underline"
           >
-            {showAll ? 'Show less' : `View all (${permissions.length})`}
+            {showAll ? "Show less" : `View all (${permissions.length})`}
           </button>
         )}
       </div>

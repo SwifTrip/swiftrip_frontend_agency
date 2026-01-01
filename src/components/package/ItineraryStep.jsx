@@ -606,7 +606,7 @@ export default function ItineraryStep({
         <button
           type="button"
           onClick={addDay}
-          className="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm"
+          className="px-6 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 font-medium text-sm"
         >
           + Add Day
         </button>
@@ -618,7 +618,7 @@ export default function ItineraryStep({
           <button
             type="button"
             onClick={addDay}
-            className="mt-2 text-blue-600 font-semibold hover:text-blue-700"
+            className="mt-2 text-orange-600 font-semibold hover:text-orange-700"
           >
             + Add First Day
           </button>
@@ -637,7 +637,7 @@ export default function ItineraryStep({
                 }
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
+                  <div className="w-10 h-10 bg-orange-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
                     {day.dayNumber}
                   </div>
                   <div>
@@ -707,7 +707,7 @@ export default function ItineraryStep({
                           updateDay(dayIndex, "title", e.target.value)
                         }
                         placeholder="e.g., Arrival and City Tour"
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400"
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder-gray-400"
                       />
                     </div>
                     <div>
@@ -721,7 +721,7 @@ export default function ItineraryStep({
                         }
                         placeholder="Describe what happens on this day"
                         rows={2}
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none placeholder-gray-400"
+                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none placeholder-gray-400"
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
@@ -735,7 +735,7 @@ export default function ItineraryStep({
                           onChange={(e) =>
                             updateDay(dayIndex, "dayStartTime", e.target.value)
                           }
-                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400"
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder-gray-400"
                         />
                       </div>
                       <div>
@@ -748,7 +748,7 @@ export default function ItineraryStep({
                           onChange={(e) =>
                             updateDay(dayIndex, "dayEndTime", e.target.value)
                           }
-                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400"
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-orange-500 focus:border-transparent placeholder-gray-400"
                         />
                       </div>
                     </div>
@@ -761,7 +761,7 @@ export default function ItineraryStep({
                           className={`mt-3 p-4 rounded-lg border ${
                             timeCalc.isOvertime
                               ? "bg-red-50 border-red-200"
-                              : "bg-blue-50 border-blue-200"
+                              : "bg-orange-50 border-orange-200"
                           }`}
                         >
                           <div className="flex items-center justify-between text-sm">
@@ -851,7 +851,7 @@ export default function ItineraryStep({
                                 }
                                 e.target.value = "";
                               }}
-                              className="px-2 py-1 border border-blue-300 rounded text-sm bg-white focus:ring-2 focus:ring-blue-500"
+                              className="px-2 py-1 border border-orange-300 rounded text-sm bg-white focus:ring-2 focus:ring-orange-500"
                             >
                               <option value="">Use Shared Transport</option>
                               {formData.tourTransports.map((t, idx) => (
@@ -864,7 +864,7 @@ export default function ItineraryStep({
                           )}
                           <button
                             type="button"
-                            className="text-sm text-blue-600 hover:text-blue-700"
+                            className="text-sm text-orange-600 hover:text-orange-700"
                             onClick={() => {
                               const updated = [...formData.itineraries];
                               updated[dayIndex].dayTransports = [
@@ -1169,7 +1169,7 @@ export default function ItineraryStep({
                             onClick={() =>
                               addItem(dayIndex, "ACTIVITY", timeOfDay)
                             }
-                            className="text-sm text-gray-600 hover:text-blue-600 font-medium"
+                            className="text-sm text-gray-600 hover:text-orange-600 font-medium"
                           >
                             + Add Item
                           </button>
@@ -1248,7 +1248,7 @@ export default function ItineraryStep({
                                       }}
                                       onClick={(e) => e.stopPropagation()}
                                       placeholder="Item name"
-                                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                                     />
                                   </div>
                                   <div>
@@ -1269,7 +1269,7 @@ export default function ItineraryStep({
                                       }}
                                       onClick={(e) => e.stopPropagation()}
                                       placeholder="Location (optional)"
-                                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                                     />
                                   </div>
                                 </div>
@@ -1293,7 +1293,7 @@ export default function ItineraryStep({
                                     onClick={(e) => e.stopPropagation()}
                                     placeholder="Describe this activity"
                                     rows={2}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
                                   />
                                 </div>
 
@@ -1332,7 +1332,7 @@ export default function ItineraryStep({
                                       onClick={(e) => e.stopPropagation()}
                                       placeholder="0"
                                       min="0"
-                                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                                     />
                                   </div>
                                   <div>
@@ -1354,7 +1354,7 @@ export default function ItineraryStep({
                                       onClick={(e) => e.stopPropagation()}
                                       placeholder="1"
                                       min="0"
-                                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                                     />
                                   </div>
                                 </div>
@@ -1380,7 +1380,7 @@ export default function ItineraryStep({
                                       onClick={(e) => e.stopPropagation()}
                                       min={day.dayStartTime || ""}
                                       max={day.dayEndTime || ""}
-                                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                                     />
                                     {item.startTime &&
                                       item.endTime &&
@@ -1411,7 +1411,7 @@ export default function ItineraryStep({
                                         item.startTime || day.dayStartTime || ""
                                       }
                                       max={day.dayEndTime || ""}
-                                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                                     />
                                     {item.endTime &&
                                       item.startTime &&
@@ -1438,7 +1438,7 @@ export default function ItineraryStep({
                                         );
                                       }}
                                       onClick={(e) => e.stopPropagation()}
-                                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                      className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
                                     />
                                     <span className="text-sm text-gray-700">
                                       Optional
@@ -1458,7 +1458,7 @@ export default function ItineraryStep({
                                         );
                                       }}
                                       onClick={(e) => e.stopPropagation()}
-                                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                      className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
                                     />
                                     <span className="text-sm text-gray-700">
                                       Add-on
@@ -1468,8 +1468,8 @@ export default function ItineraryStep({
 
                                 {/* MEAL DETAILS */}
                                 {item.type === "MEAL" && item.mealDetails && (
-                                  <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                                    <p className="text-xs font-semibold text-blue-900 mb-3">
+                                  <div className="mt-4 p-3 bg-orange-50 rounded-lg border border-orange-100">
+                                    <p className="text-xs font-semibold text-orange-900 mb-3">
                                       Meal Details
                                     </p>
                                     <div className="grid grid-cols-2 gap-3">
@@ -1489,7 +1489,7 @@ export default function ItineraryStep({
                                             );
                                           }}
                                           onClick={(e) => e.stopPropagation()}
-                                          className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500"
+                                          className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-orange-500"
                                         >
                                           <option value="BREAKFAST">
                                             Breakfast
@@ -1519,7 +1519,7 @@ export default function ItineraryStep({
                                           }}
                                           onClick={(e) => e.stopPropagation()}
                                           placeholder="e.g., Pakistani"
-                                          className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500"
+                                          className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-orange-500"
                                         />
                                       </div>
                                     </div>
@@ -1538,7 +1538,7 @@ export default function ItineraryStep({
                                             );
                                           }}
                                           onClick={(e) => e.stopPropagation()}
-                                          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                          className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
                                         />
                                         <span className="text-sm text-gray-700">
                                           Included in package
@@ -1558,7 +1558,7 @@ export default function ItineraryStep({
                                       {/* Option to use tour-level stay */}
                                       {formData.tourStays &&
                                         formData.tourStays.length > 0 && (
-                                          <div className="mb-3 p-2 bg-blue-50 rounded border border-blue-200">
+                                          <div className="mb-3 p-2 bg-orange-50 rounded border border-orange-200">
                                             <label className="text-xs text-gray-700 block mb-2 font-medium">
                                               Use Tour-Level Stay (from Basic
                                               Info)
@@ -1605,7 +1605,7 @@ export default function ItineraryStep({
                                               onClick={(e) =>
                                                 e.stopPropagation()
                                               }
-                                              className="w-full px-2 py-2 border border-blue-300 rounded text-sm focus:ring-2 focus:ring-blue-500 bg-white"
+                                              className="w-full px-2 py-2 border border-orange-300 rounded text-sm focus:ring-2 focus:ring-orange-500 bg-white"
                                             >
                                               <option value="custom">
                                                 Add Custom Stay
@@ -1950,7 +1950,7 @@ export default function ItineraryStep({
                                           );
                                         }}
                                         onClick={(e) => e.stopPropagation()}
-                                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                        className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
                                       />
                                       <span className="text-sm text-gray-700">
                                         Requires Transport
@@ -2027,7 +2027,7 @@ export default function ItineraryStep({
                                             }
                                           }}
                                           onClick={(e) => e.stopPropagation()}
-                                          className="px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 bg-white"
+                                          className="px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-orange-500 bg-white"
                                         >
                                           <option value="">
                                             Select a transport
@@ -2089,8 +2089,8 @@ export default function ItineraryStep({
                                   {item.requiresTransport &&
                                     item.transportId === "custom" &&
                                     item.customTransport && (
-                                      <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                                        <p className="text-xs font-semibold text-blue-900 mb-3">
+                                      <div className="mt-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                                        <p className="text-xs font-semibold text-orange-900 mb-3">
                                           Custom Transport Details
                                         </p>
                                         <div className="space-y-2">
@@ -2127,7 +2127,7 @@ export default function ItineraryStep({
                                                 e.stopPropagation()
                                               }
                                               placeholder="e.g., Bus, Car, Van"
-                                              className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500"
+                                              className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-orange-500"
                                             />
                                           </div>
                                           <div className="grid grid-cols-2 gap-2">
@@ -2166,7 +2166,7 @@ export default function ItineraryStep({
                                                   e.stopPropagation()
                                                 }
                                                 placeholder="Start location"
-                                                className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500"
+                                                className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-orange-500"
                                               />
                                             </div>
                                             <div>
@@ -2203,7 +2203,7 @@ export default function ItineraryStep({
                                                   e.stopPropagation()
                                                 }
                                                 placeholder="End location"
-                                                className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500"
+                                                className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-orange-500"
                                               />
                                             </div>
                                           </div>
@@ -2242,7 +2242,7 @@ export default function ItineraryStep({
                                                 e.stopPropagation()
                                               }
                                               placeholder="e.g., 50"
-                                              className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500"
+                                              className="w-full px-2 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-orange-500"
                                             />
                                           </div>
                                           <label className="flex items-center gap-2 cursor-pointer mt-2">
@@ -2274,7 +2274,7 @@ export default function ItineraryStep({
                                               onClick={(e) =>
                                                 e.stopPropagation()
                                               }
-                                              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                              className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
                                             />
                                             <span className="text-sm text-gray-700">
                                               Included in package
@@ -2371,7 +2371,7 @@ export default function ItineraryStep({
         </button>
         <button
           type="submit"
-          className="px-8 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+          className="px-8 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 font-medium"
         >
           Next →
         </button>

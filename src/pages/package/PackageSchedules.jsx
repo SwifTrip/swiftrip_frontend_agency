@@ -4,6 +4,7 @@ import { Plus, Calendar, Edit2, Trash2, CheckCircle, Eye } from "lucide-react";
 import { toast } from "react-toastify";
 import SchedulePicker from "../../components/schedules/SchedulePicker";
 import ScheduleForm from "../../components/schedules/ScheduleForm";
+import ConfirmModal from "../../components/package/ConfirmModal";
 import * as scheduleApi from "../../api/scheduleApi";
 import { getPackageById } from "../../api/packageApi";
 
@@ -19,6 +20,14 @@ const PackageSchedules = () => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [filter, setFilter] = useState("all"); // all, published, draft
+
+  // Modal states
+  const [confirmModal, setConfirmModal] = useState({
+    open: false,
+    type: null, // 'publish' or 'delete'
+    scheduleId: null,
+    loading: false,
+  });
 
   useEffect(() => {
     loadData();
@@ -65,43 +74,58 @@ const PackageSchedules = () => {
   };
 
   const handlePublish = async (scheduleId) => {
-    if (
-      !confirm("Publish this schedule? It will become available for booking.")
-    )
-      return;
-
-    try {
-      await scheduleApi.publishSchedule(scheduleId);
-      loadData();
-      toast.success("Schedule published successfully!");
-    } catch (error) {
-      console.error("Error publishing schedule:", error);
-      toast.error(
-        error.response?.data?.message || "Failed to publish schedule."
-      );
-    }
+    setConfirmModal({
+      open: true,
+      type: "publish",
+      scheduleId,
+      loading: false,
+    });
   };
 
   const handleDelete = async (scheduleId) => {
-    if (!confirm("Delete this schedule? This cannot be undone.")) return;
+    setConfirmModal({
+      open: true,
+      type: "delete",
+      scheduleId,
+      loading: false,
+    });
+  };
+
+  const handleConfirmAction = async () => {
+    const { type, scheduleId } = confirmModal;
+    setConfirmModal((prev) => ({ ...prev, loading: true }));
 
     try {
-      await scheduleApi.deleteSchedule(scheduleId);
+      if (type === "publish") {
+        await scheduleApi.publishSchedule(scheduleId);
+        toast.success("Schedule published successfully!");
+      } else if (type === "delete") {
+        await scheduleApi.deleteSchedule(scheduleId);
+        toast.success("Schedule deleted successfully!");
+      }
       loadData();
-      toast.success("Schedule deleted successfully!");
+      setConfirmModal({
+        open: false,
+        type: null,
+        scheduleId: null,
+        loading: false,
+      });
     } catch (error) {
-      console.error("Error deleting schedule:", error);
+      console.error(`Error ${type}ing schedule:`, error);
       toast.error(
         error.response?.data?.message ||
-          "Failed to delete schedule. It may have active bookings."
+          `Failed to ${type} schedule.${
+            type === "delete" ? " It may have active bookings." : ""
+          }`
       );
+      setConfirmModal((prev) => ({ ...prev, loading: false }));
     }
   };
 
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
       </div>
     );
   }
@@ -112,7 +136,7 @@ const PackageSchedules = () => {
       <div className="mb-8">
         <button
           onClick={() => navigate(-1)}
-          className="text-blue-600 hover:text-blue-700 mb-4 inline-flex items-center gap-2"
+          className="text-orange-600 hover:text-orange-700 mb-4 inline-flex items-center gap-2"
         >
           ← Back to Package
         </button>
@@ -127,7 +151,7 @@ const PackageSchedules = () => {
 
           <button
             onClick={() => setShowForm(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+            className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
             Add Schedules
@@ -151,7 +175,7 @@ const PackageSchedules = () => {
         </div>
         <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
           <div className="text-sm text-gray-600 mb-1">Available Seats</div>
-          <div className="text-2xl font-bold text-blue-600">
+          <div className="text-2xl font-bold text-orange-600">
             {schedules.reduce((sum, s) => sum + (s.seatsAvailable || 0), 0)}
           </div>
         </div>
@@ -174,7 +198,7 @@ const PackageSchedules = () => {
                 onClick={() => setFilter(f)}
                 className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
                   filter === f
-                    ? "bg-blue-600 text-white"
+                    ? "bg-orange-600 text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
@@ -244,7 +268,16 @@ const PackageSchedules = () => {
                     )}
 
                     <button
-                      onClick={() => navigate(`/schedules/${schedule.id}`)}
+                      onClick={() => {
+                        // TODO: Navigate to schedule details page when implemented
+                        toast.info(
+                          `Schedule #${schedule.id}: ${new Date(
+                            schedule.departureDate
+                          ).toLocaleDateString()} - ${new Date(
+                            schedule.arrivalDate
+                          ).toLocaleDateString()}`
+                        );
+                      }}
                       className="p-2 text-gray-600 hover:bg-gray-200 rounded-lg"
                       title="View Details"
                     >
@@ -282,6 +315,32 @@ const PackageSchedules = () => {
           </div>
         </div>
       )}
+
+      {/* Confirm Modal */}
+      <ConfirmModal
+        open={confirmModal.open}
+        title={
+          confirmModal.type === "delete"
+            ? "Delete Schedule"
+            : "Publish Schedule"
+        }
+        message={
+          confirmModal.type === "delete"
+            ? "Are you sure you want to delete this schedule? This action cannot be undone."
+            : "Publish this schedule? It will become available for booking."
+        }
+        confirmText={confirmModal.type === "delete" ? "Delete" : "Publish"}
+        onConfirm={handleConfirmAction}
+        onCancel={() =>
+          setConfirmModal({
+            open: false,
+            type: null,
+            scheduleId: null,
+            loading: false,
+          })
+        }
+        loading={confirmModal.loading}
+      />
     </div>
   );
 };

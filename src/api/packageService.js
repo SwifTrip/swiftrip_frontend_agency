@@ -83,6 +83,11 @@ export const createPackage = async (packageData) => {
   formData.append("itineraries", JSON.stringify(packageData.itineraries || []));
   // Shared stays across days
   formData.append("tourStays", JSON.stringify(packageData.tourStays || []));
+  // Shared transports at package level
+  formData.append(
+    "tourTransports",
+    JSON.stringify(packageData.tourTransports || [])
+  );
   formData.append("fromLocation", packageData.fromLocation);
   formData.append("toLocation", packageData.toLocation);
   // Media
@@ -149,6 +154,11 @@ export const updatePackage = async (id, packageData) => {
     }
     if (packageData.tourStays !== undefined)
       formData.append("tourStays", JSON.stringify(packageData.tourStays || []));
+    if (packageData.tourTransports !== undefined)
+      formData.append(
+        "tourTransports",
+        JSON.stringify(packageData.tourTransports || [])
+      );
     if (packageData.keepMedia !== undefined)
       formData.append("keepMedia", JSON.stringify(packageData.keepMedia || []));
 

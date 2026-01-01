@@ -58,13 +58,12 @@ export default function Sidebar() {
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={2}
-            d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
           />
         </svg>
       ),
-      label: "Payments",
-      path: "/app/payments",
-      comingSoon: true,
+      label: "Users",
+      path: "/app/users",
     },
     {
       icon: (
@@ -78,12 +77,13 @@ export default function Sidebar() {
             strokeLinecap="round"
             strokeLinejoin="round"
             strokeWidth={2}
-            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+            d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
           />
         </svg>
       ),
-      label: "Users",
-      path: "/app/users",
+      label: "Payments",
+      path: "/app/payments",
+      comingSoon: true,
     },
     {
       icon: (
@@ -146,7 +146,7 @@ export default function Sidebar() {
             className="w-10 h-10 object-contain"
           />
           <div>
-            <h1 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+            <h1 className="text-lg font-bold bg-gradient-to-r from-orange-600 to-emerald-500 bg-clip-text text-transparent">
               SwifTrip
             </h1>
             <p className="text-xs text-gray-500">Agency Panel</p>
@@ -180,7 +180,7 @@ export default function Sidebar() {
               to={item.path}
               className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
                 isActivePath
-                  ? "bg-blue-50 text-blue-600 font-semibold"
+                  ? "bg-orange-50 text-orange-600 font-semibold"
                   : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
               }`}
             >

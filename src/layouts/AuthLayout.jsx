@@ -4,7 +4,11 @@ import RegisterForm from "../components/auth/RegisterForm";
 import HeroImage from "../assets/hero.jpg";
 import logoImage from "../assets/logo.png";
 
-export default function AuthLayout({ children, mode = "register", showFormWrapper = true }) {
+export default function AuthLayout({
+  children,
+  mode = "register",
+  showFormWrapper = true,
+}) {
   const isLogin = mode === "login";
   const isVerify = mode === "verify";
   const navigate = useNavigate();
@@ -15,12 +19,12 @@ export default function AuthLayout({ children, mode = "register", showFormWrappe
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-blue-100 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-emerald-50 to-orange-100 relative overflow-hidden">
       {/* Decorative blobs */}
-      <div className="absolute top-20 left-20 w-64 h-64 bg-yellow-200 rounded-full opacity-40 blur-3xl"></div>
-      <div className="absolute bottom-32 left-1/4 w-80 h-80 bg-orange-200 rounded-full opacity-30 blur-3xl"></div>
-      <div className="absolute top-1/3 right-20 w-72 h-72 bg-cyan-200 rounded-full opacity-30 blur-3xl"></div>
-      <div className="absolute bottom-10 right-1/3 w-56 h-56 bg-purple-200 rounded-full opacity-25 blur-3xl"></div>
+      <div className="absolute top-20 left-20 w-64 h-64 bg-orange-200 rounded-full opacity-40 blur-3xl"></div>
+      <div className="absolute bottom-32 left-1/4 w-80 h-80 bg-emerald-200 rounded-full opacity-30 blur-3xl"></div>
+      <div className="absolute top-1/3 right-20 w-72 h-72 bg-green-200 rounded-full opacity-30 blur-3xl"></div>
+      <div className="absolute bottom-10 right-1/3 w-56 h-56 bg-orange-200 rounded-full opacity-25 blur-3xl"></div>
 
       {/* Navbar */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-b border-gray-100 shadow-sm w-full">
@@ -37,7 +41,7 @@ export default function AuthLayout({ children, mode = "register", showFormWrappe
                 className="w-10 h-10 object-contain"
               />
               <div>
-                <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+                <span className="text-xl font-bold bg-gradient-to-r from-orange-600 to-emerald-500 bg-clip-text text-transparent">
                   SwifTrip
                 </span>
                 <div className="flex items-center gap-1">
@@ -50,19 +54,19 @@ export default function AuthLayout({ children, mode = "register", showFormWrappe
             <div className="hidden md:flex items-center gap-6 flex-1 justify-center">
               <button
                 onClick={() => handleNavigation("/")}
-                className="text-gray-600 hover:text-blue-600 transition-colors font-medium bg-transparent border-none cursor-pointer"
+                className="text-gray-600 hover:text-orange-600 transition-colors font-medium bg-transparent border-none cursor-pointer"
               >
                 Home
               </button>
               <button
                 onClick={() => handleNavigation("/#features")}
-                className="text-gray-600 hover:text-blue-600 transition-colors font-medium bg-transparent border-none cursor-pointer"
+                className="text-gray-600 hover:text-orange-600 transition-colors font-medium bg-transparent border-none cursor-pointer"
               >
                 Features
               </button>
               <button
                 onClick={() => handleNavigation("/#use-cases")}
-                className="text-gray-600 hover:text-blue-600 transition-colors font-medium bg-transparent border-none cursor-pointer"
+                className="text-gray-600 hover:text-orange-600 transition-colors font-medium bg-transparent border-none cursor-pointer"
               >
                 Success Stories
               </button>
@@ -74,13 +78,13 @@ export default function AuthLayout({ children, mode = "register", showFormWrappe
                 <>
                   <button
                     onClick={() => navigate("/auth/register")}
-                    className="px-5 py-2 text-gray-700 hover:text-blue-600 transition-colors"
+                    className="px-5 py-2 text-gray-700 hover:text-orange-600 transition-colors"
                   >
                     Sign Up
                   </button>
                   <button
                     onClick={() => navigate("/")}
-                    className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-xl hover:shadow-lg hover:shadow-blue-500/50 transition-all"
+                    className="px-6 py-2.5 bg-gradient-to-r from-orange-600 to-emerald-500 text-white rounded-xl hover:shadow-lg hover:shadow-orange-500/50 transition-all"
                   >
                     Back Home
                   </button>
@@ -89,13 +93,13 @@ export default function AuthLayout({ children, mode = "register", showFormWrappe
                 <>
                   <button
                     onClick={() => navigate("/auth/login")}
-                    className="px-5 py-2 text-gray-700 hover:text-blue-600 transition-colors"
+                    className="px-5 py-2 text-gray-700 hover:text-orange-600 transition-colors"
                   >
                     Sign In
                   </button>
                   <button
                     onClick={() => navigate("/")}
-                    className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-xl hover:shadow-lg hover:shadow-blue-500/50 transition-all"
+                    className="px-6 py-2.5 bg-gradient-to-r from-orange-600 to-emerald-500 text-white rounded-xl hover:shadow-lg hover:shadow-orange-500/50 transition-all"
                   >
                     Back Home
                   </button>
@@ -185,7 +189,7 @@ export default function AuthLayout({ children, mode = "register", showFormWrappe
               >
                 <span className="text-2xl">🎫</span>
               </div>
-              <div className="absolute top-1/4 -right-6 w-14 h-14 bg-gradient-to-br from-purple-500 to-blue-500 rounded-2xl shadow-lg flex items-center justify-center transform -rotate-12">
+              <div className="absolute top-1/4 -right-6 w-14 h-14 bg-gradient-to-br from-orange-500 to-emerald-500 rounded-2xl shadow-lg flex items-center justify-center transform -rotate-12">
                 <span className="text-white text-xl">✨</span>
               </div>
               <div className="absolute -bottom-6 right-1/4 w-12 h-12 bg-cyan-400 rounded-full shadow-lg flex items-center justify-center">
@@ -197,10 +201,10 @@ export default function AuthLayout({ children, mode = "register", showFormWrappe
       </div>
 
       {/* Floating decorative icons in corners */}
-      <div className="absolute bottom-8 left-8 w-12 h-12 bg-purple-500 rounded-full shadow-lg flex items-center justify-center">
+      <div className="absolute bottom-8 left-8 w-12 h-12 bg-emerald-500 rounded-full shadow-lg flex items-center justify-center">
         <span className="text-white text-xl">💬</span>
       </div>
-      <div className="absolute bottom-8 right-8 w-12 h-12 bg-pink-500 rounded-full shadow-lg flex items-center justify-center">
+      <div className="absolute bottom-8 right-8 w-12 h-12 bg-orange-500 rounded-full shadow-lg flex items-center justify-center">
         <span className="text-white text-xl">💎</span>
       </div>
     </div>

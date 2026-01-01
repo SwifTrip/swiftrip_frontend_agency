@@ -8,12 +8,12 @@ import { ToastContainer } from 'react-toastify';
 import { store, persistor } from './store';   // <-- import persistor
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  // <StrictMode>
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <App />
         <ToastContainer position="top-right" autoClose={3000} />
       </PersistGate>
     </Provider>
-  </StrictMode>
+  // </StrictMode>
 );

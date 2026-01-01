@@ -82,7 +82,7 @@ export default function PackageDetailsPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mb-4"></div>
           <div className="text-lg text-gray-600">
             Loading package details...
           </div>
@@ -116,7 +116,7 @@ export default function PackageDetailsPage() {
           </div>
           <button
             onClick={() => navigate(-1)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
           >
             Go Back
           </button>
@@ -173,29 +173,32 @@ export default function PackageDetailsPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => navigate(`/app/packages/${id}/schedules`)}
-                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium flex items-center gap-2"
-                aria-label="Manage Schedules"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+              {/* Only show Manage Schedules for public tours */}
+              {packageData.isPublic && (
+                <button
+                  onClick={() => navigate(`/app/packages/${id}/schedules`)}
+                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium flex items-center gap-2"
+                  aria-label="Manage Schedules"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-                Manage Schedules
-              </button>
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  Manage Schedules
+                </button>
+              )}
               <button
                 onClick={() => navigate(`/app/packages/edit/${id}`)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium"
               >
                 Edit
               </button>
@@ -308,7 +311,7 @@ export default function PackageDetailsPage() {
                   </div>
                   <div className="flex items-center gap-1">
                     <svg
-                      className="w-4 h-4 text-blue-600"
+                      className="w-4 h-4 text-orange-600"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -397,7 +400,7 @@ export default function PackageDetailsPage() {
               {/* Three Info Cards */}
               <div className="grid grid-cols-3 gap-4">
                 {/* Pricing Card */}
-                <div className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-6 text-white shadow-lg">
+                <div className="bg-gradient-to-br from-orange-600 to-orange-700 rounded-2xl p-6 text-white shadow-lg">
                   <div className="flex items-center gap-2 mb-3">
                     <svg
                       className="w-5 h-5"
@@ -523,7 +526,7 @@ export default function PackageDetailsPage() {
                     </span>
                   </div>
                   <div className="flex items-center justify-center py-3">
-                    <div className="px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-semibold text-sm">
+                    <div className="px-4 py-2 bg-gradient-to-r from-purple-600 to-orange-600 text-white rounded-lg font-semibold text-sm">
                       {packageData.category}
                     </div>
                   </div>
@@ -547,9 +550,9 @@ export default function PackageDetailsPage() {
               {/* Description */}
               <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
                     <svg
-                      className="w-5 h-5 text-blue-600"
+                      className="w-5 h-5 text-orange-600"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -629,9 +632,9 @@ export default function PackageDetailsPage() {
               </div>
 
               {/* What's Included */}
-              <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl p-6 border border-blue-100 shadow-sm">
+              <div className="bg-gradient-to-br from-orange-50 to-emerald-50 rounded-2xl p-6 border border-orange-100 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                  <div className="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center">
                     <svg
                       className="w-5 h-5 text-white"
                       fill="none"
@@ -653,7 +656,7 @@ export default function PackageDetailsPage() {
                 <div className="grid grid-cols-4 gap-6">
                   {[
                     { icon: "🍽️", label: "Meals", color: "bg-green-100" },
-                    { icon: "🚐", label: "Transport", color: "bg-blue-100" },
+                    { icon: "🚐", label: "Transport", color: "bg-orange-100" },
                     {
                       icon: "🏨",
                       label: "Accommodation",
@@ -782,10 +785,10 @@ export default function PackageDetailsPage() {
                                 : itinerary.dayNumber
                             )
                           }
-                          className="w-full flex items-center justify-between p-4 bg-blue-50 hover:bg-blue-100 transition-colors"
+                          className="w-full flex items-center justify-between p-4 bg-orange-50 hover:bg-orange-100 transition-colors"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
+                            <div className="w-10 h-10 bg-orange-600 rounded-full flex items-center justify-center text-white font-bold">
                               {itinerary.dayNumber}
                             </div>
                             <div className="text-left">
@@ -908,7 +911,7 @@ export default function PackageDetailsPage() {
                                             </span>
                                           )}
                                           {item.optional && (
-                                            <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded ml-3 flex-shrink-0">
+                                            <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs font-medium rounded ml-3 flex-shrink-0">
                                               Optional
                                             </span>
                                           )}
@@ -1034,15 +1037,15 @@ export default function PackageDetailsPage() {
 
                                         {item.type === "TRANSPORT" &&
                                           item.transportDetails && (
-                                            <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                            <div className="mt-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
                                               <div className="text-sm space-y-1">
-                                                <div className="font-semibold text-blue-900">
+                                                <div className="font-semibold text-orange-900">
                                                   {
                                                     item.transportDetails
                                                       .vehicleType
                                                   }
                                                 </div>
-                                                <div className="text-blue-700">
+                                                <div className="text-orange-700">
                                                   {
                                                     item.transportDetails
                                                       .startLocation
@@ -1055,7 +1058,7 @@ export default function PackageDetailsPage() {
                                                 </div>
                                                 {typeof item.transportDetails
                                                   .capacity === "number" && (
-                                                  <div className="text-blue-700">
+                                                  <div className="text-orange-700">
                                                     Capacity:{" "}
                                                     {
                                                       item.transportDetails
@@ -1147,7 +1150,7 @@ export default function PackageDetailsPage() {
                 <div className="space-y-4">
                   <div className="flex justify-between items-center pb-3 border-b border-gray-100">
                     <span className="text-sm text-gray-600">Total Days</span>
-                    <span className="text-xl font-bold text-blue-600">
+                    <span className="text-xl font-bold text-orange-600">
                       {packageData.itineraries?.length || 0}
                     </span>
                   </div>
@@ -1218,7 +1221,7 @@ export default function PackageDetailsPage() {
               </div>
 
               {/* Quick Actions */}
-              {/* <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-5 border border-blue-100 shadow-sm">
+              {/* <div className="bg-gradient-to-br from-orange-50 to-indigo-50 rounded-2xl p-5 border border-orange-100 shadow-sm">
                 <h3 className="text-base font-semibold text-gray-900 mb-4">Quick Actions</h3>
                 <div className="space-y-2">
                   <button className="w-full px-4 py-2.5 bg-white text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium border border-gray-200 shadow-sm flex items-center justify-center gap-2">
@@ -1229,7 +1232,7 @@ export default function PackageDetailsPage() {
                   </button>
                   <button 
                     onClick={() => navigate(`/packages/edit/${id}`)}
-                    className="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium shadow-sm flex items-center justify-center gap-2"
+                    className="w-full px-4 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm font-medium shadow-sm flex items-center justify-center gap-2"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />

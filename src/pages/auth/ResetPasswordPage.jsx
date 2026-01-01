@@ -107,10 +107,11 @@ export default function ResetPasswordPage() {
             Password Reset Successful! 🎉
           </h2>
           <p className="text-gray-600 mb-8 max-w-sm mx-auto">
-            Your password has been reset successfully. Redirecting you to login...
+            Your password has been reset successfully. Redirecting you to
+            login...
           </p>
 
-          <div className="w-16 h-16 mx-auto border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin"></div>
+          <div className="w-16 h-16 mx-auto border-4 border-gray-200 border-t-orange-600 rounded-full animate-spin"></div>
         </div>
       </AuthLayout>
     );
@@ -120,9 +121,9 @@ export default function ResetPasswordPage() {
     <AuthLayout mode="login" showFormWrapper={false}>
       <div className="bg-white rounded-3xl shadow-2xl p-8 lg:p-10">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <svg
-              className="w-8 h-8 text-blue-600"
+              className="w-8 h-8 text-orange-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -165,7 +166,7 @@ export default function ResetPasswordPage() {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Enter new password"
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-12"
                 disabled={loading}
               />
               <button
@@ -231,7 +232,7 @@ export default function ResetPasswordPage() {
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 placeholder="Confirm new password"
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-12"
                 disabled={loading}
               />
               <button
@@ -282,7 +283,7 @@ export default function ResetPasswordPage() {
           <button
             type="submit"
             disabled={loading || !token}
-            className="w-full py-4 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold rounded-xl hover:shadow-xl hover:shadow-blue-500/30 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            className="w-full py-4 bg-gradient-to-r from-orange-600 to-emerald-500 text-white font-bold rounded-xl hover:shadow-xl hover:shadow-orange-500/30 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
             {loading ? "Resetting..." : "Reset Password"}
           </button>
@@ -292,7 +293,7 @@ export default function ResetPasswordPage() {
             <button
               type="button"
               onClick={() => navigate("/auth/login")}
-              className="text-sm text-gray-600 hover:text-blue-600 font-medium transition-colors"
+              className="text-sm text-gray-600 hover:text-orange-600 font-medium transition-colors"
             >
               ← Back to Login
             </button>

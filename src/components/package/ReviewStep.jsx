@@ -129,7 +129,7 @@ export default function ReviewStep({
         <div className="bg-white border border-gray-200 rounded-xl p-6">
           <div className="flex items-center gap-2 mb-4">
             <svg
-              className="w-5 h-5 text-blue-600"
+              className="w-5 h-5 text-orange-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -154,7 +154,7 @@ export default function ReviewStep({
             <div>
               <p className="text-sm text-gray-500">Category</p>
               <p className="font-medium text-gray-800">
-                <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
+                <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm">
                   {formData.category || "Not set"}
                 </span>
               </p>
@@ -244,7 +244,7 @@ export default function ReviewStep({
         <div className="bg-white border border-gray-200 rounded-xl p-6">
           <div className="flex items-center gap-2 mb-4">
             <svg
-              className="w-5 h-5 text-blue-600"
+              className="w-5 h-5 text-orange-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -266,10 +266,10 @@ export default function ReviewStep({
               {formData.itineraries.map((day, index) => (
                 <div
                   key={index}
-                  className="border-l-4 border-blue-600 pl-4 py-2"
+                  className="border-l-4 border-orange-600 pl-4 py-2"
                 >
                   <div className="flex items-center gap-2 mb-1">
-                    <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                    <div className="w-8 h-8 bg-orange-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
                       {day.dayNumber}
                     </div>
                     <p className="font-semibold text-gray-800">{day.title}</p>
@@ -350,7 +350,7 @@ export default function ReviewStep({
                             </span>
                           )}
                           {item.requiresTransport && (
-                            <span className="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
+                            <span className="ml-2 text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded">
                               Transport required
                               {typeof item.transportId === "number"
                                 ? ` (#${item.transportId})`
@@ -376,7 +376,7 @@ export default function ReviewStep({
         <div className="bg-white border border-gray-200 rounded-xl p-6">
           <div className="flex items-center gap-2 mb-4">
             <svg
-              className="w-5 h-5 text-blue-600"
+              className="w-5 h-5 text-orange-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -405,7 +405,7 @@ export default function ReviewStep({
                     className="w-full h-24 object-cover rounded-lg"
                   />
                   {index === 0 && (
-                    <div className="absolute top-1 left-1 bg-blue-600 text-white text-xs px-2 py-0.5 rounded">
+                    <div className="absolute top-1 left-1 bg-orange-600 text-white text-xs px-2 py-0.5 rounded">
                       Cover
                     </div>
                   )}
@@ -416,10 +416,10 @@ export default function ReviewStep({
         </div>
 
         {/* Cost Summary */}
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-6">
+        <div className="bg-gradient-to-r from-orange-50 to-purple-50 border border-orange-200 rounded-xl p-6">
           <div className="flex items-center gap-2 mb-4">
             <svg
-              className="w-5 h-5 text-blue-600"
+              className="w-5 h-5 text-orange-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -470,11 +470,11 @@ export default function ReviewStep({
                 </span>
               </div>
             )}
-            <div className="border-t border-blue-200 pt-2 flex justify-between">
+            <div className="border-t border-orange-200 pt-2 flex justify-between">
               <span className="font-semibold text-gray-800">
                 Total Package Cost
               </span>
-              <span className="font-bold text-blue-600 text-lg">
+              <span className="font-bold text-orange-600 text-lg">
                 {formData.currency} {totalCost.toLocaleString()}
               </span>
             </div>

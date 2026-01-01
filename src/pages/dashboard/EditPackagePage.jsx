@@ -256,7 +256,7 @@ export default function EditPackagePage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading package...</p>
         </div>
       </div>
@@ -312,7 +312,7 @@ export default function EditPackagePage() {
                   <div
                     className={`w-14 h-14 rounded-full flex items-center justify-center transition-all duration-300
                       ${isCompleted ? "bg-green-500 text-white" : ""}
-                      ${isActive ? "bg-blue-600 text-white scale-110" : ""}
+                      ${isActive ? "bg-orange-600 text-white scale-110" : ""}
                       ${
                         !isCompleted && !isActive
                           ? "bg-gray-200 text-gray-400"
