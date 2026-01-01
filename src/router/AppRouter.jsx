@@ -7,6 +7,7 @@ import PackagesPage from "../pages/dashboard/PackagesPage";
 import CreatePackagePage from "../pages/dashboard/CreatePackagePage";
 import EditPackagePage from "../pages/dashboard/EditPackagePage";
 import PackageDetailsPage from "../pages/dashboard/PackageDetailsPage";
+import PackageSchedules from "../pages/package/PackageSchedules";
 import DashboardLayout from "../layouts/DashboardLayout";
 import ProtectedRouter from "./ProtectedRouter";
 import AuthRedirect from "./AuthRedirect";
@@ -44,6 +45,10 @@ export default function AppRouter() {
                     element={<CreatePackagePage />}
                   />
                   <Route path="packages/:id" element={<PackageDetailsPage />} />
+                  <Route
+                    path="packages/:packageId/schedules"
+                    element={<PackageSchedules />}
+                  />
                   <Route
                     path="packages/edit/:id"
                     element={<EditPackagePage />}
