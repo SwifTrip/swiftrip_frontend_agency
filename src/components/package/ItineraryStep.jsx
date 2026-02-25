@@ -339,8 +339,8 @@ export default function ItineraryStep({
         }
 
         // Validate nested details based on type
-        // Validate item explicit time bounds
-        if (item.startTime && item.endTime) {
+        // Validate item explicit time bounds (skip for STAY - they have their own check-in/check-out times)
+        if (item.type !== "STAY" && item.startTime && item.endTime) {
           const [sH, sM] = item.startTime.split(":").map(Number);
           const [eH, eM] = item.endTime.split(":").map(Number);
           const starts = sH * 60 + sM;
@@ -519,7 +519,26 @@ export default function ItineraryStep({
   };
 
   const getItemsByTimeOfDay = (items, timeOfDay) => {
-    return items.filter((item) => item.timeOfDay === timeOfDay);
+    return (items || []).filter((item) => {
+      // If item has explicit timeOfDay, use it
+      if (item.timeOfDay) {
+        return item.timeOfDay === timeOfDay;
+      }
+      
+      // Otherwise, calculate from startTime
+      if (!item.startTime) {
+        // Items without startTime go to Morning by default
+        return timeOfDay === "Morning";
+      }
+
+      const [hour] = item.startTime.split(":").map(Number);
+
+      if (timeOfDay === "Morning" && hour >= 5 && hour < 12) return true;
+      if (timeOfDay === "Afternoon" && hour >= 12 && hour < 17) return true;
+      if (timeOfDay === "Evening" && (hour >= 17 || hour < 5)) return true;
+
+      return false;
+    });
   };
 
   const getTransportsByTimeOfDay = (transports, timeOfDay) => {
@@ -1359,69 +1378,71 @@ export default function ItineraryStep({
                                   </div>
                                 </div>
 
-                                {/* Item timing */}
-                                <div className="grid grid-cols-2 gap-3 mt-3">
-                                  <div>
-                                    <label className="text-xs text-gray-600 block mb-1">
-                                      Start Time
-                                    </label>
-                                    <input
-                                      type="time"
-                                      value={item.startTime || ""}
-                                      onChange={(e) => {
-                                        e.stopPropagation();
-                                        updateItem(
-                                          dayIndex,
-                                          actualIndex,
-                                          "startTime",
-                                          e.target.value
-                                        );
-                                      }}
-                                      onClick={(e) => e.stopPropagation()}
-                                      min={day.dayStartTime || ""}
-                                      max={day.dayEndTime || ""}
-                                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                                    />
-                                    {item.startTime &&
-                                      item.endTime &&
-                                      item.startTime >= item.endTime && (
-                                        <p className="text-xs text-red-600 mt-1">
-                                          Start time must be before end time
-                                        </p>
-                                      )}
+                                {/* Item timing - hide for STAY type (they use check-in/check-out instead) */}
+                                {item.type !== "STAY" && (
+                                  <div className="grid grid-cols-2 gap-3 mt-3">
+                                    <div>
+                                      <label className="text-xs text-gray-600 block mb-1">
+                                        Start Time
+                                      </label>
+                                      <input
+                                        type="time"
+                                        value={item.startTime || ""}
+                                        onChange={(e) => {
+                                          e.stopPropagation();
+                                          updateItem(
+                                            dayIndex,
+                                            actualIndex,
+                                            "startTime",
+                                            e.target.value
+                                          );
+                                        }}
+                                        onClick={(e) => e.stopPropagation()}
+                                        min={day.dayStartTime || ""}
+                                        max={day.dayEndTime || ""}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                      />
+                                      {item.startTime &&
+                                        item.endTime &&
+                                        item.startTime >= item.endTime && (
+                                          <p className="text-xs text-red-600 mt-1">
+                                            Start time must be before end time
+                                          </p>
+                                        )}
+                                    </div>
+                                    <div>
+                                      <label className="text-xs text-gray-600 block mb-1">
+                                        End Time
+                                      </label>
+                                      <input
+                                        type="time"
+                                        value={item.endTime || ""}
+                                        onChange={(e) => {
+                                          e.stopPropagation();
+                                          updateItem(
+                                            dayIndex,
+                                            actualIndex,
+                                            "endTime",
+                                            e.target.value
+                                          );
+                                        }}
+                                        onClick={(e) => e.stopPropagation()}
+                                        min={
+                                          item.startTime || day.dayStartTime || ""
+                                        }
+                                        max={day.dayEndTime || ""}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                                      />
+                                      {item.endTime &&
+                                        item.startTime &&
+                                        item.endTime <= item.startTime && (
+                                          <p className="text-xs text-red-600 mt-1">
+                                            End time must be after start time
+                                          </p>
+                                        )}
+                                    </div>
                                   </div>
-                                  <div>
-                                    <label className="text-xs text-gray-600 block mb-1">
-                                      End Time
-                                    </label>
-                                    <input
-                                      type="time"
-                                      value={item.endTime || ""}
-                                      onChange={(e) => {
-                                        e.stopPropagation();
-                                        updateItem(
-                                          dayIndex,
-                                          actualIndex,
-                                          "endTime",
-                                          e.target.value
-                                        );
-                                      }}
-                                      onClick={(e) => e.stopPropagation()}
-                                      min={
-                                        item.startTime || day.dayStartTime || ""
-                                      }
-                                      max={day.dayEndTime || ""}
-                                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                                    />
-                                    {item.endTime &&
-                                      item.startTime &&
-                                      item.endTime <= item.startTime && (
-                                        <p className="text-xs text-red-600 mt-1">
-                                          End time must be after start time
-                                        </p>
-                                      )}
-                                  </div>
-                                </div>
+                                )}
 
                                 <div className="flex items-center gap-4 mt-3">
                                   <label className="flex items-center gap-2 cursor-pointer">

@@ -696,6 +696,14 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
         onClose={() => setShowPDFModal(false)}
         onExtract={(extractedData) => {
           console.log("📦 Auto-filling from extracted data:", extractedData);
+          console.log("📅 Extracted itineraries:", extractedData.itineraries);
+          
+          // Log each day's items
+          if (extractedData.itineraries) {
+            extractedData.itineraries.forEach((day, idx) => {
+              console.log(`  Day ${idx + 1}: ${day.itineraryItems?.length || 0} items`, day.itineraryItems);
+            });
+          }
 
           // Auto-fill basic info fields
           updateFormData({
