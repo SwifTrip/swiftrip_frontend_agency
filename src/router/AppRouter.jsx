@@ -17,24 +17,33 @@ const LandingPage = lazy(() => import("../pages/landingPage/LandingPage"));
 const LoginPage = lazy(() => import("../pages/auth/LoginPage"));
 const RegisterPage = lazy(() => import("../pages/auth/RegisterPage"));
 const VerifyEmailPage = lazy(() => import("../pages/auth/VerifyEmailPage"));
-const ForgotPasswordPage = lazy(() =>
-  import("../pages/auth/ForgotPasswordPage")
+const ForgotPasswordPage = lazy(
+  () => import("../pages/auth/ForgotPasswordPage"),
 );
 const ResetPasswordPage = lazy(() => import("../pages/auth/ResetPasswordPage"));
 const PackagesPage = lazy(() => import("../pages/dashboard/PackagesPage"));
-const CreatePackagePage = lazy(() =>
-  import("../pages/dashboard/CreatePackagePage")
+const CreatePackagePage = lazy(
+  () => import("../pages/dashboard/CreatePackagePage"),
 );
-const EditPackagePage = lazy(() =>
-  import("../pages/dashboard/EditPackagePage")
+const EditPackagePage = lazy(
+  () => import("../pages/dashboard/EditPackagePage"),
 );
-const PackageDetailsPage = lazy(() =>
-  import("../pages/dashboard/PackageDetailsPage")
+const PackageDetailsPage = lazy(
+  () => import("../pages/dashboard/PackageDetailsPage"),
 );
-const PackageSchedules = lazy(() =>
-  import("../pages/package/PackageSchedules")
+const PackageSchedules = lazy(
+  () => import("../pages/package/PackageSchedules"),
 );
 const UsersPage = lazy(() => import("../pages/user/UsersPage"));
+
+// Booking pages
+const BookingsPage = lazy(() => import("../pages/booking/BookingsPage"));
+const BookingDetailsPage = lazy(
+  () => import("../pages/booking/BookingDetailsPage"),
+);
+
+// Payment pages
+const PaymentsPage = lazy(() => import("../pages/payment/PaymentsPage"));
 
 // Keep these as regular imports (needed immediately)
 import DashboardLayout from "../layouts/DashboardLayout";
@@ -85,14 +94,16 @@ export default function AppRouter() {
                       element={<EditPackagePage />}
                     />
                     <Route path="users" element={<UsersPage />} />
+
+                    {/* Booking routes */}
+                    <Route path="bookings" element={<BookingsPage />} />
                     <Route
-                      path="payments"
-                      element={
-                        <div className="p-8">
-                          <h1>Payments Page</h1>
-                        </div>
-                      }
+                      path="bookings/:id"
+                      element={<BookingDetailsPage />}
                     />
+
+                    {/* Payment routes */}
+                    <Route path="payments" element={<PaymentsPage />} />
                     <Route
                       path="analytics"
                       element={
