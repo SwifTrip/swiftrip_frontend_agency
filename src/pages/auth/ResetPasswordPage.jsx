@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import AuthLayout from "../../layouts/AuthLayout";
 import { resetPassword } from "../../api/authService";
+import { toast } from "react-toastify";
 
 export default function ResetPasswordPage() {
   const navigate = useNavigate();
@@ -12,7 +13,6 @@ export default function ResetPasswordPage() {
     confirmPassword: "",
   });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -20,7 +20,7 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     const tokenFromUrl = searchParams.get("token");
     if (!tokenFromUrl) {
-      setError("Invalid reset link. Please request a new password reset.");
+      toast.error("Invalid reset link. Please request a new password reset.");
     } else {
       setToken(tokenFromUrl);
     }
@@ -31,29 +31,27 @@ export default function ResetPasswordPage() {
       ...formData,
       [e.target.name]: e.target.value,
     });
-    setError(""); // Clear error on input change
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
 
     // Validation
     if (!formData.password || !formData.confirmPassword) {
-      setError("Please fill in all fields");
+      toast.error("Please fill in all fields");
       setLoading(false);
       return;
     }
 
     if (formData.password.length < 8) {
-      setError("Password must be at least 8 characters long");
+      toast.error("Password must be at least 8 characters long");
       setLoading(false);
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+      toast.error("Passwords do not match");
       setLoading(false);
       return;
     }
@@ -62,18 +60,19 @@ export default function ResetPasswordPage() {
       const data = await resetPassword(token, formData.password);
 
       if (data.success) {
+        toast.success("Password reset successfully");
         setSuccess(true);
         // Redirect to login after 2 seconds
         setTimeout(() => {
           navigate("/auth/login");
         }, 2000);
       } else {
-        setError(data.message || "Failed to reset password");
+        toast.error(data.message || "Failed to reset password");
       }
     } catch (err) {
       console.error("Reset password error:", err);
       console.error("Error details:", JSON.stringify(err, null, 2));
-      setError(err.message || "Something went wrong. Please try again.");
+      toast.error(err.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -82,13 +81,13 @@ export default function ResetPasswordPage() {
   if (success) {
     return (
       <AuthLayout mode="login" showFormWrapper={false}>
-        <div className="bg-white rounded-3xl shadow-2xl p-8 lg:p-10 text-center">
+        <div className="bg-white/85 backdrop-blur-2xl rounded-3xl border border-orange-100/90 shadow-[0_30px_60px_-30px_rgba(234,88,12,0.45)] p-6 lg:p-7 text-center max-w-md mx-auto">
           {/* Success Icon */}
-          <div className="relative w-24 h-24 mx-auto mb-6">
-            <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full animate-pulse"></div>
-            <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center">
+          <div className="relative w-20 h-20 mx-auto mb-5">
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full opacity-20"></div>
+            <div className="absolute inset-2 bg-white border border-orange-200 rounded-full flex items-center justify-center">
               <svg
-                className="w-12 h-12 text-green-600"
+                className="w-9 h-9 text-orange-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -103,15 +102,15 @@ export default function ResetPasswordPage() {
             </div>
           </div>
 
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
-            Password Reset Successful! 🎉
+          <h2 className="text-xl lg:text-2xl font-bold text-gray-800 mb-2">
+            Password Reset Successful
           </h2>
-          <p className="text-gray-600 mb-8 max-w-sm mx-auto">
+          <p className="text-sm text-gray-600 mb-6 max-w-sm mx-auto">
             Your password has been reset successfully. Redirecting you to
             login...
           </p>
 
-          <div className="w-16 h-16 mx-auto border-4 border-gray-200 border-t-orange-600 rounded-full animate-spin"></div>
+          <div className="w-12 h-12 mx-auto border-4 border-orange-100 border-t-orange-600 rounded-full animate-spin"></div>
         </div>
       </AuthLayout>
     );
@@ -119,11 +118,11 @@ export default function ResetPasswordPage() {
 
   return (
     <AuthLayout mode="login" showFormWrapper={false}>
-      <div className="bg-white rounded-3xl shadow-2xl p-8 lg:p-10">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+      <div className="bg-white/85 backdrop-blur-2xl rounded-3xl border border-orange-100/90 shadow-[0_30px_60px_-30px_rgba(234,88,12,0.45)] p-6 lg:p-7 max-w-md mx-auto">
+        <div className="text-center mb-6">
+          <div className="w-14 h-14 bg-orange-100 rounded-2xl border border-orange-200 flex items-center justify-center mx-auto mb-3">
             <svg
-              className="w-8 h-8 text-orange-600"
+              className="w-7 h-7 text-orange-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -136,25 +135,18 @@ export default function ResetPasswordPage() {
               />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold text-gray-800">Reset Password</h1>
-          <p className="text-sm text-gray-500 mt-2">
+          <h1 className="text-2xl font-bold text-gray-800">Reset Password</h1>
+          <p className="text-[13px] text-gray-600 mt-1.5">
             Enter your new password below
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Error Message */}
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
-              {error}
-            </div>
-          )}
-
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* New Password Input */}
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-[13px] font-semibold text-gray-700 mb-1.5"
             >
               New Password
             </label>
@@ -166,17 +158,17 @@ export default function ResetPasswordPage() {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Enter new password"
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-12"
+                className="w-full px-3.5 py-3 border border-gray-300 rounded-xl text-sm bg-white/80 placeholder:text-gray-400 focus:bg-white focus:border-orange-400 focus:ring-4 focus:ring-orange-100/80 focus:outline-none transition pr-11"
                 disabled={loading}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-orange-600 transition-colors"
               >
                 {showPassword ? (
                   <svg
-                    className="w-5 h-5"
+                    className="w-[18px] h-[18px]"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -190,7 +182,7 @@ export default function ResetPasswordPage() {
                   </svg>
                 ) : (
                   <svg
-                    className="w-5 h-5"
+                    className="w-[18px] h-[18px]"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -211,7 +203,7 @@ export default function ResetPasswordPage() {
                 )}
               </button>
             </div>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-[11px] text-gray-500 mt-1">
               Must be at least 8 characters
             </p>
           </div>
@@ -220,7 +212,7 @@ export default function ResetPasswordPage() {
           <div>
             <label
               htmlFor="confirmPassword"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-[13px] font-semibold text-gray-700 mb-1.5"
             >
               Confirm New Password
             </label>
@@ -232,17 +224,17 @@ export default function ResetPasswordPage() {
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 placeholder="Confirm new password"
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent pr-12"
+                className="w-full px-3.5 py-3 border border-gray-300 rounded-xl text-sm bg-white/80 placeholder:text-gray-400 focus:bg-white focus:border-orange-400 focus:ring-4 focus:ring-orange-100/80 focus:outline-none transition pr-11"
                 disabled={loading}
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-orange-600 transition-colors"
               >
                 {showConfirmPassword ? (
                   <svg
-                    className="w-5 h-5"
+                    className="w-[18px] h-[18px]"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -256,7 +248,7 @@ export default function ResetPasswordPage() {
                   </svg>
                 ) : (
                   <svg
-                    className="w-5 h-5"
+                    className="w-[18px] h-[18px]"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -283,7 +275,7 @@ export default function ResetPasswordPage() {
           <button
             type="submit"
             disabled={loading || !token}
-            className="w-full py-4 bg-gradient-to-r from-orange-600 to-emerald-500 text-white font-bold rounded-xl hover:shadow-xl hover:shadow-orange-500/30 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            className="w-full py-3 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-orange-600 via-orange-500 to-amber-500 hover:from-orange-700 hover:via-orange-600 hover:to-amber-600 transition-all shadow-[0_18px_30px_-16px_rgba(234,88,12,0.95)] hover:shadow-[0_22px_34px_-16px_rgba(234,88,12,1)] ring-1 ring-orange-300/30 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Resetting..." : "Reset Password"}
           </button>
@@ -293,7 +285,7 @@ export default function ResetPasswordPage() {
             <button
               type="button"
               onClick={() => navigate("/auth/login")}
-              className="text-sm text-gray-600 hover:text-orange-600 font-medium transition-colors"
+              className="text-[13px] text-gray-600 hover:text-orange-600 font-medium transition-colors"
             >
               ← Back to Login
             </button>
