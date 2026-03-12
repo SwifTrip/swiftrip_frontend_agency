@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Shield, Edit2, Trash2, Check, X } from "lucide-react";
+import { Shield, Edit2, Trash2, Check } from "lucide-react";
 
-const RoleCard = ({ role, onEdit, onDelete }) => {
+const RoleCard = ({ role, onEdit, onDelete, canDelete = true }) => {
   const [showAll, setShowAll] = useState(false);
 
   // Count of users
@@ -31,35 +31,43 @@ const RoleCard = ({ role, onEdit, onDelete }) => {
   const visiblePermissions = showAll ? permissions : permissions.slice(0, 5);
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+    <div className="bg-white border border-slate-200/80 rounded-xl p-4 hover:shadow-md transition-shadow">
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center">
-            <Shield className="text-orange-600" size={20} />
+          <div className="w-9 h-9 rounded-lg bg-orange-50 border border-orange-100 flex items-center justify-center">
+            <Shield className="text-orange-600" size={18} />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">{role.name}</h3>
-            <p className="text-sm text-gray-500 mt-0.5">
+            <h3 className="text-base font-semibold text-slate-900">
+              {role.name}
+            </h3>
+            <p className="text-sm text-slate-500 mt-0.5 line-clamp-2">
               {role.description ||
                 (role.name === "Admin"
                   ? "Full system access and management"
                   : role.name === "Manager"
-                  ? "Department management and oversight"
-                  : "Basic operational access")}
+                    ? "Department management and oversight"
+                    : "Basic operational access")}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={() => onEdit(role)}
-            className="p-2 text-gray-400 hover:text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+            className="p-2 text-orange-700 border border-orange-200 hover:bg-orange-50 rounded-md transition-colors"
           >
             <Edit2 size={16} />
           </button>
           <button
             onClick={() => onDelete(role)}
-            className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            className={`p-2 border rounded-md transition-colors ${
+              canDelete
+                ? "text-red-600 border-red-200 hover:bg-red-50"
+                : "text-slate-300 border-slate-200 bg-slate-50 cursor-not-allowed"
+            }`}
+            disabled={!canDelete}
+            title={canDelete ? "Delete role" : "At least one role must remain"}
           >
             <Trash2 size={16} />
           </button>
@@ -67,18 +75,18 @@ const RoleCard = ({ role, onEdit, onDelete }) => {
       </div>
 
       {/* User Count */}
-      <div className="text-sm text-gray-500 mb-4">
+      <div className="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold bg-slate-100 text-slate-700 mb-4">
         {getUserCount()} {getUserCount() === 1 ? "user" : "users"}
       </div>
 
       {/* Permissions */}
       <div>
-        <p className="text-sm font-medium text-gray-900 mb-3">Permissions:</p>
+        <p className="text-sm font-semibold text-slate-800 mb-3">Permissions</p>
         <div className="space-y-2">
           {visiblePermissions.map((permission, index) => (
             <div key={index} className="flex items-center gap-2 text-sm">
-              <Check className="text-green-600" size={16} />
-              <span className="text-gray-700">{permission.label}</span>
+              <Check className="text-emerald-600" size={15} />
+              <span className="text-slate-700">{permission.label}</span>
             </div>
           ))}
         </div>
@@ -87,7 +95,7 @@ const RoleCard = ({ role, onEdit, onDelete }) => {
         {permissions.length > 5 && (
           <button
             onClick={() => setShowAll(!showAll)}
-            className="mt-2 text-sm text-orange-600 hover:underline"
+            className="mt-2 text-xs font-semibold text-orange-700 hover:text-orange-800"
           >
             {showAll ? "Show less" : `View all (${permissions.length})`}
           </button>

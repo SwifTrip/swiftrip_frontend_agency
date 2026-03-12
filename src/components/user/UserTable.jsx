@@ -1,5 +1,5 @@
 import React from "react";
-import { Edit2, UserX, Trash2 } from "lucide-react";
+import { Edit2, Trash2 } from "lucide-react";
 
 const UserTable = ({ users, onEdit, onChangeRole, onDelete }) => {
   const getInitials = (firstName, lastName) => {
@@ -14,111 +14,108 @@ const UserTable = ({ users, onEdit, onChangeRole, onDelete }) => {
 
   const getRoleBadgeClass = (roleName) => {
     const roleMap = {
-      Admin: "bg-purple-100 text-purple-700",
+      Admin: "bg-violet-100 text-violet-700",
       Manager: "bg-orange-100 text-orange-700",
-      Staff: "bg-gray-100 text-gray-700",
+      Staff: "bg-slate-100 text-slate-700",
     };
-    return roleMap[roleName] || "bg-gray-100 text-gray-700";
+    return roleMap[roleName] || "bg-slate-100 text-slate-700";
   };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    return `${year}-${month}-${day} ${hours}:${minutes}`;
+    return date.toLocaleString("en-US", {
+      month: "short",
+      day: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full">
-        <thead className="bg-gray-50 border-b border-gray-200">
+      <table className="w-full min-w-[860px]">
+        <thead className="bg-slate-50 border-b border-slate-200/80">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-5 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.05em]">
               Name
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-5 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.05em]">
               Email
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-5 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.05em]">
               Role
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-5 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.05em]">
               Status
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-5 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.05em]">
               Last Login
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th className="px-5 py-3 text-left text-[11px] font-semibold text-slate-500 uppercase tracking-[0.05em]">
               Actions
             </th>
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody className="bg-white divide-y divide-slate-200/80">
           {users.map((user) => {
             const roleName = getRoleName(user);
             return (
-              <tr key={user.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 whitespace-nowrap">
+              <tr
+                key={user.id}
+                className="hover:bg-slate-50/70 transition-colors"
+              >
+                <td className="px-5 py-3.5 whitespace-nowrap">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center font-medium text-sm">
+                    <div className="w-9 h-9 rounded-full bg-orange-100 text-orange-700 flex items-center justify-center font-semibold text-xs">
                       {getInitials(user.firstName, user.lastName)}
                     </div>
-                    <div className="font-medium text-gray-900">
+                    <div className="font-semibold text-slate-900 text-sm">
                       {user.firstName} {user.lastName}
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                <td className="px-5 py-3.5 whitespace-nowrap text-sm text-slate-600">
                   {user.email}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-5 py-3.5 whitespace-nowrap">
                   <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${getRoleBadgeClass(
-                      roleName
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-semibold ${getRoleBadgeClass(
+                      roleName,
                     )}`}
                   >
                     {roleName}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-5 py-3.5 whitespace-nowrap">
                   <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-semibold ${
                       user.isVerified
                         ? "bg-green-100 text-green-700"
-                        : "bg-gray-100 text-gray-700"
+                        : "bg-slate-100 text-slate-700"
                     }`}
                   >
-                    {user.isVerified ? "active" : "inactive"}
+                    {user.isVerified ? "Active" : "Inactive"}
                   </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                <td className="px-5 py-3.5 whitespace-nowrap text-sm text-slate-600">
                   {formatDate(user.updatedAt)}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center gap-2">
+                <td className="px-5 py-3.5 whitespace-nowrap">
+                  <div className="flex items-center gap-1.5">
                     <button
                       onClick={() => onEdit(user)}
-                      className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+                      className="inline-flex items-center justify-center p-2 text-orange-700 border border-orange-200 hover:bg-orange-50 rounded-md transition-colors"
                       title="Edit user"
                     >
-                      <Edit2 size={18} />
+                      <Edit2 size={16} />
                     </button>
-                    {/* <button 
-                      onClick={() => onChangeRole(user)}
-                      className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
-                      title="Change role"
-                    >
-                      <UserX size={18} />
-                    </button> */}
                     <button
                       onClick={() => onDelete(user)}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      className="inline-flex items-center justify-center p-2 text-red-600 border border-red-200 hover:bg-red-50 rounded-md transition-colors"
                       title="Delete user"
                     >
-                      <Trash2 size={18} />
+                      <Trash2 size={16} />
                     </button>
                   </div>
                 </td>
@@ -129,7 +126,7 @@ const UserTable = ({ users, onEdit, onChangeRole, onDelete }) => {
       </table>
       {users.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-gray-500">No users found</p>
+          <p className="text-slate-500">No users found</p>
         </div>
       )}
     </div>

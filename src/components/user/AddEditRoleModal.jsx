@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Modal from "./Modal";
 import { Check } from "lucide-react";
 import { fetchPermissions } from "../../api/roleService.js";
@@ -13,6 +13,26 @@ const AddEditRoleModal = ({ isOpen, onClose, role, onSave }) => {
   const [loading, setLoading] = useState(false);
   const [permissionsLoading, setPermissionsLoading] = useState(false);
   const [permissionCategories, setPermissionCategories] = useState([]);
+
+  const idToAction = useMemo(() => {
+    const map = new Map();
+    permissionCategories.forEach((category) => {
+      category.permissions.forEach((permission) => {
+        map.set(permission.id, permission.action);
+      });
+    });
+    return map;
+  }, [permissionCategories]);
+
+  const actionToId = useMemo(() => {
+    const map = new Map();
+    permissionCategories.forEach((category) => {
+      category.permissions.forEach((permission) => {
+        map.set(permission.action, permission.id);
+      });
+    });
+    return map;
+  }, [permissionCategories]);
 
   // Fetch permissions from API
   useEffect(() => {
@@ -74,7 +94,7 @@ const AddEditRoleModal = ({ isOpen, onClose, role, onSave }) => {
     });
 
     return Object.values(categories).filter(
-      (cat) => cat.permissions.length > 0
+      (cat) => cat.permissions.length > 0,
     );
   };
 
@@ -150,25 +170,46 @@ const AddEditRoleModal = ({ isOpen, onClose, role, onSave }) => {
   };
 
   const handlePermissionToggle = (permissionId) => {
-    setFormData((prev) => ({
-      ...prev,
-      permissions: prev.permissions.includes(permissionId)
+    setFormData((prev) => {
+      const nextPermissions = prev.permissions.includes(permissionId)
         ? prev.permissions.filter((id) => id !== permissionId)
-        : [...prev.permissions, permissionId],
-    }));
+        : [...prev.permissions, permissionId];
+
+      const permissionSet = new Set(nextPermissions);
+
+      // Rule: if CREATE/UPDATE/DELETE is selected, VIEW must also be selected.
+      [...permissionSet].forEach((id) => {
+        const action = idToAction.get(id);
+        if (!action) return;
+
+        const match = action.match(/^(.*)_(CREATE|UPDATE|DELETE)$/);
+        if (!match) return;
+
+        const resource = match[1];
+        const viewId = actionToId.get(`${resource}_VIEW`);
+        if (viewId) {
+          permissionSet.add(viewId);
+        }
+      });
+
+      return {
+        ...prev,
+        permissions: [...permissionSet],
+      };
+    });
   };
 
   const handleSelectAllInCategory = (category) => {
     const categoryPermissionIds = category.permissions.map((p) => p.id);
     const allSelected = categoryPermissionIds.every((id) =>
-      formData.permissions.includes(id)
+      formData.permissions.includes(id),
     );
 
     if (allSelected) {
       setFormData((prev) => ({
         ...prev,
         permissions: prev.permissions.filter(
-          (id) => !categoryPermissionIds.includes(id)
+          (id) => !categoryPermissionIds.includes(id),
         ),
       }));
     } else {
@@ -221,7 +262,7 @@ const AddEditRoleModal = ({ isOpen, onClose, role, onSave }) => {
 
   const isCategoryFullySelected = (category) => {
     return category.permissions.every((p) =>
-      formData.permissions.includes(p.id)
+      formData.permissions.includes(p.id),
     );
   };
 
@@ -238,10 +279,10 @@ const AddEditRoleModal = ({ isOpen, onClose, role, onSave }) => {
       size="lg"
     >
       <form onSubmit={handleSubmit}>
-        <div className="space-y-5 mt-2">
+        <div className="space-y-4 mt-1">
           {/* Role Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-2">
+            <label className="block text-sm font-medium text-slate-900 mb-1.5">
               Role Name <span className="text-red-500">*</span>
             </label>
             <input
@@ -249,8 +290,8 @@ const AddEditRoleModal = ({ isOpen, onClose, role, onSave }) => {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              className={`w-full px-4 py-2.5 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-colors ${
-                errors.name ? "border-red-300 bg-red-50" : "border-gray-200"
+              className={`w-full h-10 px-3 text-sm text-slate-800 placeholder:text-slate-400 placeholder:font-normal placeholder:text-sm border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:bg-white transition-colors ${
+                errors.name ? "border-red-300 bg-red-50" : "border-slate-300"
               }`}
               placeholder="e.g., Manager, Staff"
             />
@@ -261,7 +302,7 @@ const AddEditRoleModal = ({ isOpen, onClose, role, onSave }) => {
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-2">
+            <label className="block text-sm font-medium text-slate-900 mb-1.5">
               Description
             </label>
             <textarea
@@ -269,21 +310,24 @@ const AddEditRoleModal = ({ isOpen, onClose, role, onSave }) => {
               value={formData.description}
               onChange={handleChange}
               rows={3}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-colors resize-none"
+              className="w-full px-3 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 placeholder:font-normal placeholder:text-sm border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:bg-white transition-colors resize-none"
               placeholder="Brief description of this role"
             />
           </div>
 
           {/* Permissions */}
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-3">
+            <label className="block text-sm font-medium text-slate-900 mb-2">
               Permissions <span className="text-red-500">*</span>
             </label>
+            <p className="text-xs text-slate-500 mb-3">
+              Selecting Create, Update, or Delete automatically includes View.
+            </p>
 
             {permissionsLoading ? (
               <div className="flex items-center justify-center py-8">
                 <div className="w-6 h-6 border-2 border-orange-600 border-t-transparent rounded-full animate-spin"></div>
-                <span className="ml-2 text-gray-600">
+                <span className="ml-2 text-slate-600">
                   Loading permissions...
                 </span>
               </div>
@@ -292,16 +336,16 @@ const AddEditRoleModal = ({ isOpen, onClose, role, onSave }) => {
                 {permissionCategories.map((category) => (
                   <div
                     key={category.name}
-                    className="border border-gray-200 rounded-lg p-4 bg-white"
+                    className="border border-slate-200/80 rounded-lg p-3.5 bg-slate-50/30"
                   >
                     <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-medium text-gray-900">
+                      <h4 className="font-semibold text-slate-900 text-sm">
                         {category.name}
                       </h4>
                       <button
                         type="button"
                         onClick={() => handleSelectAllInCategory(category)}
-                        className="text-sm text-orange-600 hover:text-orange-700"
+                        className="text-xs font-semibold text-orange-700 hover:text-orange-800"
                       >
                         {isCategoryFullySelected(category)
                           ? "Deselect All"
@@ -309,17 +353,17 @@ const AddEditRoleModal = ({ isOpen, onClose, role, onSave }) => {
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                       {category.permissions.map((permission) => (
                         <label
                           key={permission.id}
-                          className="flex items-center gap-2 cursor-pointer group"
+                          className="flex items-center gap-2 cursor-pointer group rounded-md px-2 py-1.5 hover:bg-slate-50"
                         >
                           <div className="relative">
                             <input
                               type="checkbox"
                               checked={formData.permissions.includes(
-                                permission.id
+                                permission.id,
                               )}
                               onChange={() =>
                                 handlePermissionToggle(permission.id)
@@ -330,7 +374,7 @@ const AddEditRoleModal = ({ isOpen, onClose, role, onSave }) => {
                               className={`w-5 h-5 border-2 rounded flex items-center justify-center transition-colors ${
                                 formData.permissions.includes(permission.id)
                                   ? "bg-orange-600 border-orange-600"
-                                  : "border-gray-300 group-hover:border-orange-400"
+                                  : "border-slate-300 group-hover:border-orange-400"
                               }`}
                             >
                               {formData.permissions.includes(permission.id) && (
@@ -338,7 +382,7 @@ const AddEditRoleModal = ({ isOpen, onClose, role, onSave }) => {
                               )}
                             </div>
                           </div>
-                          <span className="text-sm text-gray-700 group-hover:text-gray-900">
+                          <span className="text-sm text-slate-700 group-hover:text-slate-900">
                             {permission.label}
                           </span>
                         </label>
@@ -348,7 +392,7 @@ const AddEditRoleModal = ({ isOpen, onClose, role, onSave }) => {
                 ))}
 
                 {permissionCategories.length === 0 && !permissionsLoading && (
-                  <div className="text-center py-8 text-gray-500">
+                  <div className="text-center py-8 text-slate-500">
                     No permissions available
                   </div>
                 )}
@@ -369,18 +413,18 @@ const AddEditRoleModal = ({ isOpen, onClose, role, onSave }) => {
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end gap-3 pt-2 pb-2">
+        <div className="flex justify-end gap-2.5 pt-3 border-t border-slate-200/80">
           <button
             type="button"
             onClick={onClose}
-            className="px-6 py-2.5 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+            className="px-5 h-10 text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors font-medium text-sm"
             disabled={loading}
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="px-6 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-medium"
+            className="px-5 h-10 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-semibold text-sm"
             disabled={loading || permissionsLoading}
           >
             {loading ? (

@@ -7,7 +7,7 @@ const FilterDropdown = ({ value, onChange, options, icon }) => {
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="appearance-none px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white text-sm cursor-pointer"
+        className="enterprise-select h-10 min-w-[150px] px-3 pr-9 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400 bg-white text-sm text-slate-700 cursor-pointer"
       >
         {options.map((option) => (
           <option key={option} value={option}>
@@ -16,8 +16,8 @@ const FilterDropdown = ({ value, onChange, options, icon }) => {
         ))}
       </select>
       <ChevronDown
-        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
-        size={16}
+        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none"
+        size={14}
       />
     </div>
   );
