@@ -10,12 +10,20 @@ import * as bookingApi from "../../api/bookingService";
 
 /**
  * Fetch all bookings with optional filters
+ * Automatically gets companyId from auth state
  */
 export const fetchBookings = createAsyncThunk(
   "bookings/fetchAll",
-  async (filters = {}, { rejectWithValue }) => {
+  async (filters = {}, { rejectWithValue, getState }) => {
     try {
-      const response = await bookingApi.getAllBookings(filters);
+      // Get companyId from auth state
+      const state = getState();
+      const companyId = state.auth?.user?.companyId;
+
+      const response = await bookingApi.getAllBookings({
+        ...filters,
+        companyId,
+      });
       return response;
     } catch (error) {
       return rejectWithValue(error.message || "Failed to fetch bookings");
@@ -25,12 +33,15 @@ export const fetchBookings = createAsyncThunk(
 
 /**
  * Fetch single booking by ID
+ * Automatically gets companyId from auth state
  */
 export const fetchBookingById = createAsyncThunk(
   "bookings/fetchById",
-  async (id, { rejectWithValue }) => {
+  async (id, { rejectWithValue, getState }) => {
     try {
-      const response = await bookingApi.getBookingById(id);
+      const state = getState();
+      const companyId = state.auth?.user?.companyId;
+      const response = await bookingApi.getBookingById(id, companyId);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message || "Failed to fetch booking");
