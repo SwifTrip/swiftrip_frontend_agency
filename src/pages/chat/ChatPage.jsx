@@ -1,21 +1,21 @@
-/**
- * Chat Page
- * Main page for messaging with tourists/customers
- */
-
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { io } from "socket.io-client";
 import {
   ConversationList,
   ChatHeader,
   MessageList,
   MessageInput,
 } from "../../components/chat";
-import { STATUS_CONFIG } from "../../components/chat/ConversationList";
+import { STATUS_CONFIG, BOOKING_STATUS } from "../../components/chat/ConversationList";
+import { getChatRooms, getMessages } from "../../api/chatService";
+import { getToken } from "../../utils/auth/authHelper";
+import { useSelector } from "react-redux";
+import { selectUser } from "../../store/slices/authSlice";
 
 function DetailPanel({ conversation, onClose }) {
   if (!conversation) return null;
 
-  const statusCfg = STATUS_CONFIG[conversation.bookingStatus];
+  const statusCfg = STATUS_CONFIG[conversation.bookingStatus] || STATUS_CONFIG[BOOKING_STATUS.UPCOMING];
 
   return (
     <div className="w-[280px] bg-white border-l border-gray-200 flex flex-col h-full overflow-y-auto">
@@ -110,132 +110,132 @@ function DetailPanel({ conversation, onClose }) {
           </div>
         </div>
       </div>
-
-      {/* Quick Actions */}
-      <div className="px-5 py-4 border-b border-gray-100">
-        <h4 className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-3">
-          Actions
-        </h4>
-        <div className="space-y-2">
-          <button className="w-full flex items-center gap-2.5 px-3 py-2.5 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-            <svg
-              className="w-4 h-4 text-gray-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-              />
-            </svg>
-            <span className="text-xs font-medium text-gray-700">
-              View Profile
-            </span>
-          </button>
-          <button className="w-full flex items-center gap-2.5 px-3 py-2.5 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-            <svg
-              className="w-4 h-4 text-gray-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-              />
-            </svg>
-            <span className="text-xs font-medium text-gray-700">
-              View Booking
-            </span>
-          </button>
-          <button className="w-full flex items-center gap-2.5 px-3 py-2.5 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-            <svg
-              className="w-4 h-4 text-gray-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-              />
-            </svg>
-            <span className="text-xs font-medium text-gray-700">
-              View Package
-            </span>
-          </button>
-        </div>
-      </div>
-
-      {/* Shared Files */}
-      <div className="px-5 py-4">
-        <h4 className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-3">
-          Shared Files
-        </h4>
-        <div className="space-y-2">
-          {["Itinerary.pdf", "Invoice_#1024.pdf", "Passport_copy.jpg"].map(
-            (file, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-2.5 p-2.5 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
-              >
-                <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center shrink-0">
-                  <svg
-                    className="w-4 h-4 text-orange-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-                    />
-                  </svg>
-                </div>
-                <div className="min-w-0">
-                  <p className="text-xs font-medium text-gray-800 truncate">
-                    {file}
-                  </p>
-                  <p className="text-[10px] text-gray-400">
-                    {i === 0 ? "245 KB" : i === 1 ? "120 KB" : "1.2 MB"}
-                  </p>
-                </div>
-              </div>
-            ),
-          )}
-        </div>
-      </div>
     </div>
   );
 }
 
 export default function ChatPage() {
+  const [conversations, setConversations] = useState([]);
   const [selectedConversation, setSelectedConversation] = useState(null);
+  const [messages, setMessages] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showDetails, setShowDetails] = useState(false);
+  const socketRef = useRef(null);
+  const user = useSelector(selectUser);
 
-  const handleSendMessage = (message) => {
-    console.log("Message sent:", message);
+  // Initialize Socket.io connection and load rooms
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const rooms = await getChatRooms();
+        const mapped = rooms.map(r => {
+          // Identify the tourist
+          const tourist = r.participants.find(p => p.user.role === 'TOURIST')?.user || r.participants[0]?.user;
+          const lastMsg = r.messages?.[0];
+          
+          return {
+            id: r.id,
+            name: tourist ? `${tourist.firstName || ""} ${tourist.lastName || ""}`.trim() || "Unknown Tourist" : "Unknown Tourist",
+            avatar: tourist?.firstName ? (tourist.firstName[0] + (tourist.lastName?.[0] || "")).toUpperCase() : "U",
+            lastMessage: lastMsg ? lastMsg.content : "Start chatting now...",
+            timestamp: lastMsg ? new Date(lastMsg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "",
+            unread: 0,
+            online: true, // Faked for testing
+            packageName: r.booking?.publicTour?.packageSchedule?.tourPackage?.title || r.customTour?.tourPackage?.title || "Custom Tour",
+            bookingStatus: "upcoming", 
+            bookingDate: "Flexible",
+            travelers: r.booking?.seats || 2,
+            amount: r.booking?.totalAmount ? `$${r.booking.totalAmount}` : "Paid",
+          };
+        });
+        setConversations(mapped);
+      } catch (err) {
+        console.error("Failed to load chat rooms", err);
+      }
+    };
+    
+    fetchRooms();
+
+    const token = getToken();
+    const API_URL = import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace('/api', '') : 'http://localhost:3000';
+    
+    const socket = io(API_URL, {
+      auth: { token }
+    });
+
+    socket.on("connect", () => {
+      console.log("Connected to chat socket", socket.id);
+    });
+
+    socket.on("receive_message", (data) => {
+      setMessages((prevMsg) => [
+        ...prevMsg,
+        {
+          id: data.id || Date.now(),
+          text: data.content,
+          timestamp: new Date(data.timestamp || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+          isOwn: false,
+          status: "delivered",
+        }
+      ]);
+    });
+
+    socketRef.current = socket;
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  const handleSendMessage = (messageContent) => {
+    if (!selectedConversation || !socketRef.current) return;
+
+    // Optimistically update UI
+    const tempMsg = {
+      id: Date.now(),
+      text: messageContent,
+      timestamp: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+      isOwn: true,
+      status: "delivered",
+    };
+    setMessages(prev => [...prev, tempMsg]);
+
+    // Send payload over socket
+    socketRef.current.emit("send_message", {
+      roomId: selectedConversation.id,
+      content: messageContent,
+      messageType: "TEXT"
+    });
   };
 
-  const handleSelectConversation = (conv) => {
+  const handleSelectConversation = async (conv) => {
     setSelectedConversation(conv);
     setShowDetails(false);
+    
+    // Fetch message history for this room
+    try {
+      const history = await getMessages(conv.id);
+      const formattedHistory = history.map(m => ({
+        id: m.id,
+        text: m.content,
+        timestamp: new Date(m.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+        isOwn: m.participant?.user?.id === user?.id,
+        status: m.isRead ? "read" : "delivered",
+      }));
+      setMessages(formattedHistory);
+
+      // Tell socket servers we are focusing on this room
+      socketRef.current?.emit("join_room", conv.id);
+    } catch (err) {
+      console.error("Failed to load message history", err);
+    }
   };
 
   return (
     <div className="h-[calc(100vh-7rem)] bg-white rounded-xl border border-gray-200 overflow-hidden flex">
       {/* Conversations Sidebar */}
       <ConversationList
+        conversations={conversations}
         selectedConversation={selectedConversation}
         onSelectConversation={handleSelectConversation}
         searchTerm={searchTerm}
@@ -248,7 +248,7 @@ export default function ChatPage() {
           conversation={selectedConversation}
           onToggleProfile={() => setShowDetails((v) => !v)}
         />
-        <MessageList conversation={selectedConversation} />
+        <MessageList conversation={selectedConversation} messages={messages} />
         <MessageInput
           onSendMessage={handleSendMessage}
           disabled={!selectedConversation}
@@ -265,3 +265,4 @@ export default function ChatPage() {
     </div>
   );
 }
+
