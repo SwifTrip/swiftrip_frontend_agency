@@ -6,19 +6,26 @@
 import React from "react";
 
 export default function BookingStats({ stats }) {
+  const toNumber = (value) => {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+
   const formatCurrency = (amount) => {
-    if (amount >= 1000000) {
-      return `PKR ${(amount / 1000000).toFixed(1)}M`;
-    } else if (amount >= 1000) {
-      return `PKR ${(amount / 1000).toFixed(0)}K`;
+    const normalizedAmount = toNumber(amount);
+
+    if (normalizedAmount >= 1000000) {
+      return `PKR ${(normalizedAmount / 1000000).toFixed(1)}M`;
+    } else if (normalizedAmount >= 1000) {
+      return `PKR ${(normalizedAmount / 1000).toFixed(0)}K`;
     }
-    return `PKR ${amount}`;
+    return `PKR ${normalizedAmount}`;
   };
 
   const statCards = [
     {
       title: "Total Bookings",
-      value: stats.total || 0,
+      value: toNumber(stats.total),
       icon: (
         <svg
           className="w-6 h-6"
@@ -39,7 +46,7 @@ export default function BookingStats({ stats }) {
     },
     {
       title: "Ongoing Tours",
-      value: stats.ongoing || 0,
+      value: toNumber(stats.ongoing),
       icon: (
         <svg
           className="w-6 h-6"
@@ -60,7 +67,7 @@ export default function BookingStats({ stats }) {
     },
     {
       title: "Completed",
-      value: stats.completed || 0,
+      value: toNumber(stats.completed),
       icon: (
         <svg
           className="w-6 h-6"
@@ -81,7 +88,7 @@ export default function BookingStats({ stats }) {
     },
     {
       title: "Pending",
-      value: stats.pending || 0,
+      value: toNumber(stats.pending),
       icon: (
         <svg
           className="w-6 h-6"
@@ -102,7 +109,7 @@ export default function BookingStats({ stats }) {
     },
     {
       title: "Total Revenue",
-      value: formatCurrency(stats.totalRevenue || 0),
+      value: formatCurrency(stats.totalRevenue),
       icon: (
         <svg
           className="w-6 h-6"
@@ -123,7 +130,7 @@ export default function BookingStats({ stats }) {
     },
     {
       title: "Pending Payments",
-      value: formatCurrency(stats.pendingPayments || 0),
+      value: formatCurrency(stats.pendingPayments),
       icon: (
         <svg
           className="w-6 h-6"
@@ -145,19 +152,21 @@ export default function BookingStats({ stats }) {
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3.5 mb-5">
       {statCards.map((stat, index) => (
         <div
           key={index}
-          className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-all"
+          className="bg-white rounded-xl p-3.5 shadow-sm border border-slate-200/80 hover:shadow-md transition-all"
         >
           <div
-            className={`w-12 h-12 ${stat.bgColor} rounded-full flex items-center justify-center mb-3 ${stat.iconColor}`}
+            className={`w-10 h-10 ${stat.bgColor} rounded-lg flex items-center justify-center mb-2.5 ${stat.iconColor}`}
           >
             {stat.icon}
           </div>
-          <p className="text-sm text-gray-600 mb-1">{stat.title}</p>
-          <p className="text-xl font-bold text-gray-800">{stat.value}</p>
+          <p className="text-[11px] uppercase tracking-wide text-slate-500 mb-1">
+            {stat.title}
+          </p>
+          <p className="text-lg font-semibold text-slate-800">{stat.value}</p>
         </div>
       ))}
     </div>
