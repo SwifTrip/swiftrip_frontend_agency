@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { toast } from "react-toastify";
 
 export default function MediaUploadStep({
   formData,
@@ -9,6 +8,8 @@ export default function MediaUploadStep({
 }) {
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+  const [mediaError, setMediaError] = useState("");
+  const [fileFeedback, setFileFeedback] = useState("");
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -42,8 +43,11 @@ export default function MediaUploadStep({
     const maxFiles = 10;
     const maxSize = 5 * 1024 * 1024; // 5MB
 
+    setMediaError("");
+    setFileFeedback("");
+
     if (formData.media.length + files.length > maxFiles) {
-      toast.error(`Maximum ${maxFiles} images allowed`);
+      setMediaError(`Maximum ${maxFiles} images are allowed.`);
       return;
     }
 
@@ -53,13 +57,13 @@ export default function MediaUploadStep({
 
     for (let file of files) {
       if (file.size > maxSize) {
-        toast.error(`${file.name} is too large. Max size is 5MB`);
+        setMediaError(`${file.name} is too large. Maximum size is 5MB.`);
         processedCount++;
         continue;
       }
 
       if (!file.type.startsWith("image/")) {
-        toast.error(`${file.name} is not an image file`);
+        setMediaError(`${file.name} is not a valid image file.`);
         processedCount++;
         continue;
       }
@@ -77,7 +81,7 @@ export default function MediaUploadStep({
         if (processedCount === files.length) {
           if (newMedia.length > 0) {
             updateFormData({ media: [...formData.media, ...newMedia] });
-            toast.success(`${newMedia.length} image(s) uploaded successfully`);
+            setFileFeedback(`${newMedia.length} image(s) added successfully.`);
           }
           setUploading(false);
         }
@@ -94,20 +98,21 @@ export default function MediaUploadStep({
     // If removing an existing media, also remove from keep list
     if (removed?.isExisting && removed?.url) {
       updatedKeepMedia = (formData.keepMedia || []).filter(
-        (u) => u !== removed.url
+        (u) => u !== removed.url,
       );
     }
 
     updateFormData({ media: updatedMedia, keepMedia: updatedKeepMedia });
-    toast.success("Image removed successfully");
+    setFileFeedback("Image removed.");
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setMediaError("");
 
     // Validation: Check if at least one image is uploaded
     if (formData.media.length === 0) {
-      toast.error("Please upload at least one image for your package");
+      setMediaError("Please upload at least one image for your package.");
       return;
     }
 
@@ -115,7 +120,10 @@ export default function MediaUploadStep({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-8">
+    <form
+      onSubmit={handleSubmit}
+      className="p-6 md:p-8 bg-white rounded-lg w-full"
+    >
       <style>{`
         ::placeholder {
           color: #D1D5DB;
@@ -123,21 +131,35 @@ export default function MediaUploadStep({
         }
       `}</style>
 
-      <div className="mb-6">
-        <h3 className="text-xl font-bold text-gray-800">
+      <div className="mb-5">
+        <h3 className="text-xl font-semibold text-slate-800">
           Upload Package Images
         </h3>
-        <p className="text-gray-600 text-sm mt-1">
+        <p className="text-slate-500 text-sm mt-1">
           Add up to 10 high-quality images to showcase your tour package
         </p>
       </div>
 
+      {mediaError && (
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {mediaError}
+        </div>
+      )}
+
+      {fileFeedback && !mediaError && (
+        <div className="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+          {fileFeedback}
+        </div>
+      )}
+
       {/* Upload Area */}
       <div
-        className={`relative border-2 border-dashed rounded-xl p-12 text-center transition-all ${
+        className={`relative border-2 border-dashed rounded-xl p-10 text-center transition-all ${
           dragActive
-            ? "border-orange-500 bg-orange-50"
-            : "border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-100"
+            ? "border-orange-500 bg-orange-50/70"
+            : mediaError
+              ? "border-red-300 bg-red-50/60"
+              : "border-slate-300 bg-slate-50/70 hover:border-slate-400 hover:bg-slate-100/80"
         }`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
@@ -195,7 +217,7 @@ export default function MediaUploadStep({
             Choose Files
           </label>
 
-          <p className="text-xs text-gray-500 mt-4">
+          <p className="text-xs text-slate-500 mt-4">
             Maximum 10 images, each up to 5MB
           </p>
         </div>
@@ -209,7 +231,7 @@ export default function MediaUploadStep({
 
       {/* Uploaded Images Grid */}
       {formData.media.length > 0 && (
-        <div className="mt-8">
+        <div className="mt-7">
           <div className="flex items-center justify-between mb-4">
             <h4 className="font-semibold text-gray-800">
               Uploaded Images ({formData.media.length}/10)
@@ -260,17 +282,17 @@ export default function MediaUploadStep({
       )}
 
       {/* Navigation */}
-      <div className="flex justify-between items-center mt-8 pt-6 border-t border-gray-200">
+      <div className="flex justify-between items-center mt-7 pt-5 border-t border-slate-200">
         <button
           type="button"
           onClick={onPrev}
-          className="px-6 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition"
+          className="px-6 py-2.5 text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition"
         >
           ← Previous
         </button>
         <button
           type="submit"
-          className="px-8 py-3 bg-orange-600 text-white font-semibold rounded-lg hover:bg-orange-700 transition shadow-lg hover:shadow-xl"
+          className="px-8 py-2.5 bg-orange-600 text-white font-semibold rounded-lg hover:bg-orange-700 transition shadow-sm hover:shadow"
         >
           Next →
         </button>

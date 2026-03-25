@@ -11,7 +11,7 @@ export const fetchPackages = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message || "Failed to fetch packages");
     }
-  }
+  },
 );
 
 // Fetch single package by ID
@@ -24,7 +24,7 @@ export const fetchPackageById = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message || "Failed to fetch package");
     }
-  }
+  },
 );
 
 // Create new package
@@ -35,9 +35,13 @@ export const createPackage = createAsyncThunk(
       const response = await api.createPackage(packageData);
       return response.data || response;
     } catch (error) {
-      return rejectWithValue(error.message || "Failed to create package");
+      return rejectWithValue(
+        error?.message
+          ? error
+          : { message: "Failed to create package", fieldErrors: [] },
+      );
     }
-  }
+  },
 );
 
 // Update package
@@ -56,14 +60,13 @@ export const updatePackage = createAsyncThunk(
       console.error("🟥 Redux updatePackage error caught:", error);
       console.error("🟥 Error object:", error);
       // Handle axios error response structure
-      const errorMessage =
-        error?.response?.data?.message ||
-        error?.message ||
-        "Failed to update package";
-      console.error("🟥 Redux rejecting with message:", errorMessage);
-      return rejectWithValue(errorMessage);
+      const normalizedError = error?.message
+        ? error
+        : { message: "Failed to update package", fieldErrors: [] };
+      console.error("🟥 Redux rejecting with message:", normalizedError);
+      return rejectWithValue(normalizedError);
     }
-  }
+  },
 );
 
 // Delete package
@@ -76,7 +79,7 @@ export const deletePackage = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error.message || "Failed to delete package");
     }
-  }
+  },
 );
 
 const initialState = {
@@ -105,13 +108,13 @@ const packageSlice = createSlice({
     updateStats: (state) => {
       state.stats.total = state.packages.length;
       state.stats.active = state.packages.filter(
-        (p) => p.status === "ACTIVE"
+        (p) => p.status === "ACTIVE",
       ).length;
       state.stats.draft = state.packages.filter(
-        (p) => p.status === "DRAFT"
+        (p) => p.status === "DRAFT",
       ).length;
       state.stats.inactive = state.packages.filter(
-        (p) => p.status === "INACTIVE"
+        (p) => p.status === "INACTIVE",
       ).length;
     },
   },
@@ -181,7 +184,7 @@ const packageSlice = createSlice({
         console.log("🟩 Updated package to store:", updatedPackage);
         if (updatedPackage?.id) {
           const index = state.packages.findIndex(
-            (p) => p.id === updatedPackage.id
+            (p) => p.id === updatedPackage.id,
           );
           if (index !== -1) {
             state.packages[index] = updatedPackage;

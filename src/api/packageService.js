@@ -7,6 +7,15 @@ const getAuthHeader = () => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
+const normalizeApiError = (err, fallbackMessage) => {
+  const data = err?.response?.data;
+
+  return {
+    message: data?.message || err?.message || fallbackMessage,
+    fieldErrors: Array.isArray(data?.fieldErrors) ? data.fieldErrors : [],
+  };
+};
+
 export async function getPackages() {
   try {
     const response = await axios.get(`${API_BASE_URL}/packages`, {
@@ -14,7 +23,7 @@ export async function getPackages() {
     });
     return response.data;
   } catch (err) {
-    throw err.response?.data || { message: "Failed to fetch packages" };
+    throw normalizeApiError(err, "Failed to fetch packages");
   }
 }
 
@@ -26,7 +35,7 @@ export async function getPackageById(id) {
     });
     return response.data;
   } catch (err) {
-    throw err.response?.data || { message: "Failed to fetch package" };
+    throw normalizeApiError(err, "Failed to fetch package");
   }
 }
 
@@ -45,7 +54,7 @@ export const createPackage = async (packageData) => {
   formData.append("title", packageData.title);
   formData.append(
     "description",
-    packageData.description || "A beautiful tour package"
+    packageData.description || "A beautiful tour package",
   );
   formData.append("category", packageData.category);
   formData.append("basePrice", packageData.basePrice);
@@ -86,21 +95,25 @@ export const createPackage = async (packageData) => {
   // Shared transports at package level
   formData.append(
     "tourTransports",
-    JSON.stringify(packageData.tourTransports || [])
+    JSON.stringify(packageData.tourTransports || []),
   );
   formData.append("fromLocation", packageData.fromLocation);
   formData.append("toLocation", packageData.toLocation);
   // Media
   packageData.media?.forEach((m) => m.file && formData.append("media", m.file));
 
-  const res = await axios.post(`${API_BASE_URL}/package/create`, formData, {
-    headers: {
-      ...getAuthHeader(),
-      "Content-Type": "multipart/form-data",
-    },
-  });
+  try {
+    const res = await axios.post(`${API_BASE_URL}/package/create`, formData, {
+      headers: {
+        ...getAuthHeader(),
+        "Content-Type": "multipart/form-data",
+      },
+    });
 
-  return res.data;
+    return res.data;
+  } catch (err) {
+    throw normalizeApiError(err, "Failed to create package");
+  }
 };
 
 // Update package
@@ -149,7 +162,7 @@ export const updatePackage = async (id, packageData) => {
       console.log("Sending itineraries:", packageData.itineraries);
       formData.append(
         "itineraries",
-        JSON.stringify(packageData.itineraries || [])
+        JSON.stringify(packageData.itineraries || []),
       );
     }
     if (packageData.tourStays !== undefined)
@@ -157,7 +170,7 @@ export const updatePackage = async (id, packageData) => {
     if (packageData.tourTransports !== undefined)
       formData.append(
         "tourTransports",
-        JSON.stringify(packageData.tourTransports || [])
+        JSON.stringify(packageData.tourTransports || []),
       );
     if (packageData.keepMedia !== undefined)
       formData.append("keepMedia", JSON.stringify(packageData.keepMedia || []));
@@ -169,12 +182,12 @@ export const updatePackage = async (id, packageData) => {
 
     // New media uploads
     packageData.media?.forEach(
-      (m) => m.file && formData.append("media", m.file)
+      (m) => m.file && formData.append("media", m.file),
     );
 
     console.log(
       "FormData ready, sending to:",
-      `${API_BASE_URL}/package/update/${id}`
+      `${API_BASE_URL}/package/update/${id}`,
     );
 
     const res = await axios.put(
@@ -185,7 +198,7 @@ export const updatePackage = async (id, packageData) => {
           ...getAuthHeader(),
           "Content-Type": "multipart/form-data",
         },
-      }
+      },
     );
     console.log("✅ Update response SUCCESS:", res.data);
     return res.data;
@@ -194,7 +207,7 @@ export const updatePackage = async (id, packageData) => {
     console.error("❌ Error response data:", err.response?.data);
     console.error("❌ Error message:", err.message);
     console.error("❌ Error status:", err.response?.status);
-    throw err.response?.data || { message: "Failed to update package" };
+    throw normalizeApiError(err, "Failed to update package");
   }
 };
 
@@ -206,7 +219,7 @@ export async function deletePackage(id) {
     });
     return response.data;
   } catch (err) {
-    throw err.response?.data || { message: "Failed to delete package" };
+    throw normalizeApiError(err, "Failed to delete package");
   }
 }
 
@@ -227,7 +240,7 @@ export const extractPackageFromPDF = async (pdfFile) => {
           ...getAuthHeader(),
           "Content-Type": "multipart/form-data",
         },
-      }
+      },
     );
 
     console.log("📥 Response received from backend");
@@ -238,8 +251,6 @@ export const extractPackageFromPDF = async (pdfFile) => {
   } catch (err) {
     console.error("❌ API Error:", err.response?.data || err.message);
     console.error("❌ Full error:", err);
-    throw (
-      err.response?.data || { message: "Failed to extract package from PDF" }
-    );
+    throw normalizeApiError(err, "Failed to extract package from PDF");
   }
 };

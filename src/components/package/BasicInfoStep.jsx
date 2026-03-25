@@ -23,6 +23,13 @@ const CATEGORIES = [
 ];
 const STATUSES = ["ACTIVE", "DRAFT", "INACTIVE"];
 const CURRENCIES = ["PKR", "USD", "EUR", "GBP"];
+const TIME_24H = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+const hasValue = (value) => {
+  if (value === undefined || value === null) return false;
+  if (typeof value === "string") return value.trim() !== "";
+  return true;
+};
 
 export default function BasicInfoStep({ formData, updateFormData, onNext }) {
   const [errors, setErrors] = useState({});
@@ -50,27 +57,37 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
   // ----- VALIDATION -----
   const validateField = (name, value) => {
     const required = getRequiredFields();
+    const trimmedValue = value?.toString().trim();
 
-    if (required.includes(name) && !value?.toString().trim()) {
+    if (required.includes(name) && !trimmedValue) {
       const label =
         name === "fromLocation"
           ? "From Location"
           : name === "toLocation"
-          ? "To Location"
-          : name === "basePrice"
-          ? "Base Price"
-          : name === "maxGroupSize"
-          ? "Max Group Size"
-          : name === "arrivalDate"
-          ? "Arrival Date"
-          : name === "departureDate"
-          ? "Departure Date"
-          : name === "description"
-          ? "Description"
-          : name.charAt(0).toUpperCase() +
-            name.slice(1).replace(/([A-Z])/g, " $1");
+            ? "To Location"
+            : name === "basePrice"
+              ? "Base Price"
+              : name === "maxGroupSize"
+                ? "Max Group Size"
+                : name === "arrivalDate"
+                  ? "Arrival Date"
+                  : name === "departureDate"
+                    ? "Departure Date"
+                    : name === "description"
+                      ? "Description"
+                      : name.charAt(0).toUpperCase() +
+                        name.slice(1).replace(/([A-Z])/g, " $1");
       return `${label} is required`;
     }
+
+    if (name === "title" && trimmedValue && trimmedValue.length < 3) {
+      return "Title must be at least 3 characters";
+    }
+
+    if (name === "description" && trimmedValue && trimmedValue.length < 10) {
+      return "Description must be at least 10 characters";
+    }
+
     if (name === "basePrice" && value <= 0)
       return "Base price must be greater than 0";
     if (name === "maxGroupSize" && value <= 0)
@@ -143,7 +160,7 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
         const depDate = new Date(formData.departureDate);
         const arrDate = new Date(value);
         const durationDays = Math.ceil(
-          (arrDate - depDate) / (1000 * 60 * 60 * 24)
+          (arrDate - depDate) / (1000 * 60 * 60 * 24),
         );
         if (durationDays > 0) {
           updateFormData({ duration: durationDays });
@@ -159,7 +176,7 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
         const depDate = new Date(value);
         const arrDate = new Date(formData.arrivalDate);
         const durationDays = Math.ceil(
-          (arrDate - depDate) / (1000 * 60 * 60 * 24)
+          (arrDate - depDate) / (1000 * 60 * 60 * 24),
         );
         if (durationDays > 0) {
           updateFormData({ duration: durationDays });
@@ -173,6 +190,125 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
     setErrors((prev) => ({ ...prev, [field]: err }));
   };
 
+  const validateOptionalSections = (data = formData) => {
+    const sectionErrors = {};
+
+    (data.tourStays || []).forEach((stay, idx) => {
+      if (!hasValue(stay.hotelName)) {
+        sectionErrors[`tourStays.${idx}.hotelName`] = "Stay name is required";
+      }
+
+      const checkInDay = Number(stay.checkInDay);
+      const checkOutDay = Number(stay.checkOutDay);
+      const rooms = Number(stay.rooms);
+      const bedsPerRoom = Number(stay.bedsPerRoom);
+
+      if (!Number.isFinite(checkInDay) || checkInDay <= 0) {
+        sectionErrors[`tourStays.${idx}.checkInDay`] =
+          "Check-in day must be greater than 0";
+      }
+
+      if (!Number.isFinite(checkOutDay) || checkOutDay <= 0) {
+        sectionErrors[`tourStays.${idx}.checkOutDay`] =
+          "Check-out day must be greater than 0";
+      }
+
+      if (
+        Number.isFinite(checkInDay) &&
+        Number.isFinite(checkOutDay) &&
+        checkOutDay < checkInDay
+      ) {
+        sectionErrors[`tourStays.${idx}.checkOutDay`] =
+          "Check-out day cannot be before check-in day";
+      }
+
+      if (!Number.isFinite(rooms) || rooms <= 0) {
+        sectionErrors[`tourStays.${idx}.rooms`] =
+          "Rooms must be greater than 0";
+      }
+
+      if (!Number.isFinite(bedsPerRoom) || bedsPerRoom <= 0) {
+        sectionErrors[`tourStays.${idx}.bedsPerRoom`] =
+          "Beds per room must be greater than 0";
+      }
+
+      const rating = Number(stay.rating);
+      if (
+        hasValue(stay.rating) &&
+        (!Number.isFinite(rating) || rating < 0 || rating > 5)
+      ) {
+        sectionErrors[`tourStays.${idx}.rating`] =
+          "Rating must be between 0 and 5";
+      }
+
+      const details = stay.stayDetails || {};
+      const hasAnyStayDetails =
+        hasValue(details.roomType) ||
+        hasValue(details.checkInTime) ||
+        hasValue(details.checkOutTime);
+
+      if (hasAnyStayDetails) {
+        if (!hasValue(details.roomType)) {
+          sectionErrors[`tourStays.${idx}.stayDetails.roomType`] =
+            "Room type is required when stay details are provided";
+        }
+
+        if (
+          hasValue(details.checkInTime) &&
+          !TIME_24H.test(details.checkInTime)
+        ) {
+          sectionErrors[`tourStays.${idx}.stayDetails.checkInTime`] =
+            "Time must be HH:mm (24h)";
+        }
+
+        if (
+          hasValue(details.checkOutTime) &&
+          !TIME_24H.test(details.checkOutTime)
+        ) {
+          sectionErrors[`tourStays.${idx}.stayDetails.checkOutTime`] =
+            "Time must be HH:mm (24h)";
+        }
+      }
+    });
+
+    (data.tourTransports || []).forEach((transport, idx) => {
+      if (!hasValue(transport.vehicleType)) {
+        sectionErrors[`tourTransports.${idx}.vehicleType`] =
+          "Vehicle type is required";
+      }
+
+      const capacity = Number(transport.capacity);
+      if (!Number.isFinite(capacity) || capacity <= 0) {
+        sectionErrors[`tourTransports.${idx}.capacity`] =
+          "Capacity must be greater than 0";
+      }
+
+      if (hasValue(transport.estimatedDuration)) {
+        const estimatedDuration = Number(transport.estimatedDuration);
+        if (!Number.isFinite(estimatedDuration) || estimatedDuration <= 0) {
+          sectionErrors[`tourTransports.${idx}.estimatedDuration`] =
+            "Estimated duration must be greater than 0";
+        }
+      }
+    });
+
+    return sectionErrors;
+  };
+
+  const syncOptionalSectionErrors = (data = formData) => {
+    const sectionErrors = validateOptionalSections(data);
+    setErrors((prev) => {
+      const nonSectionErrors = Object.fromEntries(
+        Object.entries(prev).filter(
+          ([key]) =>
+            !key.startsWith("tourStays.") && !key.startsWith("tourTransports."),
+        ),
+      );
+      return { ...nonSectionErrors, ...sectionErrors };
+    });
+    return sectionErrors;
+  };
+
   const validateAll = () => {
     const required = getRequiredFields();
     const newErr = {};
@@ -180,13 +316,28 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
       const err = validateField(f, formData[f]);
       if (err) newErr[f] = err;
     });
+
+    if (
+      formData.fromLocation &&
+      formData.toLocation &&
+      formData.fromLocation === formData.toLocation
+    ) {
+      newErr.fromLocation = "From and To location cannot be the same";
+      newErr.toLocation = "From and To location cannot be the same";
+    }
+
     setErrors(newErr);
     return Object.keys(newErr).length === 0;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (validateAll()) onNext();
+    const baseValid = validateAll();
+    const sectionErrors = syncOptionalSectionErrors(formData);
+
+    if (baseValid && Object.keys(sectionErrors).length === 0) {
+      onNext();
+    }
   };
 
   // ----- TOUR TYPE HANDLER -----
@@ -207,6 +358,8 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
     } else {
       updateFormData({ isPublic: true });
     }
+
+    syncOptionalSectionErrors({ ...formData, isPublic });
   };
 
   // ----- SELECT STYLES -----
@@ -233,6 +386,7 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
       },
     ];
     updateFormData({ tourStays: next });
+    syncOptionalSectionErrors({ ...formData, tourStays: next });
   };
 
   const handleUpdateStay = (idx, field, value) => {
@@ -246,11 +400,13 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
     }
     next[idx] = target;
     updateFormData({ tourStays: next });
+    syncOptionalSectionErrors({ ...formData, tourStays: next });
   };
 
   const handleRemoveStay = (idx) => {
     const next = (formData.tourStays || []).filter((_, i) => i !== idx);
     updateFormData({ tourStays: next });
+    syncOptionalSectionErrors({ ...formData, tourStays: next });
   };
 
   // ----- SHARED TRANSPORTS HANDLERS -----
@@ -260,9 +416,14 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
       {
         vehicleType: "",
         capacity: undefined,
+        startLocation: "",
+        endLocation: "",
+        estimatedDuration: undefined,
+        included: true,
       },
     ];
     updateFormData({ tourTransports: next });
+    syncOptionalSectionErrors({ ...formData, tourTransports: next });
   };
 
   const handleUpdateTransport = (idx, field, value) => {
@@ -271,25 +432,27 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
     target[field] = value;
     next[idx] = target;
     updateFormData({ tourTransports: next });
+    syncOptionalSectionErrors({ ...formData, tourTransports: next });
   };
 
   const handleRemoveTransport = (idx) => {
     const next = (formData.tourTransports || []).filter((_, i) => i !== idx);
     updateFormData({ tourTransports: next });
+    syncOptionalSectionErrors({ ...formData, tourTransports: next });
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="p-6 md:p-8 bg-white rounded-lg shadow-sm w-full"
+      className="p-6 md:p-8 bg-white rounded-lg w-full"
     >
       {/* Header */}
       <div className="mb-8 flex items-start justify-between">
         <div>
-          <h3 className="text-2xl font-bold text-gray-900">
+          <h3 className="text-xl font-semibold text-slate-800">
             Basic Package Information
           </h3>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-slate-500">
             Provide essential details about your tour package
           </p>
         </div>
@@ -495,7 +658,7 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
                 onChange={(e) =>
                   handleChange(
                     "basePrice",
-                    e.target.value === "" ? "" : Number(e.target.value)
+                    e.target.value === "" ? "" : Number(e.target.value),
                   )
                 }
                 onBlur={() => handleBlur("basePrice")}
@@ -661,6 +824,7 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
             onAddStay={handleAddStay}
             onUpdateStay={handleUpdateStay}
             onRemoveStay={handleRemoveStay}
+            errors={errors}
           />
 
           {/* Shared Transports Section */}
@@ -669,6 +833,7 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
             onAddTransport={handleAddTransport}
             onUpdateTransport={handleUpdateTransport}
             onRemoveTransport={handleRemoveTransport}
+            errors={errors}
           />
         </div>
       </div>
@@ -697,11 +862,14 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
         onExtract={(extractedData) => {
           console.log("📦 Auto-filling from extracted data:", extractedData);
           console.log("📅 Extracted itineraries:", extractedData.itineraries);
-          
+
           // Log each day's items
           if (extractedData.itineraries) {
             extractedData.itineraries.forEach((day, idx) => {
-              console.log(`  Day ${idx + 1}: ${day.itineraryItems?.length || 0} items`, day.itineraryItems);
+              console.log(
+                `  Day ${idx + 1}: ${day.itineraryItems?.length || 0} items`,
+                day.itineraryItems,
+              );
             });
           }
 
@@ -725,7 +893,7 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
           });
 
           toast.success(
-            "Package data auto-filled from PDF! Review and continue."
+            "Package data auto-filled from PDF! Review and continue.",
           );
         }}
       />

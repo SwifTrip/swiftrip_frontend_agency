@@ -53,6 +53,7 @@ export default function EditPackagePage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [submitError, setSubmitError] = useState("");
 
   const [formData, setFormData] = useState({
     companyId: null,
@@ -110,15 +111,59 @@ export default function EditPackagePage() {
           return "Morning";
         };
 
+        const normalizeDayTransport = (dayTransport) => {
+          const detailsFromTransport = dayTransport?.transport
+            ? {
+                vehicleType: dayTransport.transport.vehicleType || "",
+                startLocation: dayTransport.transport.startLocation || "",
+                endLocation: dayTransport.transport.endLocation || "",
+                estimatedDuration:
+                  dayTransport.transport.estimatedDuration ?? undefined,
+                capacity: dayTransport.transport.capacity ?? undefined,
+                included:
+                  dayTransport.transport.included !== undefined
+                    ? dayTransport.transport.included
+                    : true,
+                isReusable:
+                  dayTransport.transport.isReusable !== undefined
+                    ? dayTransport.transport.isReusable
+                    : false,
+              }
+            : {};
+
+          return {
+            ...dayTransport,
+            transportDetails: {
+              ...(dayTransport.transportDetails || {}),
+              ...detailsFromTransport,
+            },
+          };
+        };
+
+        const normalizeItineraryItem = (item) => ({
+          ...item,
+          mealDetails:
+            item?.mealDetails && Array.isArray(item.mealDetails)
+              ? item.mealDetails[0] || null
+              : item?.mealDetails || null,
+          transportDetails:
+            item?.transportDetails && Array.isArray(item.transportDetails)
+              ? item.transportDetails[0] || null
+              : item?.transportDetails || null,
+        });
+
         // Process itineraries to add timeOfDay field to items
         const processedItineraries = (pkg.itineraries || []).map(
           (itinerary) => ({
             ...itinerary,
+            dayTransports: (itinerary.dayTransports || []).map(
+              normalizeDayTransport,
+            ),
             itineraryItems: (itinerary.itineraryItems || []).map((item) => ({
-              ...item,
+              ...normalizeItineraryItem(item),
               timeOfDay: getTimeOfDay(item.startTime),
             })),
-          })
+          }),
         );
 
         setFormData({
@@ -177,10 +222,12 @@ export default function EditPackagePage() {
   };
 
   const nextStep = () => {
+    setSubmitError("");
     if (currentStep < STEPS.length) setCurrentStep(currentStep + 1);
   };
 
   const prevStep = () => {
+    setSubmitError("");
     if (currentStep > 1) setCurrentStep(currentStep - 1);
   };
 
@@ -190,11 +237,102 @@ export default function EditPackagePage() {
   };
 
   const handleSubmit = async (publishNow = false) => {
-    console.log("UPDATE PAYLOAD →", JSON.stringify(formData, null, 2));
+    setSubmitError("");
+
+    const toNumeric = (value) => {
+      if (value === undefined || value === null || value === "")
+        return undefined;
+      const n = Number(value);
+      return Number.isNaN(n) ? undefined : n;
+    };
+
+    const normalizeItemForUpdate = (item, tourTransports = []) => {
+      let normalizedTransportId = item.transportId;
+      let normalizedTransportDetails = item.transportDetails || undefined;
+
+      if (
+        typeof normalizedTransportId === "string" &&
+        normalizedTransportId.startsWith("shared-")
+      ) {
+        const sharedIndex = Number(
+          normalizedTransportId.replace("shared-", ""),
+        );
+        const shared = tourTransports[sharedIndex];
+        normalizedTransportId = toNumeric(shared?.id);
+        if (!normalizedTransportDetails && shared) {
+          normalizedTransportDetails = {
+            vehicleType: shared.vehicleType,
+            startLocation:
+              shared.startLocation || item.location || formData.fromLocation,
+            endLocation:
+              shared.endLocation || item.location || formData.toLocation,
+            estimatedDuration: shared.estimatedDuration,
+            capacity: shared.capacity,
+            included: shared.included !== undefined ? shared.included : true,
+            isReusable: true,
+          };
+        }
+      } else {
+        normalizedTransportId = toNumeric(normalizedTransportId);
+      }
+
+      if (
+        item.requiresTransport &&
+        item.transportId === "custom" &&
+        item.customTransport
+      ) {
+        normalizedTransportId = undefined;
+        normalizedTransportDetails = {
+          ...(normalizedTransportDetails || {}),
+          ...item.customTransport,
+        };
+      }
+
+      return {
+        ...item,
+        transportId: normalizedTransportId,
+        mealDetails: item.mealDetails ? [item.mealDetails] : undefined,
+        transportDetails: normalizedTransportDetails
+          ? [normalizedTransportDetails]
+          : undefined,
+      };
+    };
+
+    const normalizeDayTransportForUpdate = (dt) => {
+      return {
+        ...dt,
+        transportId: toNumeric(dt.transportId),
+        transportDetails: dt.transportDetails
+          ? {
+              ...dt.transportDetails,
+              estimatedDuration: toNumeric(
+                dt.transportDetails.estimatedDuration,
+              ),
+              capacity: toNumeric(dt.transportDetails.capacity),
+            }
+          : dt.transportDetails,
+      };
+    };
+
+    const normalizedPayload = {
+      ...formData,
+      status: publishNow ? "ACTIVE" : formData.status,
+      itineraries: (formData.itineraries || []).map((itinerary) => ({
+        ...itinerary,
+        dayTransports: (itinerary.dayTransports || []).map(
+          normalizeDayTransportForUpdate,
+        ),
+        itineraryItems: (itinerary.itineraryItems || []).map((item) =>
+          normalizeItemForUpdate(item, formData.tourTransports || []),
+        ),
+      })),
+    };
+
+    console.log("UPDATE PAYLOAD →", JSON.stringify(normalizedPayload, null, 2));
 
     // Final validation
     if (!formData.fromLocation || !formData.toLocation) {
-      toast.error("From and To locations are required!");
+      setSubmitError("From and To locations are required.");
       return;
     }
     if (
@@ -202,37 +340,32 @@ export default function EditPackagePage() {
       formData.toLocation &&
       formData.fromLocation === formData.toLocation
     ) {
-      toast.error("From and To locations cannot be the same.");
+      setSubmitError("From and To locations cannot be the same.");
       return;
     }
     if (formData.isPublic) {
       if (!formData.departureDate || !formData.arrivalDate) {
-        toast.error(
-          "Departure and Arrival dates are required for public tours."
+        setSubmitError(
+          "Departure and Arrival dates are required for public tours.",
         );
         return;
       }
       const dep = new Date(formData.departureDate);
       const arr = new Date(formData.arrivalDate);
       if (!(dep < arr)) {
-        toast.error("Arrival date must be after departure date.");
+        setSubmitError("Arrival date must be after departure date.");
         return;
       }
     }
 
     setLoading(true);
     try {
-      const payload = {
-        ...formData,
-        status: publishNow ? "ACTIVE" : formData.status,
-      };
-
       console.log(
         "🔵 EditPackagePage: Submitting update with payload:",
-        payload
+        normalizedPayload,
       );
       const result = await dispatch(
-        updatePackageAction({ id, data: payload })
+        updatePackageAction({ id, data: normalizedPayload }),
       ).unwrap();
       console.log("🟢 EditPackagePage: Update successful, result:", result);
       toast.success("Package updated successfully!");
@@ -246,6 +379,7 @@ export default function EditPackagePage() {
         String(err) ||
         "Error updating package";
       console.error("🔴 Error message to show:", errorMessage);
+      setSubmitError(errorMessage);
       toast.error(errorMessage);
     } finally {
       setLoading(false);
@@ -354,6 +488,13 @@ export default function EditPackagePage() {
           })}
         </div>
       </div>
+
+      {/* Step Content */}
+      {submitError && (
+        <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {submitError}
+        </div>
+      )}
 
       {/* Step Content */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
