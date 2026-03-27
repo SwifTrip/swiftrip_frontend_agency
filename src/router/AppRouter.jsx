@@ -1,6 +1,7 @@
 //src/router/AppRouter.jsx
 import React, { Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 // Loading spinner component
 const PageLoader = () => (
@@ -45,12 +46,18 @@ const BookingDetailsPage = lazy(
 // Payment pages
 const PaymentsPage = lazy(() => import("../pages/payment/PaymentsPage"));
 
+// Chat page
+const ChatPage = lazy(() => import("../pages/chat/ChatPage"));
+
 // Keep these as regular imports (needed immediately)
 import DashboardLayout from "../layouts/DashboardLayout";
 import ProtectedRouter from "./ProtectedRouter";
 import AuthRedirect from "./AuthRedirect";
+import { selectIsAuthenticated } from "../store/slices/authSlice";
 
 export default function AppRouter() {
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+
   return (
     <BrowserRouter>
       <Suspense fallback={<PageLoader />}>
@@ -58,14 +65,46 @@ export default function AppRouter() {
           <Route path="/" element={<LandingPage />} />
 
           {/* Auth routes */}
-          <Route path="/auth/login" element={<LoginPage />} />
-          <Route path="/auth/register" element={<RegisterPage />} />
-          <Route path="/auth/verify-email" element={<VerifyEmailPage />} />
+          <Route
+            path="/auth/login"
+            element={
+              <AuthRedirect>
+                <LoginPage />
+              </AuthRedirect>
+            }
+          />
+          <Route
+            path="/auth/register"
+            element={
+              <AuthRedirect>
+                <RegisterPage />
+              </AuthRedirect>
+            }
+          />
+          <Route
+            path="/auth/verify-email"
+            element={
+              <AuthRedirect>
+                <VerifyEmailPage />
+              </AuthRedirect>
+            }
+          />
           <Route
             path="/auth/forgot-password"
-            element={<ForgotPasswordPage />}
+            element={
+              <AuthRedirect>
+                <ForgotPasswordPage />
+              </AuthRedirect>
+            }
           />
-          <Route path="/auth/reset-password" element={<ResetPasswordPage />} />
+          <Route
+            path="/auth/reset-password"
+            element={
+              <AuthRedirect>
+                <ResetPasswordPage />
+              </AuthRedirect>
+            }
+          />
 
           {/* Protected app routes */}
           <Route
@@ -104,6 +143,10 @@ export default function AppRouter() {
 
                     {/* Payment routes */}
                     <Route path="payments" element={<PaymentsPage />} />
+
+                    {/* Chat routes */}
+                    <Route path="chat" element={<ChatPage />} />
+
                     <Route
                       path="analytics"
                       element={
@@ -126,14 +169,26 @@ export default function AppRouter() {
                       path=""
                       element={<Navigate to="/app/packages" replace />}
                     />
+                    <Route
+                      path="*"
+                      element={<Navigate to="/app/packages" replace />}
+                    />
                   </Routes>
                 </DashboardLayout>
               </ProtectedRouter>
             }
           />
 
-          {/* Catch all - redirect to login */}
-          <Route path="*" element={<Navigate to="/auth/login" replace />} />
+          {/* Catch all */}
+          <Route
+            path="*"
+            element={
+              <Navigate
+                to={isAuthenticated ? "/app/packages" : "/auth/login"}
+                replace
+              />
+            }
+          />
         </Routes>
       </Suspense>
     </BrowserRouter>

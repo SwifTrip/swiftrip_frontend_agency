@@ -1,366 +1,176 @@
-/**
- * Payment Redux Slice
- * Manages payment state with async thunks for Stripe Connect operations
- */
-
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import * as paymentApi from "../../api/paymentService";
 
-// Async Thunks
-
-/**
- * Fetch agency balance
- */
-export const fetchBalance = createAsyncThunk(
-  "payments/fetchBalance",
+export const fetchPaymentDetails = createAsyncThunk(
+  "payments/fetchPaymentDetails",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await paymentApi.getBalance();
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.message || "Failed to fetch balance");
-    }
-  },
-);
-
-/**
- * Fetch balance summary with all metrics
- */
-export const fetchBalanceSummary = createAsyncThunk(
-  "payments/fetchBalanceSummary",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await paymentApi.getBalanceSummary();
-      return response.data;
+      const response = await paymentApi.getPaymentDetails();
+      return response.result;
     } catch (error) {
       return rejectWithValue(
-        error.message || "Failed to fetch balance summary",
+        error.response?.data?.error ||
+          error.message ||
+          "Failed to fetch payment details",
       );
     }
   },
 );
 
-/**
- * Fetch all transactions
- */
-export const fetchTransactions = createAsyncThunk(
-  "payments/fetchTransactions",
-  async (filters = {}, { rejectWithValue }) => {
-    try {
-      const response = await paymentApi.getTransactions(filters);
-      return response;
-    } catch (error) {
-      return rejectWithValue(error.message || "Failed to fetch transactions");
-    }
-  },
-);
-
-/**
- * Fetch transaction details
- */
-export const fetchTransactionById = createAsyncThunk(
-  "payments/fetchTransactionById",
-  async (id, { rejectWithValue }) => {
-    try {
-      const response = await paymentApi.getTransactionById(id);
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.message || "Failed to fetch transaction");
-    }
-  },
-);
-
-/**
- * Fetch payout history
- */
-export const fetchPayouts = createAsyncThunk(
-  "payments/fetchPayouts",
-  async (filters = {}, { rejectWithValue }) => {
-    try {
-      const response = await paymentApi.getPayouts(filters);
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.message || "Failed to fetch payouts");
-    }
-  },
-);
-
-/**
- * Request a payout (withdrawal)
- */
-export const requestPayout = createAsyncThunk(
-  "payments/requestPayout",
-  async (payoutData, { rejectWithValue, dispatch }) => {
-    try {
-      const response = await paymentApi.requestPayout(payoutData);
-      // Refresh balance after successful payout request
-      dispatch(fetchBalance());
-      dispatch(fetchBalanceSummary());
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.message || "Failed to request payout");
-    }
-  },
-);
-
-/**
- * Cancel a pending payout
- */
-export const cancelPayout = createAsyncThunk(
-  "payments/cancelPayout",
-  async (payoutId, { rejectWithValue, dispatch }) => {
-    try {
-      const response = await paymentApi.cancelPayout(payoutId);
-      // Refresh balance after cancellation
-      dispatch(fetchBalance());
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.message || "Failed to cancel payout");
-    }
-  },
-);
-
-/**
- * Fetch bank accounts
- */
-export const fetchBankAccounts = createAsyncThunk(
-  "payments/fetchBankAccounts",
+export const fetchStripeConnectStatus = createAsyncThunk(
+  "payments/fetchStripeConnectStatus",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await paymentApi.getBankAccounts();
-      return response.data;
+      const response = await paymentApi.getStripeConnectStatus();
+      return response.result;
     } catch (error) {
-      return rejectWithValue(error.message || "Failed to fetch bank accounts");
+      return rejectWithValue(
+        error.response?.data?.error ||
+          error.message ||
+          "Failed to fetch Stripe connection status",
+      );
     }
   },
 );
 
-// Initial State
+export const createStripeConnectOnboardingLink = createAsyncThunk(
+  "payments/createStripeConnectOnboardingLink",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await paymentApi.createStripeConnectOnboardingLink();
+      if (!response.success || !response.result?.url) {
+        return rejectWithValue(
+          response.error || "Failed to create onboarding link",
+        );
+      }
+      return response.result;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.error ||
+          error.message ||
+          "Failed to create onboarding link",
+      );
+    }
+  },
+);
+
+export const redeemPayment = createAsyncThunk(
+  "payments/redeemPayment",
+  async (payload = {}, { rejectWithValue, dispatch }) => {
+    try {
+      const response = await paymentApi.redeemPayment(payload);
+      if (!response.success || response?.result?.success === false) {
+        return rejectWithValue(
+          response.error || response.result?.error || "Withdrawal failed",
+        );
+      }
+      await dispatch(fetchPaymentDetails());
+      return response.result;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.error ||
+          error.response?.data?.result?.error ||
+          error.message ||
+          "Failed to withdraw funds",
+      );
+    }
+  },
+);
+
 const initialState = {
-  // Balance data
-  balance: {
-    available: 0,
-    pending: 0,
-    reserved: 0,
-    currency: "PKR",
-  },
-  balanceSummary: {
-    totalEarnings: 0,
-    totalRefunds: 0,
-    totalPayouts: 0,
-    totalPlatformFees: 0,
-    netEarnings: 0,
-    availableBalance: 0,
-    pendingBalance: 0,
-  },
-
-  // Transactions
-  transactions: [],
-  currentTransaction: null,
-  transactionStats: {},
-
-  // Payouts
-  payouts: [],
-
-  // Bank accounts
-  bankAccounts: [],
-
-  // Pagination
-  pagination: {
-    total: 0,
-    page: 1,
-    limit: 20,
-    totalPages: 0,
-  },
-
-  // Filters
-  filters: {
-    type: "ALL",
-    status: "ALL",
-    dateRange: "ALL",
-    search: "",
-  },
-
-  // Loading states
+  pendingAmount: 0,
+  availableAmount: 0,
+  totalAmount: 0,
   loading: false,
-  balanceLoading: false,
-  transactionsLoading: false,
-  payoutLoading: false,
-
-  // Error state
+  redeemLoading: false,
   error: null,
+  redeemError: null,
+  redeemSuccess: false,
+  connectStatus: {
+    isConnected: false,
+    payoutsEnabled: false,
+    detailsSubmitted: false,
+    accountId: null,
+  },
+  connectLoading: false,
+  connectError: null,
 };
 
-// Slice
 const paymentSlice = createSlice({
   name: "payments",
   initialState,
   reducers: {
-    // Set filters
-    setFilters: (state, action) => {
-      state.filters = { ...state.filters, ...action.payload };
-    },
-
-    // Reset filters
-    resetFilters: (state) => {
-      state.filters = initialState.filters;
-    },
-
-    // Clear error
-    clearError: (state) => {
-      state.error = null;
-    },
-
-    // Set current transaction
-    setCurrentTransaction: (state, action) => {
-      state.currentTransaction = action.payload;
-    },
-
-    // Clear current transaction
-    clearCurrentTransaction: (state) => {
-      state.currentTransaction = null;
+    clearRedeemStatus: (state) => {
+      state.redeemError = null;
+      state.redeemSuccess = false;
     },
   },
   extraReducers: (builder) => {
     builder
-      // Fetch balance
-      .addCase(fetchBalance.pending, (state) => {
-        state.balanceLoading = true;
-      })
-      .addCase(fetchBalance.fulfilled, (state, action) => {
-        state.balanceLoading = false;
-        state.balance = action.payload;
-      })
-      .addCase(fetchBalance.rejected, (state, action) => {
-        state.balanceLoading = false;
-        state.error = action.payload;
-      })
-
-      // Fetch balance summary
-      .addCase(fetchBalanceSummary.pending, (state) => {
-        state.balanceLoading = true;
-      })
-      .addCase(fetchBalanceSummary.fulfilled, (state, action) => {
-        state.balanceLoading = false;
-        state.balanceSummary = action.payload;
-      })
-      .addCase(fetchBalanceSummary.rejected, (state, action) => {
-        state.balanceLoading = false;
-        state.error = action.payload;
-      })
-
-      // Fetch transactions
-      .addCase(fetchTransactions.pending, (state) => {
-        state.transactionsLoading = true;
-        state.error = null;
-      })
-      .addCase(fetchTransactions.fulfilled, (state, action) => {
-        state.transactionsLoading = false;
-        state.transactions = action.payload.data;
-        state.transactionStats = action.payload.stats;
-        state.pagination = action.payload.pagination;
-      })
-      .addCase(fetchTransactions.rejected, (state, action) => {
-        state.transactionsLoading = false;
-        state.error = action.payload;
-      })
-
-      // Fetch transaction by ID
-      .addCase(fetchTransactionById.pending, (state) => {
+      .addCase(fetchPaymentDetails.pending, (state) => {
         state.loading = true;
-      })
-      .addCase(fetchTransactionById.fulfilled, (state, action) => {
-        state.loading = false;
-        state.currentTransaction = action.payload;
-      })
-      .addCase(fetchTransactionById.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-
-      // Fetch payouts
-      .addCase(fetchPayouts.pending, (state) => {
-        state.payoutLoading = true;
-      })
-      .addCase(fetchPayouts.fulfilled, (state, action) => {
-        state.payoutLoading = false;
-        state.payouts = action.payload;
-      })
-      .addCase(fetchPayouts.rejected, (state, action) => {
-        state.payoutLoading = false;
-        state.error = action.payload;
-      })
-
-      // Request payout
-      .addCase(requestPayout.pending, (state) => {
-        state.payoutLoading = true;
         state.error = null;
       })
-      .addCase(requestPayout.fulfilled, (state, action) => {
-        state.payoutLoading = false;
-        state.payouts = [action.payload, ...state.payouts];
+      .addCase(fetchPaymentDetails.fulfilled, (state, action) => {
+        state.loading = false;
+        state.pendingAmount = action.payload?.pendingAmount ?? 0;
+        state.availableAmount =
+          action.payload?.availableAmount ??
+          action.payload?.avaiableAmount ??
+          0;
+        state.totalAmount = action.payload?.totalAmount ?? 0;
       })
-      .addCase(requestPayout.rejected, (state, action) => {
-        state.payoutLoading = false;
+      .addCase(fetchPaymentDetails.rejected, (state, action) => {
+        state.loading = false;
         state.error = action.payload;
       })
-
-      // Cancel payout
-      .addCase(cancelPayout.pending, (state) => {
-        state.payoutLoading = true;
+      .addCase(fetchStripeConnectStatus.pending, (state) => {
+        state.connectLoading = true;
+        state.connectError = null;
       })
-      .addCase(cancelPayout.fulfilled, (state, action) => {
-        state.payoutLoading = false;
-        const index = state.payouts.findIndex(
-          (p) => p.id === action.payload.id,
-        );
-        if (index !== -1) {
-          state.payouts[index] = action.payload;
-        }
+      .addCase(fetchStripeConnectStatus.fulfilled, (state, action) => {
+        state.connectLoading = false;
+        state.connectStatus = {
+          isConnected: !!action.payload?.isConnected,
+          payoutsEnabled: !!action.payload?.payoutsEnabled,
+          detailsSubmitted: !!action.payload?.detailsSubmitted,
+          accountId: action.payload?.accountId || null,
+        };
       })
-      .addCase(cancelPayout.rejected, (state, action) => {
-        state.payoutLoading = false;
-        state.error = action.payload;
+      .addCase(fetchStripeConnectStatus.rejected, (state, action) => {
+        state.connectLoading = false;
+        state.connectError = action.payload;
       })
-
-      // Fetch bank accounts
-      .addCase(fetchBankAccounts.fulfilled, (state, action) => {
-        state.bankAccounts = action.payload;
+      .addCase(redeemPayment.pending, (state) => {
+        state.redeemLoading = true;
+        state.redeemError = null;
+        state.redeemSuccess = false;
+      })
+      .addCase(redeemPayment.fulfilled, (state) => {
+        state.redeemLoading = false;
+        state.redeemSuccess = true;
+      })
+      .addCase(redeemPayment.rejected, (state, action) => {
+        state.redeemLoading = false;
+        state.redeemError = action.payload;
       });
   },
 });
 
-// Export actions
-export const {
-  setFilters,
-  resetFilters,
-  clearError,
-  setCurrentTransaction,
-  clearCurrentTransaction,
-} = paymentSlice.actions;
+export const { clearRedeemStatus } = paymentSlice.actions;
 
-// Selectors
-export const selectBalance = (state) => state.payments.balance;
-export const selectBalanceSummary = (state) => state.payments.balanceSummary;
-export const selectTransactions = (state) => state.payments.transactions;
-export const selectCurrentTransaction = (state) =>
-  state.payments.currentTransaction;
-export const selectTransactionStats = (state) =>
-  state.payments.transactionStats;
-export const selectPayouts = (state) => state.payments.payouts;
-export const selectBankAccounts = (state) => state.payments.bankAccounts;
-export const selectPaymentFilters = (state) => state.payments.filters;
-export const selectPaymentPagination = (state) => state.payments.pagination;
-export const selectBalanceLoading = (state) => state.payments.balanceLoading;
-export const selectTransactionsLoading = (state) =>
-  state.payments.transactionsLoading;
-export const selectPayoutLoading = (state) => state.payments.payoutLoading;
-export const selectPaymentLoading = (state) => ({
-  balance: state.payments.balanceLoading,
-  balanceSummary: state.payments.balanceLoading,
-  transactions: state.payments.transactionsLoading,
-  payout: state.payments.payoutLoading,
-});
+export const selectPendingAmount = (state) => state.payments.pendingAmount;
+export const selectAvailableAmount = (state) => state.payments.availableAmount;
+export const selectTotalAmount = (state) => state.payments.totalAmount;
+export const selectPaymentLoading = (state) => state.payments.loading;
+export const selectRedeemLoading = (state) => state.payments.redeemLoading;
 export const selectPaymentError = (state) => state.payments.error;
+export const selectRedeemError = (state) => state.payments.redeemError;
+export const selectRedeemSuccess = (state) => state.payments.redeemSuccess;
+export const selectStripeConnectStatus = (state) =>
+  state.payments.connectStatus;
+export const selectStripeConnectLoading = (state) =>
+  state.payments.connectLoading;
+export const selectStripeConnectError = (state) => state.payments.connectError;
 
 export default paymentSlice.reducer;

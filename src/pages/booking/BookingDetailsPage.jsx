@@ -3,17 +3,13 @@
  * Displays comprehensive details of a single booking
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { toast } from "react-toastify";
 import {
   fetchBookingById,
-  updateBookingStatus,
-  cancelBooking,
   selectCurrentBooking,
   selectDetailsLoading,
-  selectActionLoading,
   selectBookingError,
   clearCurrentBooking,
 } from "../../store/slices/bookingSlice";
@@ -49,48 +45,189 @@ const DetailRow = ({ label, value, className = "" }) => (
   </div>
 );
 
-// Cancel Modal Component
-const CancelModal = ({ isOpen, onClose, onConfirm, loading }) => {
-  const [reason, setReason] = useState("");
+// Itinerary Day Card Component
+const ItineraryDayCard = ({ itinerary, dayNumber }) => {
+  const formatDuration = (minutes) => {
+    if (!minutes) return "-";
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours === 0) return `${mins}m`;
+    if (mins === 0) return `${hours}h`;
+    return `${hours}h ${mins}m`;
+  };
 
-  if (!isOpen) return null;
+  const formatCurrency = (amount) => {
+    return `PKR ${amount?.toLocaleString() || 0}`;
+  };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex min-h-full items-center justify-center p-4">
-        <div className="fixed inset-0 bg-black/50" onClick={onClose} />
-        <div className="relative bg-white rounded-xl shadow-xl max-w-md w-full p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">
-            Cancel Booking
-          </h3>
-          <p className="text-gray-600 text-sm mb-4">
-            Are you sure you want to cancel this booking? This action cannot be
-            undone.
+    <div className="border border-gray-100 rounded-lg overflow-hidden">
+      {/* Day Header */}
+      <div className="bg-gradient-to-r from-orange-50 to-amber-50 px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center font-semibold text-sm">
+            {dayNumber}
+          </div>
+          <div>
+            <h4 className="font-semibold text-gray-800">Day {dayNumber}</h4>
+            <p className="text-xs text-gray-500">
+              {itinerary.items?.length || 0} activities
+            </p>
+          </div>
+        </div>
+        <div className="text-right">
+          <p className="text-xs text-gray-500">Duration</p>
+          <p className="text-sm font-medium text-gray-700">
+            {formatDuration(itinerary.totalDuration)}
           </p>
-          <textarea
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            placeholder="Enter cancellation reason..."
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none"
-            rows={3}
-          />
-          <div className="flex justify-end gap-3 mt-4">
+        </div>
+      </div>
+
+      {/* Day Content */}
+      <div className="p-4">
+        {/* Activities List */}
+        {itinerary.items && itinerary.items.length > 0 ? (
+          <div className="space-y-2">
+            {itinerary.items.map((item, index) => (
+              <div
+                key={item.id}
+                className={`flex items-center gap-3 p-2 rounded-lg ${
+                  item.included
+                    ? "bg-green-50 border border-green-100"
+                    : "bg-gray-50 border border-gray-100"
+                }`}
+              >
+                <div
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
+                    item.included
+                      ? "bg-green-500 text-white"
+                      : "bg-gray-300 text-gray-600"
+                  }`}
+                >
+                  {index + 1}
+                </div>
+                <div className="flex-1">
+                  <p
+                    className={`text-sm ${item.included ? "text-gray-800" : "text-gray-500 line-through"}`}
+                  >
+                    Activity #{item.itineraryItemId}
+                  </p>
+                  {item.isOptional && (
+                    <span className="text-xs text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded">
+                      Optional
+                    </span>
+                  )}
+                </div>
+                <span
+                  className={`text-xs px-2 py-1 rounded-full ${
+                    item.included
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gray-100 text-gray-500"
+                  }`}
+                >
+                  {item.included ? "Included" : "Excluded"}
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-gray-500 italic text-center py-4">
+            No activities scheduled for this day
+          </p>
+        )}
+
+        {/* Day Summary */}
+        {itinerary.estimatedCost > 0 && (
+          <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
+            <span className="text-sm text-gray-600">Estimated Cost</span>
+            <span className="text-sm font-semibold text-orange-600">
+              {formatCurrency(itinerary.estimatedCost)}
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Transaction Info Component
+const TransactionInfo = ({ payment, lifecycle }) => {
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+  };
+
+  return (
+    <div className="space-y-3">
+      {payment?.method && (
+        <div className="flex items-center justify-between py-2 border-b border-gray-50">
+          <span className="text-gray-600 text-sm">Payment Method</span>
+          <span className="inline-flex items-center gap-1.5 text-sm font-medium text-gray-800">
+            {payment.method === "card" && (
+              <svg
+                className="w-4 h-4 text-blue-500"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
+                <path
+                  fillRule="evenodd"
+                  d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            )}
+            {payment.method.charAt(0).toUpperCase() + payment.method.slice(1)}
+          </span>
+        </div>
+      )}
+
+      {payment?.transactionId && (
+        <div className="flex items-center justify-between py-2 border-b border-gray-50">
+          <span className="text-gray-600 text-sm">Transaction ID</span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono text-gray-700 bg-gray-100 px-2 py-1 rounded">
+              {payment.transactionId.length > 20
+                ? `${payment.transactionId.slice(0, 10)}...${payment.transactionId.slice(-8)}`
+                : payment.transactionId}
+            </span>
             <button
-              onClick={onClose}
-              className="px-4 py-2 text-gray-700 font-medium rounded-lg hover:bg-gray-100 transition-colors"
+              onClick={() => copyToClipboard(payment.transactionId)}
+              className="p-1 hover:bg-gray-100 rounded transition-colors"
+              title="Copy Transaction ID"
             >
-              Keep Booking
-            </button>
-            <button
-              onClick={() => onConfirm(reason)}
-              disabled={loading || !reason.trim()}
-              className="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? "Cancelling..." : "Cancel Booking"}
+              <svg
+                className="w-4 h-4 text-gray-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                />
+              </svg>
             </button>
           </div>
         </div>
-      </div>
+      )}
+
+      {lifecycle?.cancelledAt && (
+        <div className="mt-3 p-3 bg-red-50 border border-red-100 rounded-lg">
+          <p className="text-sm font-medium text-red-700 mb-1">
+            Booking Cancelled
+          </p>
+          <p className="text-xs text-red-600">
+            {new Date(lifecycle.cancelledAt).toLocaleString()}
+          </p>
+          {lifecycle?.cancellationReason && (
+            <p className="text-sm text-red-600 mt-2 italic">
+              "{lifecycle.cancellationReason}"
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 };
@@ -125,10 +262,7 @@ export default function BookingDetailsPage() {
 
   const booking = useSelector(selectCurrentBooking);
   const loading = useSelector(selectDetailsLoading);
-  const actionLoading = useSelector(selectActionLoading);
   const error = useSelector(selectBookingError);
-
-  const [showCancelModal, setShowCancelModal] = useState(false);
 
   // Fetch booking details on mount
   useEffect(() => {
@@ -164,74 +298,6 @@ export default function BookingDetailsPage() {
 
   const formatCurrency = (amount, currency = "PKR") => {
     return `${currency} ${amount?.toLocaleString() || 0}`;
-  };
-
-  // Status update handler
-  const handleStatusUpdate = async (newStatus) => {
-    try {
-      await dispatch(
-        updateBookingStatus({ id: booking.id, status: newStatus }),
-      ).unwrap();
-      toast.success(`Booking status updated to ${newStatus.toLowerCase()}`);
-    } catch (err) {
-      toast.error("Failed to update booking status");
-    }
-  };
-
-  // Cancel handler
-  const handleCancelBooking = async (reason) => {
-    try {
-      await dispatch(cancelBooking({ id: booking.id, reason })).unwrap();
-      toast.success("Booking cancelled successfully");
-      setShowCancelModal(false);
-    } catch (err) {
-      toast.error("Failed to cancel booking");
-    }
-  };
-
-  // Quick status actions based on current status
-  const getAvailableActions = () => {
-    if (!booking) return [];
-
-    const actions = [];
-
-    switch (booking.status) {
-      case BOOKING_STATUS.PENDING:
-        actions.push({
-          label: "Confirm Booking",
-          status: BOOKING_STATUS.CONFIRMED,
-          color: "bg-blue-600 hover:bg-blue-700",
-        });
-        actions.push({
-          label: "Cancel",
-          action: () => setShowCancelModal(true),
-          color: "bg-red-600 hover:bg-red-700",
-        });
-        break;
-      case BOOKING_STATUS.CONFIRMED:
-        actions.push({
-          label: "Start Tour",
-          status: BOOKING_STATUS.ONGOING,
-          color: "bg-orange-600 hover:bg-orange-700",
-        });
-        actions.push({
-          label: "Cancel",
-          action: () => setShowCancelModal(true),
-          color: "bg-red-600 hover:bg-red-700",
-        });
-        break;
-      case BOOKING_STATUS.ONGOING:
-        actions.push({
-          label: "Complete Tour",
-          status: BOOKING_STATUS.COMPLETED,
-          color: "bg-green-600 hover:bg-green-700",
-        });
-        break;
-      default:
-        break;
-    }
-
-    return actions;
   };
 
   if (loading) {
@@ -274,8 +340,6 @@ export default function BookingDetailsPage() {
     return null;
   }
 
-  const availableActions = getAvailableActions();
-
   return (
     <div>
       {/* Header */}
@@ -311,24 +375,6 @@ export default function BookingDetailsPage() {
               Booked on {formatDateTime(booking.bookingDate)}
             </p>
           </div>
-
-          {/* Action Buttons */}
-          {availableActions.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {availableActions.map((action, index) => (
-                <button
-                  key={index}
-                  onClick={
-                    action.action || (() => handleStatusUpdate(action.status))
-                  }
-                  disabled={actionLoading}
-                  className={`px-4 py-2.5 text-white font-medium rounded-lg transition-colors disabled:opacity-50 ${action.color}`}
-                >
-                  {action.label}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
       </div>
 
@@ -336,9 +382,9 @@ export default function BookingDetailsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Main Content */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Tour Package Info */}
+          {/* Tour Overview */}
           <InfoCard
-            title="Tour Package"
+            title="Tour Overview"
             icon={
               <svg
                 className="w-5 h-5"
@@ -355,79 +401,43 @@ export default function BookingDetailsPage() {
               </svg>
             }
           >
-            <div className="flex flex-col sm:flex-row gap-4">
-              <img
-                src={booking.package?.image}
-                alt={booking.package?.title}
-                className="w-full sm:w-40 h-32 object-cover rounded-lg"
-                onError={(e) => {
-                  e.target.src =
-                    "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop";
-                }}
-              />
-              <div className="flex-1">
-                <h4 className="text-lg font-semibold text-gray-800 mb-1">
-                  {booking.package?.title}
-                </h4>
-                <p className="text-gray-600 text-sm flex items-center gap-1 mb-2">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                  {booking.package?.destination}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <p className="text-xs text-gray-500 mb-1">Tour Title</p>
+                <p className="text-sm font-medium text-gray-800">
+                  {booking.package?.title || "Custom Tour"}
                 </p>
-                <div className="flex flex-wrap gap-3">
-                  <span className="inline-flex items-center gap-1 text-sm text-gray-600">
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    {booking.package?.duration}
-                  </span>
-                  <span className="inline-flex items-center gap-1 text-sm text-gray-600">
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                      />
-                    </svg>
-                    {booking.participants} Participants
-                  </span>
-                  <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded-full">
-                    {booking.package?.category}
-                  </span>
-                </div>
+              </div>
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <p className="text-xs text-gray-500 mb-1">Destination</p>
+                <p className="text-sm font-medium text-gray-800">
+                  {booking.package?.destination || "-"}
+                </p>
+              </div>
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <p className="text-xs text-gray-500 mb-1">Duration</p>
+                <p className="text-sm font-medium text-gray-800">
+                  {booking.package?.duration || "-"}
+                </p>
+              </div>
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <p className="text-xs text-gray-500 mb-1">Participants</p>
+                <p className="text-sm font-medium text-gray-800">
+                  {booking.participants}{" "}
+                  {booking.participants === 1 ? "Person" : "People"}
+                </p>
+              </div>
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <p className="text-xs text-gray-500 mb-1">Type</p>
+                <p className="text-sm font-medium text-gray-800">
+                  <TourTypeBadge tourType={booking.tourType} size="sm" />
+                </p>
+              </div>
+              <div className="p-3 bg-gray-50 rounded-lg">
+                <p className="text-xs text-gray-500 mb-1">Category</p>
+                <span className="inline-block px-2 py-0.5 bg-orange-100 text-orange-700 text-xs rounded-full font-medium">
+                  {booking.package?.category || "Custom"}
+                </span>
               </div>
             </div>
           </InfoCard>
@@ -522,6 +532,69 @@ export default function BookingDetailsPage() {
               </p>
             </InfoCard>
           )}
+
+          {/* Tour Itinerary */}
+          {booking.itineraries && booking.itineraries.length > 0 && (
+            <InfoCard
+              title="Tour Itinerary"
+              icon={
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                  />
+                </svg>
+              }
+            >
+              <div className="space-y-4">
+                {/* Itinerary Summary */}
+                <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg mb-4">
+                  <div className="flex items-center gap-2">
+                    <svg
+                      className="w-5 h-5 text-orange-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <span className="text-sm font-medium text-orange-700">
+                      {booking.itineraries.length} Day
+                      {booking.itineraries.length !== 1 ? "s" : ""} Tour
+                    </span>
+                  </div>
+                  <span className="text-sm text-orange-600">
+                    {booking.itineraries.reduce(
+                      (sum, it) => sum + (it.items?.length || 0),
+                      0,
+                    )}{" "}
+                    Total Activities
+                  </span>
+                </div>
+
+                {/* Day-by-Day Itinerary */}
+                {booking.itineraries.map((itinerary) => (
+                  <ItineraryDayCard
+                    key={itinerary.id}
+                    itinerary={itinerary}
+                    dayNumber={itinerary.dayNumber}
+                  />
+                ))}
+              </div>
+            </InfoCard>
+          )}
         </div>
 
         {/* Right Column - Sidebar */}
@@ -586,6 +659,17 @@ export default function BookingDetailsPage() {
             <div className="mb-4">
               <PaymentStatusBadge status={booking.paymentStatus} size="md" />
             </div>
+
+            {/* Transaction Info (when available from API) */}
+            {(booking.payment?.method || booking.payment?.transactionId) && (
+              <div className="mb-4 pb-4 border-b border-gray-100">
+                <TransactionInfo
+                  payment={booking.payment}
+                  lifecycle={booking.lifecycle}
+                />
+              </div>
+            )}
+
             <DetailRow
               label="Base Price"
               value={formatCurrency(
@@ -694,14 +778,6 @@ export default function BookingDetailsPage() {
           </InfoCard>
         </div>
       </div>
-
-      {/* Cancel Modal */}
-      <CancelModal
-        isOpen={showCancelModal}
-        onClose={() => setShowCancelModal(false)}
-        onConfirm={handleCancelBooking}
-        loading={actionLoading}
-      />
     </div>
   );
 }
