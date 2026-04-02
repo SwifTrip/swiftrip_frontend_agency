@@ -1,10 +1,36 @@
 // src/components/dashboard/Sidebar.jsx
-import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { logout, selectUser } from "../../store/slices/authSlice";
+import { persistor } from "../../store";
 import logoImage from "../../assets/logo.png";
 
-export default function Sidebar() {
+export default function Sidebar({
+  isCollapsed = false,
+  onToggleCollapse = () => {},
+}) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const user = useSelector(selectUser);
+  const [showAccountMenu, setShowAccountMenu] = useState(false);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    persistor.purge();
+    navigate("/auth/login");
+  };
+
+  const handleNavigateProfile = () => {
+    setShowAccountMenu(false);
+    navigate("/app/profile");
+  };
+
+  const handleNavigateCompanySettings = () => {
+    setShowAccountMenu(false);
+    navigate("/app/company-settings");
+  };
 
   const menuItems = [
     {
@@ -25,7 +51,6 @@ export default function Sidebar() {
       ),
       label: "Dashboard",
       path: "/app/dashboard",
-      comingSoon: true,
     },
     {
       icon: (
@@ -122,77 +147,99 @@ export default function Sidebar() {
       label: "Chat",
       path: "/app/chat",
     },
-    {
-      icon: (
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-          />
-        </svg>
-      ),
-      label: "Analytics",
-      path: "/app/analytics",
-      comingSoon: true,
-    },
-    {
-      icon: (
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-          />
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-          />
-        </svg>
-      ),
-      label: "Settings",
-      path: "/app/settings",
-      comingSoon: true,
-    },
   ];
 
   const isActive = (path) => location.pathname === path;
 
   return (
-    <div className="w-64 bg-white border-r border-gray-200 flex flex-col h-screen">
-      {/* Logo */}
-      <div className="p-3.5 border-b border-gray-200">
-        <div className="flex items-center gap-3">
-          <img
-            src={logoImage}
-            alt="SwifTrip Logo"
-            className="w-10 h-10 object-contain"
+    <CollapsibleSidebar
+      isCollapsed={isCollapsed}
+      onToggleCollapse={onToggleCollapse}
+      isActive={isActive}
+      menuItems={menuItems}
+      user={user}
+      showAccountMenu={showAccountMenu}
+      setShowAccountMenu={setShowAccountMenu}
+      onNavigateProfile={handleNavigateProfile}
+      onNavigateCompanySettings={handleNavigateCompanySettings}
+      onLogout={handleLogout}
+    />
+  );
+}
+
+function CollapsibleSidebar({
+  isCollapsed,
+  onToggleCollapse,
+  isActive,
+  menuItems,
+  user,
+  showAccountMenu,
+  setShowAccountMenu,
+  onNavigateProfile,
+  onNavigateCompanySettings,
+  onLogout,
+}) {
+  return (
+    <div
+      className={`relative ${isCollapsed ? "w-20" : "w-60"} bg-linear-to-b from-white/94 to-orange-50/18 backdrop-blur-xl border-r border-slate-200/80 flex flex-col h-screen shadow-[0_10px_26px_-22px_rgba(251,146,60,0.28)] transition-all duration-300 ease-in-out`}
+    >
+      <button
+        type="button"
+        onClick={onToggleCollapse}
+        className="absolute -right-3 top-5 z-20 h-7 w-7 rounded-full border border-slate-200/90 bg-white text-slate-500 shadow-sm hover:text-orange-700 hover:bg-orange-50/60 transition-colors flex items-center justify-center"
+        title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+      >
+        <svg
+          className={`w-3.5 h-3.5 transition-transform duration-300 ${isCollapsed ? "rotate-180" : ""}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M15 19l-7-7 7-7"
           />
-          <div>
-            <h1 className="text-lg font-bold bg-gradient-to-r from-orange-600 to-emerald-500 bg-clip-text text-transparent">
-              SwifTrip
-            </h1>
-            <p className="text-xs text-gray-500">Agency Panel</p>
+        </svg>
+      </button>
+
+      <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-slate-300/70 to-transparent"></div>
+
+      <div
+        className={`px-3 py-2.5 border-b border-slate-200/80 bg-linear-to-b from-white/78 to-slate-50/70 flex ${
+          isCollapsed
+            ? "flex-col items-center justify-center gap-2"
+            : "items-center justify-between gap-2"
+        }`}
+      >
+        <div className="flex items-center gap-2">
+          <div className="w-10 h-10 rounded-xl bg-white/95 border border-slate-200/80 shadow-[0_8px_18px_-12px_rgba(15,23,42,0.18)] flex items-center justify-center">
+            <img
+              src={logoImage}
+              alt="SwifTrip Logo"
+              className="w-6 h-6 object-contain drop-shadow-sm"
+            />
           </div>
+          {!isCollapsed && (
+            <div className="leading-tight">
+              <p className="text-[13px] font-semibold text-gray-800 tracking-[0.02em] mb-1">
+                Agency Portal
+              </p>
+              <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-orange-600/90">
+                Operations Console
+              </p>
+            </div>
+          )}
         </div>
+
+        {!isCollapsed && <div className="w-7 h-7" aria-hidden="true"></div>}
       </div>
 
-      {/* Menu Items */}
-      <nav className="flex-1 p-4 space-y-1">
+      <nav
+        className={`flex-1 ${isCollapsed ? "p-2.5" : "p-3"} space-y-0.5 overflow-y-auto`}
+      >
         {menuItems.map((item) => {
           const isActivePath = isActive(item.path);
           const isComingSoon = item.comingSoon === true;
@@ -201,11 +248,14 @@ export default function Sidebar() {
             return (
               <div
                 key={item.path}
-                className="flex items-center justify-between gap-3 px-4 py-3 rounded-lg text-gray-400 cursor-not-allowed select-none"
+                className={`flex items-center ${isCollapsed ? "justify-center" : "justify-between"} gap-2 px-3 py-2.5 rounded-lg text-gray-400 cursor-not-allowed select-none opacity-45`}
+                title={item.label}
               >
-                <div className="flex items-center gap-3">
-                  <div className="opacity-60">{item.icon}</div>
-                  <span className="text-sm">{item.label}</span>
+                <div className="flex items-center gap-2">
+                  <div className="opacity-60 w-4 h-4">{item.icon}</div>
+                  {!isCollapsed && (
+                    <span className="text-xs font-medium">{item.label}</span>
+                  )}
                 </div>
               </div>
             );
@@ -215,18 +265,126 @@ export default function Sidebar() {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
+              title={item.label}
+              className={`flex items-center ${isCollapsed ? "justify-center" : "gap-3"} px-3 py-2.5 rounded-lg transition-all duration-300 ease-in-out font-medium text-xs lg:text-sm ${
                 isActivePath
-                  ? "bg-orange-50 text-orange-600 font-semibold"
-                  : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                  ? "bg-linear-to-r from-orange-100/65 to-orange-50/28 text-orange-800 font-semibold shadow-[0_6px_14px_-6px_rgba(234,88,12,0.24)]"
+                  : "text-gray-700 hover:bg-orange-50/45 hover:text-orange-700"
               }`}
             >
-              {item.icon}
-              <span className="text-sm">{item.label}</span>
+              <div className="w-4 h-4">{item.icon}</div>
+              {!isCollapsed && <span className="text-xs">{item.label}</span>}
             </Link>
           );
         })}
       </nav>
+
+      <div
+        className={`border-t border-slate-200/80 ${isCollapsed ? "p-2.5" : "p-3"} bg-white/60 backdrop-blur-sm`}
+      >
+        <button
+          type="button"
+          onClick={() => setShowAccountMenu((prev) => !prev)}
+          className={`w-full flex items-center ${isCollapsed ? "justify-center" : "gap-2.5"} px-2.5 py-2 rounded-lg hover:bg-slate-100/70 transition-all duration-300 ease-in-out`}
+          title={user?.email || "admin@swiftrip.com"}
+        >
+          <div className="w-8 h-8 bg-linear-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-sm">
+            {user?.email?.[0]?.toUpperCase() || "A"}
+          </div>
+          {!isCollapsed && (
+            <>
+              <div className="text-left min-w-0 flex-1">
+                <p className="text-[11px] text-slate-500 leading-tight">
+                  Signed in as
+                </p>
+                <p className="text-xs font-semibold text-slate-700 truncate">
+                  {user?.email || "admin@swiftrip.com"}
+                </p>
+              </div>
+              <svg
+                className={`w-4 h-4 text-slate-500 transition-transform duration-300 ${
+                  showAccountMenu ? "rotate-180" : ""
+                }`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </>
+          )}
+        </button>
+
+        {showAccountMenu && !isCollapsed && (
+          <div className="mt-2 rounded-lg border border-slate-200/80 bg-white/92 overflow-hidden">
+            <button
+              type="button"
+              onClick={onNavigateProfile}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors"
+            >
+              <svg
+                className="w-4 h-4 text-slate-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+              Profile
+            </button>
+            <button
+              type="button"
+              onClick={onNavigateCompanySettings}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors border-t border-slate-200/70"
+            >
+              <svg
+                className="w-4 h-4 text-slate-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                />
+              </svg>
+              Company Settings
+            </button>
+            <button
+              type="button"
+              onClick={onLogout}
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 text-xs font-semibold text-red-600 hover:bg-red-50/50 transition-colors border-t border-slate-200/70"
+            >
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1m0-10V6m-5 14h10a2 2 0 002-2V6a2 2 0 00-2-2H8a2 2 0 00-2 2v2"
+                />
+              </svg>
+              Logout
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
