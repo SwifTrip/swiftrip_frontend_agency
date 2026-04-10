@@ -50,7 +50,7 @@ export default function TransactionFilters({
           <select
             value={filters.type}
             onChange={(e) => handleFilterChange("type", e.target.value)}
-            className="px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm bg-white min-w-[140px]"
+            className="enterprise-select px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm bg-white min-w-[140px]"
           >
             {PAYMENT_FILTER_OPTIONS.transactionType.map((option) => (
               <option key={option.value} value={option.value}>
@@ -63,7 +63,7 @@ export default function TransactionFilters({
           <select
             value={filters.status}
             onChange={(e) => handleFilterChange("status", e.target.value)}
-            className="px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm bg-white min-w-[130px]"
+            className="enterprise-select px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm bg-white min-w-[130px]"
           >
             {PAYMENT_FILTER_OPTIONS.status.map((option) => (
               <option key={option.value} value={option.value}>
@@ -76,7 +76,7 @@ export default function TransactionFilters({
           <select
             value={filters.dateRange}
             onChange={(e) => handleFilterChange("dateRange", e.target.value)}
-            className="px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm bg-white min-w-[140px]"
+            className="enterprise-select px-3 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm bg-white min-w-[140px]"
           >
             {PAYMENT_FILTER_OPTIONS.dateRange.map((option) => (
               <option key={option.value} value={option.value}>

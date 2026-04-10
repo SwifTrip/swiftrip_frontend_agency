@@ -171,15 +171,6 @@ export default function PaymentsPage() {
 
   return (
     <div>
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Payments</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Track your earnings and transfer available funds to your connected
-          Stripe account
-        </p>
-      </div>
-
       <div className="mb-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
