@@ -27,106 +27,7 @@ const STATUS_CONFIG = {
   },
 };
 
-const conversations = [
-  {
-    id: 1,
-    name: "John Smith",
-    avatar: "JS",
-    lastMessage: "Hi, I wanted to ask about the Bali package...",
-    timestamp: "2 min",
-    unread: 3,
-    online: true,
-    packageName: "Bali Adventure Tour",
-    bookingStatus: BOOKING_STATUS.UPCOMING,
-    bookingDate: "Apr 15 – Apr 22",
-    travelers: 2,
-    amount: "$2,450",
-  },
-  {
-    id: 2,
-    name: "Sarah Johnson",
-    avatar: "SJ",
-    lastMessage: "Thank you for the quick response!",
-    timestamp: "15 min",
-    unread: 0,
-    online: true,
-    packageName: "Thailand Explorer",
-    bookingStatus: BOOKING_STATUS.IN_PROGRESS,
-    bookingDate: "Mar 5 – Mar 12",
-    travelers: 4,
-    amount: "$3,800",
-  },
-  {
-    id: 3,
-    name: "Michael Chen",
-    avatar: "MC",
-    lastMessage: "Can you provide more details about the itinerary?",
-    timestamp: "1 hr",
-    unread: 1,
-    online: false,
-    packageName: "Japan Discovery",
-    bookingStatus: BOOKING_STATUS.UPCOMING,
-    bookingDate: "May 1 – May 10",
-    travelers: 1,
-    amount: "$4,200",
-  },
-  {
-    id: 4,
-    name: "Emily Davis",
-    avatar: "ED",
-    lastMessage: "Perfect, I'll make the payment today.",
-    timestamp: "3 hr",
-    unread: 0,
-    online: false,
-    packageName: "Maldives Paradise",
-    bookingStatus: BOOKING_STATUS.UPCOMING,
-    bookingDate: "Jun 8 – Jun 15",
-    travelers: 2,
-    amount: "$5,600",
-  },
-  {
-    id: 5,
-    name: "Robert Wilson",
-    avatar: "RW",
-    lastMessage: "Is there availability for 5 people?",
-    timestamp: "1d",
-    unread: 2,
-    online: true,
-    packageName: "Dubai Luxury",
-    bookingStatus: BOOKING_STATUS.IN_PROGRESS,
-    bookingDate: "Mar 3 – Mar 9",
-    travelers: 5,
-    amount: "$7,500",
-  },
-  {
-    id: 6,
-    name: "Amanda Martinez",
-    avatar: "AM",
-    lastMessage: "The trip was amazing! Thank you so much!",
-    timestamp: "1d",
-    unread: 0,
-    online: false,
-    packageName: "Paris Romance",
-    bookingStatus: BOOKING_STATUS.COMPLETED,
-    bookingDate: "Feb 14 – Feb 21",
-    travelers: 2,
-    amount: "$3,200",
-  },
-  {
-    id: 7,
-    name: "David Brown",
-    avatar: "DB",
-    lastMessage: "What's included in the package price?",
-    timestamp: "2d",
-    unread: 0,
-    online: false,
-    packageName: "Swiss Alps Adventure",
-    bookingStatus: BOOKING_STATUS.COMPLETED,
-    bookingDate: "Jan 20 – Jan 28",
-    travelers: 3,
-    amount: "$4,100",
-  },
-];
+// Removed hardcoded mock data for integration
 
 const FILTER_TABS = [
   { key: "all", label: "All" },
@@ -136,6 +37,7 @@ const FILTER_TABS = [
 ];
 
 export default function ConversationList({
+  conversations = [],
   selectedConversation,
   onSelectConversation,
   searchTerm,
@@ -342,4 +244,4 @@ export default function ConversationList({
   );
 }
 
-export { conversations, BOOKING_STATUS, STATUS_CONFIG };
+export { BOOKING_STATUS, STATUS_CONFIG };
