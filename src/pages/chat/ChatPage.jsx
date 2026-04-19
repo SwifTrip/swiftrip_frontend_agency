@@ -232,7 +232,7 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="h-[calc(100vh-7rem)] bg-white rounded-xl border border-gray-200 overflow-hidden flex">
+    <div className="h-[calc(100vh-6.45rem)] bg-white rounded-xl border border-gray-200 overflow-hidden flex">
       {/* Conversations Sidebar */}
       <ConversationList
         conversations={conversations}
