@@ -7,6 +7,7 @@ import PageTransition from "../components/common/PageTransition";
 export default function DashboardLayout({ children }) {
   const location = useLocation();
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const isChatRoute = location.pathname.startsWith("/app/chat");
 
   return (
     <div className="flex h-screen bg-gradient-to-br from-slate-50 via-amber-50/35 to-orange-50/35 relative">
@@ -26,11 +27,9 @@ export default function DashboardLayout({ children }) {
 
         {/* Page Content */}
         <main className="dashboard-main flex-1 overflow-y-auto overflow-x-hidden px-1.5 py-4 lg:px-2 lg:py-5">
-          <div className="w-full max-w-[1220px] mx-auto">
-            <div className="dashboard-page-compact mx-auto">
-              <PageTransition key={location.pathname}>
-                {children}
-              </PageTransition>
+          <div className={`w-full ${isChatRoute ? "" : "max-w-[1220px]"} mx-auto`}>
+            <div className={isChatRoute ? "" : "dashboard-page-compact mx-auto"}>
+              <PageTransition key={location.pathname}>{children}</PageTransition>
             </div>
           </div>
         </main>
