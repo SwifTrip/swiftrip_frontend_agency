@@ -20,7 +20,7 @@ export default function VerifyEmailPage() {
     if (!token) {
       setStatus("error");
       setMessage(
-        "Invalid verification link. Please check your email for the correct link."
+        "Invalid verification link. Please check your email for the correct link.",
       );
       return;
     }
@@ -42,13 +42,13 @@ export default function VerifyEmailPage() {
         if (data.success === true || data.success === "true") {
           setStatus("success");
           setMessage(
-            data.message || "Your email has been verified successfully!"
+            data.message || "Your email has been verified successfully!",
           );
         } else {
           setStatus("error");
           setMessage(
             data.message ||
-              "Invalid or expired verification token. Please request a new one."
+              "Invalid or expired verification token. Please request a new one.",
           );
         }
       } catch (err) {
@@ -58,7 +58,7 @@ export default function VerifyEmailPage() {
         setStatus("error");
         setMessage(
           err.message ||
-            "Unable to verify email. Please check your connection and try again."
+            "Unable to verify email. Please check your connection and try again.",
         );
       } finally {
         isVerifying = false;
@@ -88,7 +88,8 @@ export default function VerifyEmailPage() {
         setEmail("");
       } else {
         toast.error(
-          data.message || "Failed to send verification email. Please try again."
+          data.message ||
+            "Failed to send verification email. Please try again.",
         );
       }
     } catch (err) {
@@ -101,7 +102,7 @@ export default function VerifyEmailPage() {
 
   return (
     <AuthLayout mode="verify" showFormWrapper={false}>
-      <div className="bg-white rounded-3xl shadow-2xl p-8 lg:p-10 text-center">
+      <div className="bg-white/85 backdrop-blur-2xl rounded-3xl border border-orange-100/90 shadow-[0_30px_60px_-30px_rgba(234,88,12,0.45)] p-6 lg:p-7 text-center max-w-md mx-auto">
         {/* Logo */}
         {/* <div className="flex justify-center mb-6">
           <div className="w-20 h-20 bg-gradient-to-br from-orange-100 to-emerald-100 rounded-2xl flex items-center justify-center shadow-lg">
@@ -115,26 +116,26 @@ export default function VerifyEmailPage() {
 
         {/* Verifying State */}
         {status === "verifying" && (
-          <div className="py-8">
-            <div className="relative w-20 h-20 mx-auto mb-6">
+          <div className="py-5">
+            <div className="relative w-16 h-16 mx-auto mb-4">
               <div className="absolute inset-0 border-4 border-orange-100 rounded-full"></div>
               <div className="absolute inset-0 border-4 border-transparent border-t-orange-600 rounded-full animate-spin"></div>
             </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            <h2 className="text-xl lg:text-2xl font-bold text-gray-800 mb-2">
               Verifying Your Email
             </h2>
-            <p className="text-gray-600">Please wait a moment...</p>
+            <p className="text-sm text-gray-600">Please wait a moment...</p>
           </div>
         )}
 
         {/* Success State */}
         {status === "success" && (
-          <div className="py-8">
-            <div className="relative w-24 h-24 mx-auto mb-6">
-              <div className="absolute inset-0 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full animate-pulse"></div>
-              <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center">
+          <div className="py-5">
+            <div className="relative w-20 h-20 mx-auto mb-5">
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full opacity-20"></div>
+              <div className="absolute inset-2 bg-white border border-orange-200 rounded-full flex items-center justify-center">
                 <svg
-                  className="w-12 h-12 text-green-600"
+                  className="w-9 h-9 text-orange-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -149,17 +150,17 @@ export default function VerifyEmailPage() {
               </div>
             </div>
 
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">
-              Email Verified! 🎉
+            <h2 className="text-xl lg:text-2xl font-bold text-gray-800 mb-2">
+              Email Verified
             </h2>
-            <p className="text-gray-600 mb-8 max-w-sm mx-auto">
+            <p className="text-sm text-gray-600 mb-6 max-w-sm mx-auto">
               Your account is now active. You can start exploring amazing travel
               destinations with SwiftTrip.
             </p>
 
             <button
               onClick={() => navigate("/auth/login")}
-              className="w-full py-4 bg-gradient-to-r from-orange-600 to-emerald-500 text-white font-bold rounded-xl hover:shadow-xl hover:shadow-orange-500/30 transition-all transform hover:scale-105"
+              className="w-full py-3 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-orange-600 via-orange-500 to-amber-500 hover:from-orange-700 hover:via-orange-600 hover:to-amber-600 transition-all shadow-[0_18px_30px_-16px_rgba(234,88,12,0.95)] hover:shadow-[0_22px_34px_-16px_rgba(234,88,12,1)] ring-1 ring-orange-300/30"
             >
               Continue to Login →
             </button>
@@ -168,12 +169,12 @@ export default function VerifyEmailPage() {
 
         {/* Error State */}
         {status === "error" && (
-          <div className="py-8">
-            <div className="relative w-24 h-24 mx-auto mb-6">
+          <div className="py-5">
+            <div className="relative w-20 h-20 mx-auto mb-5">
               <div className="absolute inset-0 bg-gradient-to-br from-red-400 to-rose-500 rounded-full opacity-20"></div>
               <div className="absolute inset-2 bg-white rounded-full border-4 border-red-500 flex items-center justify-center">
                 <svg
-                  className="w-10 h-10 text-red-600"
+                  className="w-8 h-8 text-red-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -188,14 +189,16 @@ export default function VerifyEmailPage() {
               </div>
             </div>
 
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">
+            <h2 className="text-xl lg:text-2xl font-bold text-gray-800 mb-2">
               Verification Failed
             </h2>
-            <p className="text-gray-600 mb-8 max-w-sm mx-auto">{message}</p>
+            <p className="text-sm text-gray-600 mb-6 max-w-sm mx-auto">
+              {message}
+            </p>
 
             {/* Resend Section */}
-            <div className="bg-gradient-to-br from-gray-50 to-orange-50 rounded-2xl p-6 mb-6">
-              <p className="text-sm font-medium text-gray-700 mb-4">
+            <div className="bg-gradient-to-br from-gray-50 to-orange-50 rounded-2xl p-4 mb-5 border border-orange-100">
+              <p className="text-[13px] font-medium text-gray-700 mb-3">
                 Need a new verification link?
               </p>
               <input
@@ -203,12 +206,12 @@ export default function VerifyEmailPage() {
                 placeholder="Enter your email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent mb-3"
+                className="w-full px-3.5 py-3 border border-gray-300 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:bg-white focus:outline-none focus:border-orange-400 focus:ring-4 focus:ring-orange-100/80 mb-3"
               />
               <button
                 onClick={handleResendEmail}
                 disabled={resending}
-                className="w-full py-3 bg-white border-2 border-orange-600 text-orange-600 font-semibold rounded-xl hover:bg-orange-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-2.5 bg-white border border-orange-300 text-orange-700 text-sm font-semibold rounded-xl hover:bg-orange-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {resending ? "Sending..." : "Resend Verification Email"}
               </button>
@@ -216,7 +219,7 @@ export default function VerifyEmailPage() {
 
             <button
               onClick={() => navigate("/auth/login")}
-              className="w-full py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-orange-600 to-emerald-600 hover:from-orange-700 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-orange-600 via-orange-500 to-amber-500 hover:from-orange-700 hover:via-orange-600 hover:to-amber-600 transition-all shadow-[0_18px_30px_-16px_rgba(234,88,12,0.95)] hover:shadow-[0_22px_34px_-16px_rgba(234,88,12,1)] ring-1 ring-orange-300/30"
             >
               Back to Login
             </button>

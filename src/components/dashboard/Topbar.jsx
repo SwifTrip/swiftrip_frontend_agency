@@ -1,38 +1,79 @@
-import React, { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { logout, selectUser } from "../../store/slices/authSlice";
-import { persistor } from "../../store";
+import React from "react";
+import { useLocation } from "react-router-dom";
 
 export default function Topbar() {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const user = useSelector(selectUser);
-  const [showDropdown, setShowDropdown] = useState(false);
+  const location = useLocation();
 
-  const handleLogout = () => {
-    dispatch(logout());
-    persistor.purge();
-    navigate("/auth/login");
+  const pageMeta = [
+    {
+      match: "/app/dashboard",
+      title: "Agency Dashboard",
+      subtitle: "Real-time performance and booking intelligence",
+    },
+    {
+      match: "/app/packages",
+      title: "Package Management",
+      subtitle: "Create, edit, and publish travel packages",
+    },
+    {
+      match: "/app/users",
+      title: "User Management",
+      subtitle: "Manage travelers, agencies, and access",
+    },
+    {
+      match: "/app/bookings",
+      title: "Booking Management",
+      subtitle: "Track reservations and booking lifecycle",
+    },
+    {
+      match: "/app/payments",
+      title: "Payment Management",
+      subtitle: "Monitor transactions and settlement status",
+    },
+    {
+      match: "/app/chat",
+      title: "Chat Management",
+      subtitle: "Handle conversations and support responses",
+    },
+    {
+      match: "/app/profile",
+      title: "Profile Settings",
+      subtitle: "Manage account details and contact information",
+    },
+    {
+      match: "/app/company-settings",
+      title: "Company Settings",
+      subtitle: "Configure agency profile and operational preferences",
+    },
+  ];
+
+  const currentPage = pageMeta.find((page) =>
+    location.pathname.startsWith(page.match),
+  ) || {
+    title: "Agency Portal",
+    subtitle: "Operational dashboard",
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 px-6 py-2">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm text-gray-500 mt-4">
-            Welcome back,{" "}
-            <span className="font-semibold text-amber-700">
-              {user?.fullName || "Admin"}
-            </span>
-          </p>
+    <header className="h-14 bg-white/84 backdrop-blur-xl border-b border-slate-200/80 shadow-[0_10px_24px_-22px_rgba(251,146,60,0.4)] px-6 py-0">
+      <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-slate-300/70 to-transparent"></div>
+      <div className="h-full flex items-center justify-between">
+        <div className="leading-tight">
+          <h1 className="text-sm lg:text-base font-semibold text-slate-800 tracking-[0.01em]">
+            {currentPage.title}
+          </h1>
+          <p className="text-[11px] text-slate-500">{currentPage.subtitle}</p>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 text-[11px] text-slate-500 font-medium">
+          <span className="hidden md:inline">Agency Portal</span>
+          <span className="hidden md:inline text-slate-300">/</span>
+          <span className="text-orange-700">{currentPage.title}</span>
+
           {/* Notifications */}
-          <button className="relative p-2 hover:bg-gray-100 rounded-lg">
+          <button className="relative p-1.5 hover:bg-orange-50/60 rounded-lg transition-all duration-300 ease-in-out text-gray-600 hover:text-orange-700">
             <svg
-              className="w-6 h-6"
+              className="w-4 h-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -46,55 +87,6 @@ export default function Topbar() {
             </svg>
             <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
           </button>
-
-          {/* User Avatar */}
-          <div className="relative">
-            <button
-              onClick={() => setShowDropdown(!showDropdown)}
-              className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg transition"
-            >
-              <div className="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-600 rounded-full flex items-center justify-center text-white font-bold shadow-md">
-                {user?.email?.[0]?.toUpperCase() || "A"}
-              </div>
-              <div className="text-left hidden sm:block">
-                <p className="text-sm font-semibold text-gray-800">
-                  {user?.fullName || "Admin"}
-                </p>
-                <p className="text-xs text-amber-600">
-                  {user?.email || "admin@swiftrip.com"}
-                </p>
-              </div>
-            </button>
-
-            {/* Dropdown */}
-            {showDropdown && (
-              <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-amber-100 py-3 z-50">
-                <div className="px-4 py-2 border-b border-gray-100">
-                  <p className="text-xs text-gray-500">Signed in as</p>
-                  <p className="text-sm font-semibold">{user?.email}</p>
-                </div>
-                <a
-                  href="#"
-                  className="block px-4 py-2.5 text-sm hover:bg-amber-50"
-                >
-                  Profile
-                </a>
-                <a
-                  href="#"
-                  className="block px-4 py-2.5 text-sm hover:bg-amber-50"
-                >
-                  Company Settings
-                </a>
-                <hr className="my-2" />
-                <button
-                  onClick={handleLogout}
-                  className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 font-medium"
-                >
-                  Logout
-                </button>
-              </div>
-            )}
-          </div>
         </div>
       </div>
     </header>

@@ -63,6 +63,7 @@ const UsersPage = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedRole, setSelectedRole] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState({ type: null, item: null });
+  const [roleDeleteGuardError, setRoleDeleteGuardError] = useState("");
 
   // Fetch data on mount
   useEffect(() => {
@@ -97,7 +98,7 @@ const UsersPage = () => {
   const rolesWithCounts = roles.map((role) => ({
     ...role,
     userCount: users.filter(
-      (user) => user.companyRoles?.[0]?.role?.name === role.name
+      (user) => user.companyRoles?.[0]?.role?.name === role.name,
     ).length,
   }));
 
@@ -176,6 +177,17 @@ const UsersPage = () => {
   };
 
   const handleDeleteRole = (role) => {
+    if (roles.length <= 1) {
+      setRoleDeleteGuardError(
+        "At least one role must remain. You cannot delete the last role.",
+      );
+      return;
+    }
+
+    if (roleDeleteGuardError) {
+      setRoleDeleteGuardError("");
+    }
+
     setDeleteTarget({ type: "role", item: role });
     setDeleteModalOpen(true);
   };
@@ -204,6 +216,14 @@ const UsersPage = () => {
         await dispatch(deleteUserAsync(item.id)).unwrap();
         dispatch(fetchUsersAsync());
       } else {
+        if (roles.length <= 1) {
+          setRoleDeleteGuardError(
+            "At least one role must remain. You cannot delete the last role.",
+          );
+          setDeleteModalOpen(false);
+          setDeleteTarget({ type: null, item: null });
+          return;
+        }
         await dispatch(deleteRoleAsync(item.id)).unwrap();
         dispatch(fetchRolesAsync());
       }
@@ -226,18 +246,12 @@ const UsersPage = () => {
 
   return (
     <div>
-      {/* Page Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Users</h1>
-        <p className="text-gray-600 mt-1">
-          Welcome back, Explore Pakistan Tours
-        </p>
-      </div>
-
       {/* Error Messages */}
-      {(usersError || rolesError) && (
+      {(usersError || rolesError || roleDeleteGuardError) && (
         <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-sm text-red-600">{usersError || rolesError}</p>
+          <p className="text-sm text-red-600">
+            {roleDeleteGuardError || usersError || rolesError}
+          </p>
         </div>
       )}
 
@@ -251,33 +265,35 @@ const UsersPage = () => {
       )}
 
       {/* Tab Navigation */}
-      <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+      <div className="mb-4">
+        <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+      </div>
 
       {/* Users Tab Content */}
       {activeTab === "users" && (
-        <div className="bg-white rounded-lg shadow-sm">
-          <div className="p-6 border-b border-gray-200">
-            <div className="flex items-center justify-between mb-6">
+        <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm overflow-hidden">
+          <div className="p-4 md:p-5 border-b border-slate-200/80">
+            <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">
-                  User Management
-                </h2>
-                <p className="text-sm text-gray-600 mt-1">
-                  Manage user accounts and permissions
+                <h3 className="text-base font-semibold text-slate-800">
+                  User Directory
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Manage users, access roles, and account status
                 </p>
               </div>
               <button
                 onClick={handleAddUser}
-                className="flex items-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors"
+                className="inline-flex items-center gap-2 bg-orange-600 text-white px-4 h-10 rounded-lg hover:bg-orange-700 transition-colors text-sm font-semibold"
                 disabled={usersLoading}
               >
-                <UserPlus size={18} />
+                <UserPlus size={16} />
                 Add New User
               </button>
             </div>
 
             {/* Search and Filters */}
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col md:flex-row gap-2.5 md:items-center">
               <SearchBar
                 value={searchTerm}
                 onChange={setSearchTerm}
@@ -311,33 +327,34 @@ const UsersPage = () => {
       {/* Roles Tab Content */}
       {activeTab === "roles" && (
         <div>
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-2xl font-semibold text-gray-900">
+              <h3 className="text-base font-semibold text-slate-800">
                 Role Management
-              </h2>
-              <p className="text-sm text-gray-600 mt-1">
-                Configure roles and permissions
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Define permissions and manage role assignments
               </p>
             </div>
             <button
               onClick={handleAddRole}
-              className="flex items-center gap-2 bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 transition-colors"
+              className="inline-flex items-center gap-2 bg-orange-600 text-white px-4 h-10 rounded-lg hover:bg-orange-700 transition-colors text-sm font-semibold"
               disabled={rolesLoading}
             >
-              <UserPlus size={18} />
+              <UserPlus size={16} />
               Add New Role
             </button>
           </div>
 
           {/* Roles Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {rolesWithCounts.map((role) => (
               <RoleCard
                 key={role.id}
                 role={role}
                 onEdit={handleEditRole}
                 onDelete={handleDeleteRole}
+                canDelete={roles.length > 1}
               />
             ))}
           </div>

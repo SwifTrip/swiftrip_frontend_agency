@@ -3,7 +3,7 @@
  * Main page for viewing and managing all bookings
  */
 
-import React, { useEffect, useMemo, useCallback } from "react";
+import React, { useEffect, useMemo, useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
@@ -11,37 +11,42 @@ import {
   setFilters,
   resetFilters,
   selectBookings,
+  selectBookingStats,
   selectBookingFilters,
   selectBookingLoading,
   selectBookingError,
 } from "../../store/slices/bookingSlice";
-import { BookingCard, BookingFilters } from "../../components/booking";
+import {
+  BookingCard,
+  BookingFilters,
+  BookingStats,
+} from "../../components/booking";
 
 // Loading Skeleton Component
 const BookingCardSkeleton = () => (
-  <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden animate-pulse">
+  <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm overflow-hidden animate-pulse">
     <div className="flex flex-col md:flex-row">
-      <div className="w-full md:w-48 h-40 bg-gray-200" />
+      <div className="w-full md:w-44 h-36 bg-slate-200" />
       <div className="flex-1 p-5">
         <div className="flex justify-between mb-4">
           <div>
-            <div className="h-4 w-20 bg-gray-200 rounded mb-2" />
-            <div className="h-6 w-48 bg-gray-200 rounded mb-2" />
-            <div className="h-4 w-32 bg-gray-200 rounded" />
+            <div className="h-3.5 w-20 bg-slate-200 rounded mb-2" />
+            <div className="h-5.5 w-44 bg-slate-200 rounded mb-2" />
+            <div className="h-3.5 w-28 bg-slate-200 rounded" />
           </div>
           <div className="text-right">
-            <div className="h-6 w-24 bg-gray-200 rounded mb-2" />
-            <div className="h-5 w-20 bg-gray-200 rounded" />
+            <div className="h-5.5 w-24 bg-slate-200 rounded mb-2" />
+            <div className="h-4.5 w-20 bg-slate-200 rounded" />
           </div>
         </div>
         <div className="grid grid-cols-4 gap-4 mb-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-12 bg-gray-200 rounded" />
+            <div key={i} className="h-12 bg-slate-200 rounded" />
           ))}
         </div>
-        <div className="flex justify-between items-center pt-3 border-t border-gray-100">
-          <div className="h-4 w-32 bg-gray-200 rounded" />
-          <div className="h-8 w-24 bg-gray-200 rounded" />
+        <div className="flex justify-between items-center pt-3 border-t border-slate-100">
+          <div className="h-3.5 w-32 bg-slate-200 rounded" />
+          <div className="h-8 w-24 bg-slate-200 rounded" />
         </div>
       </div>
     </div>
@@ -50,10 +55,10 @@ const BookingCardSkeleton = () => (
 
 // Empty State Component
 const EmptyState = ({ hasFilters, onReset }) => (
-  <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-12 text-center">
-    <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+  <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm p-10 text-center">
+    <div className="w-16 h-16 bg-orange-50 border border-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
       <svg
-        className="w-10 h-10 text-orange-500"
+        className="w-8 h-8 text-orange-500"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -66,10 +71,10 @@ const EmptyState = ({ hasFilters, onReset }) => (
         />
       </svg>
     </div>
-    <h3 className="text-xl font-semibold text-gray-800 mb-2">
+    <h3 className="text-lg font-semibold text-slate-800 mb-2">
       {hasFilters ? "No Bookings Found" : "No Bookings Yet"}
     </h3>
-    <p className="text-gray-600 mb-6 max-w-md mx-auto">
+    <p className="text-sm text-slate-500 mb-5 max-w-md mx-auto">
       {hasFilters
         ? "Try adjusting your filters or search query to find what you're looking for."
         : "When tourists book your tours, they will appear here."}
@@ -77,7 +82,7 @@ const EmptyState = ({ hasFilters, onReset }) => (
     {hasFilters && (
       <button
         onClick={onReset}
-        className="px-6 py-2.5 bg-orange-600 text-white font-medium rounded-lg hover:bg-orange-700 transition-colors"
+        className="px-5 h-10 bg-orange-600 text-white text-sm font-semibold rounded-lg hover:bg-orange-700 transition-colors"
       >
         Clear Filters
       </button>
@@ -89,9 +94,12 @@ export default function BookingsPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [filtersReady, setFiltersReady] = useState(false);
+  const [hasFetchedOnce, setHasFetchedOnce] = useState(false);
 
   // Redux selectors
   const bookings = useSelector(selectBookings);
+  const stats = useSelector(selectBookingStats);
   const filters = useSelector(selectBookingFilters);
   const loading = useSelector(selectBookingLoading);
   const error = useSelector(selectBookingError);
@@ -105,15 +113,24 @@ export default function BookingsPage() {
       search: searchParams.get("search") || "",
     };
     dispatch(setFilters(urlFilters));
+    setFiltersReady(true);
   }, []);
 
   // Fetch bookings when filters change
   useEffect(() => {
+    if (!filtersReady) return;
     dispatch(fetchBookings(filters));
-  }, [dispatch, filters]);
+  }, [dispatch, filters, filtersReady]);
+
+  useEffect(() => {
+    if (filtersReady && !loading) {
+      setHasFetchedOnce(true);
+    }
+  }, [filtersReady, loading]);
 
   // Update URL when filters change
   useEffect(() => {
+    if (!filtersReady) return;
     const params = new URLSearchParams();
     if (filters.status !== "ALL") params.set("status", filters.status);
     if (filters.tourType !== "ALL") params.set("tourType", filters.tourType);
@@ -121,7 +138,7 @@ export default function BookingsPage() {
       params.set("paymentStatus", filters.paymentStatus);
     if (filters.search) params.set("search", filters.search);
     setSearchParams(params, { replace: true });
-  }, [filters, setSearchParams]);
+  }, [filters, setSearchParams, filtersReady]);
 
   // Check if any filters are active
   const hasActiveFilters = useMemo(() => {
@@ -136,9 +153,14 @@ export default function BookingsPage() {
   // Handlers
   const handleFilterChange = useCallback(
     (newFilters) => {
+      const isSame = Object.entries(newFilters).every(
+        ([key, value]) => filters[key] === value,
+      );
+
+      if (isSame) return;
       dispatch(setFilters(newFilters));
     },
-    [dispatch],
+    [dispatch, filters],
   );
 
   const handleResetFilters = useCallback(() => {
@@ -152,42 +174,38 @@ export default function BookingsPage() {
     [navigate],
   );
 
+  const showInitialSkeleton = !hasFetchedOnce && loading;
+  const showUpdatingOverlay = hasFetchedOnce && loading;
+  const showEmptyState = hasFetchedOnce && !loading && bookings.length === 0;
+  const showBookings = bookings.length > 0;
+
   return (
     <div>
-      {/* Page Header */}
-      <div className="mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800">
-              Booking Management
-            </h1>
-            <p className="text-gray-600 mt-1">
-              View and manage all tour bookings
-            </p>
-          </div>
-          <button
-            onClick={() => {
-              /* Export functionality */
-            }}
-            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
+      <div className="mb-4 flex justify-end">
+        <button
+          onClick={() => {
+            /* Export functionality */
+          }}
+          className="inline-flex h-10 items-center gap-2 px-4 bg-white border border-slate-300 text-slate-700 text-sm font-semibold rounded-lg hover:bg-slate-50 transition-colors"
+        >
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-              />
-            </svg>
-            Export
-          </button>
-        </div>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+            />
+          </svg>
+          Export Data
+        </button>
       </div>
+
+      <BookingStats stats={stats} />
 
       {/* Filters */}
       <BookingFilters
@@ -198,7 +216,7 @@ export default function BookingsPage() {
 
       {/* Error Message */}
       {error && (
-        <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+        <div className="mb-5 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
           <div className="flex items-center gap-2">
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
               <path
@@ -213,25 +231,35 @@ export default function BookingsPage() {
       )}
 
       {/* Booking List */}
-      <div className="space-y-4">
-        {loading ? (
-          // Loading Skeletons
-          <>
-            <BookingCardSkeleton />
-            <BookingCardSkeleton />
-            <BookingCardSkeleton />
-          </>
-        ) : bookings.length > 0 ? (
-          // Booking Cards
-          bookings.map((booking) => (
-            <BookingCard
-              key={booking.id}
-              booking={booking}
-              onViewDetails={handleViewDetails}
-            />
-          ))
-        ) : (
-          // Empty State
+      <div className="relative">
+        {showUpdatingOverlay && (
+          <div className="absolute inset-0 z-10 bg-white/55 backdrop-blur-[1px] rounded-xl pointer-events-none flex items-start justify-end p-3">
+            <div className="inline-flex items-center gap-2 text-xs text-slate-500 bg-white/90 border border-slate-200 rounded-md px-2.5 py-1.5 shadow-sm">
+              <div className="w-3.5 h-3.5 border-2 border-orange-600 border-t-transparent rounded-full animate-spin" />
+              Updating results...
+            </div>
+          </div>
+        )}
+
+        <div className="space-y-4">
+          {showInitialSkeleton ? (
+            <>
+              <BookingCardSkeleton />
+              <BookingCardSkeleton />
+              <BookingCardSkeleton />
+            </>
+          ) : showBookings ? (
+            bookings.map((booking) => (
+              <BookingCard
+                key={booking.id}
+                booking={booking}
+                onViewDetails={handleViewDetails}
+              />
+            ))
+          ) : null}
+        </div>
+
+        {showEmptyState && (
           <EmptyState
             hasFilters={hasActiveFilters}
             onReset={handleResetFilters}
@@ -241,7 +269,7 @@ export default function BookingsPage() {
 
       {/* Results Count */}
       {!loading && bookings.length > 0 && (
-        <div className="mt-6 text-center text-sm text-gray-500">
+        <div className="mt-5 text-center text-sm text-slate-500">
           Showing {bookings.length} booking{bookings.length !== 1 ? "s" : ""}
           {hasActiveFilters && " (filtered)"}
         </div>

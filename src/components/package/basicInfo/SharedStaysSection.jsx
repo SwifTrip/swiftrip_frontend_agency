@@ -6,7 +6,10 @@ export default function SharedStaysSection({
   onAddStay,
   onUpdateStay,
   onRemoveStay,
+  errors = {},
 }) {
+  const getError = (idx, field) => errors[`tourStays.${idx}.${field}`] || "";
+
   return (
     <div className="mb-6">
       <div className="flex items-center justify-between mb-3">
@@ -57,9 +60,18 @@ export default function SharedStaysSection({
                     onChange={(e) =>
                       onUpdateStay(idx, "hotelName", e.target.value)
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    className={`w-full px-3 py-2 border rounded-md text-sm bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
+                      getError(idx, "hotelName")
+                        ? "border-red-400 bg-red-50"
+                        : "border-gray-300"
+                    }`}
                     placeholder="Stay name"
                   />
+                  {getError(idx, "hotelName") && (
+                    <p className="mt-1 text-xs text-red-600">
+                      {getError(idx, "hotelName")}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-gray-700 block mb-1">
@@ -74,9 +86,18 @@ export default function SharedStaysSection({
                     onChange={(e) =>
                       onUpdateStay(idx, "rating", Number(e.target.value || 0))
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    className={`w-full px-3 py-2 border rounded-md text-sm bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
+                      getError(idx, "rating")
+                        ? "border-red-400 bg-red-50"
+                        : "border-gray-300"
+                    }`}
                     placeholder="4.5"
                   />
+                  {getError(idx, "rating") && (
+                    <p className="mt-1 text-xs text-red-600">
+                      {getError(idx, "rating")}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -93,11 +114,20 @@ export default function SharedStaysSection({
                       onUpdateStay(
                         idx,
                         "checkInDay",
-                        Number(e.target.value || 1)
+                        Number(e.target.value || 1),
                       )
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    className={`w-full px-3 py-2 border rounded-md text-sm bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
+                      getError(idx, "checkInDay")
+                        ? "border-red-400 bg-red-50"
+                        : "border-gray-300"
+                    }`}
                   />
+                  {getError(idx, "checkInDay") && (
+                    <p className="mt-1 text-xs text-red-600">
+                      {getError(idx, "checkInDay")}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-gray-700 block mb-1">
@@ -111,11 +141,20 @@ export default function SharedStaysSection({
                       onUpdateStay(
                         idx,
                         "checkOutDay",
-                        Number(e.target.value || 1)
+                        Number(e.target.value || 1),
                       )
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    className={`w-full px-3 py-2 border rounded-md text-sm bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
+                      getError(idx, "checkOutDay")
+                        ? "border-red-400 bg-red-50"
+                        : "border-gray-300"
+                    }`}
                   />
+                  {getError(idx, "checkOutDay") && (
+                    <p className="mt-1 text-xs text-red-600">
+                      {getError(idx, "checkOutDay")}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-gray-700 block mb-1">
@@ -128,8 +167,17 @@ export default function SharedStaysSection({
                     onChange={(e) =>
                       onUpdateStay(idx, "rooms", Number(e.target.value || 1))
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    className={`w-full px-3 py-2 border rounded-md text-sm bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
+                      getError(idx, "rooms")
+                        ? "border-red-400 bg-red-50"
+                        : "border-gray-300"
+                    }`}
                   />
+                  {getError(idx, "rooms") && (
+                    <p className="mt-1 text-xs text-red-600">
+                      {getError(idx, "rooms")}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-gray-700 block mb-1">
@@ -143,11 +191,20 @@ export default function SharedStaysSection({
                       onUpdateStay(
                         idx,
                         "bedsPerRoom",
-                        Number(e.target.value || 2)
+                        Number(e.target.value || 2),
                       )
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    className={`w-full px-3 py-2 border rounded-md text-sm bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
+                      getError(idx, "bedsPerRoom")
+                        ? "border-red-400 bg-red-50"
+                        : "border-gray-300"
+                    }`}
                   />
+                  {getError(idx, "bedsPerRoom") && (
+                    <p className="mt-1 text-xs text-red-600">
+                      {getError(idx, "bedsPerRoom")}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -162,9 +219,18 @@ export default function SharedStaysSection({
                     onChange={(e) =>
                       onUpdateStay(idx, "stayDetails.roomType", e.target.value)
                     }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    className={`w-full px-3 py-2 border rounded-md text-sm bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
+                      getError(idx, "stayDetails.roomType")
+                        ? "border-red-400 bg-red-50"
+                        : "border-gray-300"
+                    }`}
                     placeholder="e.g., Deluxe"
                   />
+                  {getError(idx, "stayDetails.roomType") && (
+                    <p className="mt-1 text-xs text-red-600">
+                      {getError(idx, "stayDetails.roomType")}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-gray-700 block mb-1">
@@ -177,7 +243,7 @@ export default function SharedStaysSection({
                       onUpdateStay(
                         idx,
                         "stayDetails.checkInTime",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
@@ -194,7 +260,7 @@ export default function SharedStaysSection({
                       onUpdateStay(
                         idx,
                         "stayDetails.checkOutTime",
-                        e.target.value
+                        e.target.value,
                       )
                     }
                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"

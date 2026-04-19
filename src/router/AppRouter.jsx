@@ -2,13 +2,25 @@
 import React, { Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import logoImage from "../assets/logo.png";
 
 // Loading spinner component
 const PageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-slate-900">
-    <div className="flex flex-col items-center gap-4">
-      <div className="w-12 h-12 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
-      <p className="text-white text-sm">Loading...</p>
+  <div className="fixed inset-0 z-100 flex items-center justify-center bg-white/35 backdrop-blur-md">
+    <div className="flex flex-col items-center gap-4 rounded-3xl border border-orange-200/70 bg-white/75 px-8 py-7 shadow-2xl">
+      <div className="relative">
+        <div className="h-16 w-16 rounded-full border-2 border-orange-300 border-t-orange-600 animate-spin" />
+        <div className="absolute inset-2 rounded-full bg-white shadow-inner flex items-center justify-center">
+          <img
+            src={logoImage}
+            alt="SwifTrip"
+            className="h-9 w-9 object-contain animate-pulse"
+          />
+        </div>
+      </div>
+      <p className="text-orange-800 text-sm font-semibold tracking-wide">
+        Loading SwifTrip...
+      </p>
     </div>
   </div>
 );
@@ -28,6 +40,11 @@ const CreatePackagePage = lazy(
 );
 const EditPackagePage = lazy(
   () => import("../pages/dashboard/EditPackagePage"),
+);
+const DashboardPage = lazy(() => import("../pages/dashboard/DashboardPage"));
+const ProfilePage = lazy(() => import("../pages/settings/ProfilePage"));
+const CompanySettingsPage = lazy(
+  () => import("../pages/settings/CompanySettingsPage"),
 );
 const PackageDetailsPage = lazy(
   () => import("../pages/dashboard/PackageDetailsPage"),
@@ -114,7 +131,7 @@ export default function AppRouter() {
                 <DashboardLayout>
                   <Routes>
                     {/* Dashboard routes */}
-                    <Route path="dashboard" element={<PackagesPage />} />
+                    <Route path="dashboard" element={<DashboardPage />} />
                     <Route path="packages" element={<PackagesPage />} />
                     <Route
                       path="packages/create"
@@ -147,31 +164,21 @@ export default function AppRouter() {
                     {/* Chat routes */}
                     <Route path="chat" element={<ChatPage />} />
 
+                    {/* Account settings routes */}
+                    <Route path="profile" element={<ProfilePage />} />
                     <Route
-                      path="analytics"
-                      element={
-                        <div className="p-8">
-                          <h1>Analytics Page</h1>
-                        </div>
-                      }
-                    />
-                    <Route
-                      path="settings"
-                      element={
-                        <div className="p-8">
-                          <h1>Settings Page</h1>
-                        </div>
-                      }
+                      path="company-settings"
+                      element={<CompanySettingsPage />}
                     />
 
-                    {/* Default redirect to packages */}
+                    {/* Default redirect to dashboard */}
                     <Route
                       path=""
-                      element={<Navigate to="/app/packages" replace />}
+                      element={<Navigate to="/app/dashboard" replace />}
                     />
                     <Route
                       path="*"
-                      element={<Navigate to="/app/packages" replace />}
+                      element={<Navigate to="/app/dashboard" replace />}
                     />
                   </Routes>
                 </DashboardLayout>
@@ -184,7 +191,7 @@ export default function AppRouter() {
             path="*"
             element={
               <Navigate
-                to={isAuthenticated ? "/app/packages" : "/auth/login"}
+                to={isAuthenticated ? "/app/dashboard" : "/auth/login"}
                 replace
               />
             }

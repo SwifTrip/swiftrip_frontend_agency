@@ -252,6 +252,36 @@ const calculateStatsFromBookings = (bookings) => {
   };
 };
 
+const toNumber = (value) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const normalizeBackendStats = (rawStats = null) => {
+  if (!rawStats || typeof rawStats !== "object") return null;
+
+  const normalized = {
+    total: toNumber(rawStats.total ?? rawStats.totalBookings ?? rawStats.count),
+    ongoing: toNumber(rawStats.ongoing ?? rawStats.ongoingTours),
+    completed: toNumber(rawStats.completed ?? rawStats.completedBookings),
+    pending: toNumber(rawStats.pending ?? rawStats.pendingBookings),
+    confirmed: toNumber(rawStats.confirmed ?? rawStats.confirmedBookings),
+    cancelled: toNumber(rawStats.cancelled ?? rawStats.cancelledBookings),
+    publicTours: toNumber(rawStats.publicTours ?? rawStats.publicCount),
+    privateTours: toNumber(rawStats.privateTours ?? rawStats.privateCount),
+    totalRevenue: toNumber(
+      rawStats.totalRevenue ?? rawStats.revenue ?? rawStats.totalAmount,
+    ),
+    pendingPayments: toNumber(
+      rawStats.pendingPayments ?? rawStats.pendingAmount,
+    ),
+  };
+
+  return Object.values(normalized).some((value) => value > 0)
+    ? normalized
+    : null;
+};
+
 /**
  * Get all bookings with optional filters
  * @param {Object} filters - Filter options
@@ -290,15 +320,26 @@ export const getAllBookings = async (filters = {}) => {
       // Apply client-side filters (since backend may not support all filters yet)
       transformedBookings = applyClientFilters(transformedBookings, filters);
 
+      const fallbackStats = calculateStatsFromBookings(transformedBookings);
+      const backendStats = normalizeBackendStats(
+        response.data.stats || response.data.summary || response.data.analytics,
+      );
+
+      const resolvedTotal = toNumber(
+        response.data.total ?? response.data.totalCount ?? fallbackStats.total,
+      );
+
       return {
         success: true,
         data: transformedBookings,
-        stats: calculateStatsFromBookings(transformedBookings),
+        stats: backendStats
+          ? { ...fallbackStats, ...backendStats }
+          : fallbackStats,
         pagination: {
-          total: response.data.total,
+          total: resolvedTotal,
           page: Number(page),
           limit: Number(limit),
-          totalPages: Math.ceil(response.data.total / limit),
+          totalPages: Math.ceil(resolvedTotal / limit),
         },
       };
     }

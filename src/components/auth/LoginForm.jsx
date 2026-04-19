@@ -11,6 +11,7 @@ import {
   clearError,
 } from "../../store/slices/authSlice";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const schema = yup.object().shape({
   email: yup.string().email().required("Email is required"),
@@ -25,28 +26,23 @@ export default function LoginForm() {
   const error = useSelector(selectError);
   const [showPassword, setShowPassword] = useState(false);
   const [successMessage, setSuccessMessage] = useState(
-    location.state?.successMessage || null
+    location.state?.successMessage || null,
   );
 
   // Auto-clear success message after 5 seconds
   useEffect(() => {
     if (successMessage) {
-      const timer = setTimeout(() => {
-        setSuccessMessage(null);
-        // Clear the location state
-        window.history.replaceState({}, document.title);
-      }, 5000);
-      return () => clearTimeout(timer);
+      toast.success(successMessage);
+      setSuccessMessage(null);
+      window.history.replaceState({}, document.title);
     }
   }, [successMessage]);
 
-  // Auto-clear error after 3 seconds
+  // Show auth errors as toasts and clear state to avoid duplicate popups.
   useEffect(() => {
     if (error) {
-      const timer = setTimeout(() => {
-        dispatch(clearError());
-      }, 3000);
-      return () => clearTimeout(timer);
+      toast.error(error);
+      dispatch(clearError());
     }
   }, [error, dispatch]);
 
@@ -61,7 +57,7 @@ export default function LoginForm() {
       const resultAction = await dispatch(loginUser(data));
 
       if (loginUser.fulfilled.match(resultAction)) {
-        navigate("/app");
+        navigate("/app/dashboard");
       } else {
         console.error("Login failed:", resultAction.payload);
       }
@@ -72,33 +68,15 @@ export default function LoginForm() {
 
   return (
     <form className="w-full" onSubmit={handleSubmit(onSubmit)}>
-      <div className="space-y-5">
-        {/* Show success message if exists */}
-        {successMessage && (
-          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl text-sm flex items-center gap-2">
-            <svg
-              className="w-5 h-5 flex-shrink-0"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            {successMessage}
-          </div>
-        )}
-
-        {/* Show error message if exists */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
-            {error}
-          </div>
-        )}
+      <div className="space-y-4 lg:space-y-3.5">
+        <div className="flex items-center justify-between rounded-2xl border border-orange-100 bg-orange-50/70 px-3.5 py-2">
+          <span className="text-[11px] sm:text-xs font-semibold tracking-wide text-gray-700">
+            Secure Sign In
+          </span>
+          <span className="text-[10px] sm:text-[11px] font-medium text-orange-700">
+            Encrypted Session
+          </span>
+        </div>
 
         {/* Social login buttons */}
         {/* <button 
@@ -129,12 +107,12 @@ export default function LoginForm() {
 
         {/* Email field */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">
             Email Address
           </label>
           <div className="relative">
             <svg
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-gray-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -151,7 +129,7 @@ export default function LoginForm() {
               type="email"
               autoComplete="email"
               placeholder="you@example.com"
-              className="w-full pl-12 pr-4 py-3.5 border border-gray-300 rounded-xl text-sm bg-gray-50 focus:bg-white focus:border-blue-500 focus:outline-none transition"
+              className="w-full pl-10 pr-3.5 py-3 border border-gray-300 rounded-xl text-sm bg-white/80 placeholder:text-gray-400 focus:bg-white focus:border-orange-400 focus:ring-4 focus:ring-orange-100/80 focus:outline-none transition"
             />
           </div>
           {errors.email && (
@@ -163,12 +141,12 @@ export default function LoginForm() {
 
         {/* Password field */}
         <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
+          <label className="block text-[13px] font-semibold text-gray-700 mb-1.5">
             Password
           </label>
           <div className="relative">
             <svg
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 w-[18px] h-[18px] text-gray-400"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -185,16 +163,16 @@ export default function LoginForm() {
               {...register("password")}
               autoComplete="current-password"
               placeholder="••••••••"
-              className="w-full pl-12 pr-12 py-3.5 border border-gray-300 rounded-xl text-sm bg-gray-50 focus:bg-white focus:border-blue-500 focus:outline-none transition"
+              className="w-full pl-10 pr-11 py-3 border border-gray-300 rounded-xl text-sm bg-white/80 placeholder:text-gray-400 focus:bg-white focus:border-orange-400 focus:ring-4 focus:ring-orange-100/80 focus:outline-none transition"
             />
             <button
               type="button"
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-orange-600 transition-colors"
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? (
                 <svg
-                  className="w-5 h-5"
+                  className="w-[18px] h-[18px]"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -208,7 +186,7 @@ export default function LoginForm() {
                 </svg>
               ) : (
                 <svg
-                  className="w-5 h-5"
+                  className="w-[18px] h-[18px]"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -237,37 +215,42 @@ export default function LoginForm() {
         </div>
 
         {/* Remember me & Forgot password */}
-        <div className="flex items-center justify-between text-sm">
+        <div className="flex items-center justify-between text-[13px]">
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
-              className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              className="w-4 h-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
             />
             <span className="text-gray-600">Remember me</span>
           </label>
           <Link
             to="/auth/forgot-password"
-            className="text-blue-600 hover:text-blue-700 font-medium"
+            className="text-orange-600 hover:text-orange-700 font-semibold"
           >
             Forgot Password?
           </Link>
+        </div>
+
+        <div className="rounded-xl border border-gray-200 bg-white/70 px-3.5 py-2 text-[11px] text-gray-500">
+          Use your agency email account to access bookings, invoices, and
+          traveler insights.
         </div>
 
         {/* Submit button */}
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-orange-600 to-emerald-600 hover:from-orange-700 hover:to-emerald-700 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+          className="w-full py-3 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-orange-600 via-orange-500 to-amber-500 hover:from-orange-700 hover:via-orange-600 hover:to-amber-600 transition-all shadow-[0_18px_30px_-16px_rgba(234,88,12,0.95)] hover:shadow-[0_22px_34px_-16px_rgba(234,88,12,1)] ring-1 ring-orange-300/30 disabled:opacity-50 disabled:cursor-not-allowed mt-3"
         >
           {loading ? "Signing in..." : "Sign In"}
         </button>
 
         {/* Sign up link */}
-        <p className="text-center text-sm text-gray-600 mt-6">
+        <p className="text-center text-[13px] text-gray-600 mt-4">
           Don't have an account?{" "}
           <Link
             to="/auth/register"
-            className="text-blue-600 font-semibold hover:text-blue-700 hover:underline"
+            className="text-orange-600 font-semibold hover:text-orange-700 hover:underline"
           >
             Create account
           </Link>

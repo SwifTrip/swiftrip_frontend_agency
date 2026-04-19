@@ -2,22 +2,21 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthLayout from "../../layouts/AuthLayout";
 import { forgotPassword } from "../../api/authService";
+import { toast } from "react-toastify";
 
 export default function ForgotPasswordPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
 
     // Basic validation
     if (!email || !email.includes("@")) {
-      setError("Please enter a valid email address");
+      toast.error("Please enter a valid email address");
       setLoading(false);
       return;
     }
@@ -26,13 +25,14 @@ export default function ForgotPasswordPage() {
       const data = await forgotPassword(email);
 
       if (data.success) {
+        toast.success("Password reset link sent to your email");
         setSuccess(true);
       } else {
-        setError(data.message || "Failed to send reset email");
+        toast.error(data.message || "Failed to send reset email");
       }
     } catch (err) {
       console.error("Forgot password error:", err);
-      setError(err.message || "Something went wrong. Please try again.");
+      toast.error(err.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -41,13 +41,13 @@ export default function ForgotPasswordPage() {
   if (success) {
     return (
       <AuthLayout mode="login" showFormWrapper={false}>
-        <div className="bg-white rounded-3xl shadow-2xl p-8 lg:p-10 text-center">
+        <div className="bg-white/85 backdrop-blur-2xl rounded-3xl border border-orange-100/90 shadow-[0_30px_60px_-30px_rgba(234,88,12,0.45)] p-6 lg:p-7 text-center max-w-md mx-auto">
           {/* Success Icon */}
-          <div className="relative w-24 h-24 mx-auto mb-6">
-            <div className="absolute inset-0 bg-gradient-to-br from-orange-400 to-emerald-500 rounded-full animate-pulse"></div>
-            <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center">
+          <div className="relative w-20 h-20 mx-auto mb-5">
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full opacity-20"></div>
+            <div className="absolute inset-2 bg-white border border-orange-200 rounded-full flex items-center justify-center">
               <svg
-                className="w-12 h-12 text-orange-600"
+                className="w-9 h-9 text-orange-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -62,10 +62,10 @@ export default function ForgotPasswordPage() {
             </div>
           </div>
 
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">
-            Check Your Email! 📧
+          <h2 className="text-xl lg:text-2xl font-bold text-gray-800 mb-2">
+            Check Your Email
           </h2>
-          <p className="text-gray-600 mb-8 max-w-sm mx-auto">
+          <p className="text-sm text-gray-600 mb-6 max-w-sm mx-auto">
             We've sent a password reset link to{" "}
             <span className="font-medium text-gray-800">{email}</span>. Please
             check your inbox and spam folder.
@@ -73,7 +73,7 @@ export default function ForgotPasswordPage() {
 
           <button
             onClick={() => navigate("/auth/login")}
-            className="w-full py-4 bg-gradient-to-r from-orange-600 to-emerald-500 text-white font-bold rounded-xl hover:shadow-xl hover:shadow-orange-500/30 transition-all transform hover:scale-105"
+            className="w-full py-3 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-orange-600 via-orange-500 to-amber-500 hover:from-orange-700 hover:via-orange-600 hover:to-amber-600 transition-all shadow-[0_18px_30px_-16px_rgba(234,88,12,0.95)] hover:shadow-[0_22px_34px_-16px_rgba(234,88,12,1)] ring-1 ring-orange-300/30"
           >
             Back to Login
           </button>
@@ -84,7 +84,7 @@ export default function ForgotPasswordPage() {
                 setSuccess(false);
                 setEmail("");
               }}
-              className="text-sm text-orange-600 hover:text-orange-700 font-medium"
+              className="text-[13px] text-orange-600 hover:text-orange-700 font-medium"
             >
               Didn't receive the email? Try again
             </button>
@@ -96,11 +96,11 @@ export default function ForgotPasswordPage() {
 
   return (
     <AuthLayout mode="login" showFormWrapper={false}>
-      <div className="bg-white rounded-3xl shadow-2xl p-8 lg:p-10">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-orange-100 to-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+      <div className="bg-white/85 backdrop-blur-2xl rounded-3xl border border-orange-100/90 shadow-[0_30px_60px_-30px_rgba(234,88,12,0.45)] p-6 lg:p-7 max-w-md mx-auto">
+        <div className="text-center mb-6">
+          <div className="w-14 h-14 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-3 border border-orange-200">
             <svg
-              className="w-8 h-8 text-orange-600"
+              className="w-7 h-7 text-orange-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -113,25 +113,18 @@ export default function ForgotPasswordPage() {
               />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold text-gray-800">Forgot Password?</h1>
-          <p className="text-sm text-gray-500 mt-2">
+          <h1 className="text-2xl font-bold text-gray-800">Forgot Password?</h1>
+          <p className="text-[13px] text-gray-600 mt-1.5">
             No worries! Enter your email and we'll send you reset instructions.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Error Message */}
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
-              {error}
-            </div>
-          )}
-
+        <form onSubmit={handleSubmit} className="space-y-4">
           {/* Email Input */}
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-[13px] font-semibold text-gray-700 mb-1.5"
             >
               Email Address
             </label>
@@ -141,7 +134,7 @@ export default function ForgotPasswordPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              className="w-full px-3.5 py-3 border border-gray-300 rounded-xl text-sm bg-white/80 placeholder:text-gray-400 focus:bg-white focus:border-orange-400 focus:ring-4 focus:ring-orange-100/80 focus:outline-none transition"
               disabled={loading}
             />
           </div>
@@ -150,7 +143,7 @@ export default function ForgotPasswordPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 bg-gradient-to-r from-orange-600 to-emerald-500 text-white font-bold rounded-xl hover:shadow-xl hover:shadow-orange-500/30 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            className="w-full py-3 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-orange-600 via-orange-500 to-amber-500 hover:from-orange-700 hover:via-orange-600 hover:to-amber-600 transition-all shadow-[0_18px_30px_-16px_rgba(234,88,12,0.95)] hover:shadow-[0_22px_34px_-16px_rgba(234,88,12,1)] ring-1 ring-orange-300/30 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? "Sending..." : "Send Reset Link"}
           </button>
@@ -160,7 +153,7 @@ export default function ForgotPasswordPage() {
             <button
               type="button"
               onClick={() => navigate("/auth/login")}
-              className="text-sm text-gray-600 hover:text-orange-600 font-medium transition-colors"
+              className="text-[13px] text-gray-600 hover:text-orange-600 font-medium transition-colors"
             >
               ← Back to Login
             </button>

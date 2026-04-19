@@ -1,5 +1,4 @@
-import React from "react";
-import { toast } from "react-toastify";
+import React, { useState } from "react";
 
 export default function ReviewStep({
   formData,
@@ -8,17 +7,20 @@ export default function ReviewStep({
   loading,
   isEditMode,
 }) {
+  const [reviewError, setReviewError] = useState("");
+
   const handleDraftSave = (e) => {
     e.preventDefault();
+    setReviewError("");
 
     // Validation before saving as draft
     if (!formData.title || formData.title.trim() === "") {
-      toast.error("Package title is required");
+      setReviewError("Package title is required.");
       return;
     }
 
     if (formData.itineraries.length === 0) {
-      toast.error("Please add at least one day to the itinerary");
+      setReviewError("Please add at least one day to the itinerary.");
       return;
     }
 
@@ -27,33 +29,36 @@ export default function ReviewStep({
 
   const handlePublish = (e) => {
     e.preventDefault();
+    setReviewError("");
 
     // Validation before publishing
     if (!formData.title || formData.title.trim() === "") {
-      toast.error("Package title is required");
+      setReviewError("Package title is required.");
       return;
     }
 
     if (!formData.description || formData.description.trim() === "") {
-      toast.error("Package description is required");
+      setReviewError("Package description is required.");
       return;
     }
 
     if (formData.itineraries.length === 0) {
-      toast.error("Please add at least one day to the itinerary");
+      setReviewError("Please add at least one day to the itinerary.");
       return;
     }
 
     const hasItemsInAnyDay = formData.itineraries.some(
-      (day) => day.itineraryItems.length > 0
+      (day) => day.itineraryItems.length > 0,
     );
     if (!hasItemsInAnyDay) {
-      toast.error("Please add at least one item to any day in the itinerary");
+      setReviewError(
+        "Please add at least one item to any day in the itinerary.",
+      );
       return;
     }
 
     if (formData.media.length === 0) {
-      toast.error("Please upload at least one image");
+      setReviewError("Please upload at least one image.");
       return;
     }
 
@@ -105,7 +110,7 @@ export default function ReviewStep({
   const breakdown = getCostBreakdown();
 
   return (
-    <div className="p-8">
+    <div className="p-6 md:p-8 bg-white rounded-lg">
       <style>{`
         ::placeholder {
           color: #D1D5DB;
@@ -113,16 +118,22 @@ export default function ReviewStep({
         }
       `}</style>
 
-      <div className="mb-6">
-        <h3 className="text-xl font-bold text-gray-800">
+      <div className="mb-5">
+        <h3 className="text-xl font-semibold text-slate-800">
           {isEditMode ? "Review & Update" : "Review & Publish"}
         </h3>
-        <p className="text-gray-600 text-sm mt-1">
+        <p className="text-slate-500 text-sm mt-1">
           {isEditMode
             ? "Review all details before updating your package"
             : "Review all details before publishing your package"}
         </p>
       </div>
+
+      {reviewError && (
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {reviewError}
+        </div>
+      )}
 
       <div className="space-y-6">
         {/* Basic Information */}
@@ -234,7 +245,7 @@ export default function ReviewStep({
                   >
                     ✓ {key}: {value}
                   </span>
-                ) : null
+                ) : null,
               )}
             </div>
           </div>
@@ -510,8 +521,8 @@ export default function ReviewStep({
                 ? "Updating..."
                 : "Saving..."
               : isEditMode
-              ? "Update"
-              : "Save as Draft"}
+                ? "Update"
+                : "Save as Draft"}
           </button>
           <button
             type="button"
@@ -524,8 +535,8 @@ export default function ReviewStep({
                 ? "Updating..."
                 : "Publishing..."
               : isEditMode
-              ? "Update & Publish"
-              : "Publish"}
+                ? "Update & Publish"
+                : "Publish"}
           </button>
         </div>
       </div>

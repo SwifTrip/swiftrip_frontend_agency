@@ -116,7 +116,7 @@ const AddEditUserModal = ({ isOpen, onClose, user, onSave }) => {
       const payload = {
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
-        email: formData.email.trim(),
+        email: user?.email || formData.email.trim(),
         roleId: parseInt(formData.roleId),
       };
 
@@ -182,26 +182,26 @@ const AddEditUserModal = ({ isOpen, onClose, user, onSave }) => {
       }
       size="md"
     >
-      <form onSubmit={handleSubmit} className="space-y-5 mt-2">
+      <form onSubmit={handleSubmit} className="space-y-4 mt-1">
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-2">
+          <label className="block text-sm font-medium text-slate-900 mb-1.5">
             First Name <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <User
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              size={18}
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"
+              size={16}
             />
             <input
               type="text"
               name="firstName"
               value={formData.firstName}
               onChange={handleChange}
-              className={`w-full pl-10 pr-4 py-2.5 border rounded-lg bg-gray-50 focus:outline-none 
-            focus:ring-2 focus:ring-orange-500 focus:bg-white transition-colors ${
-              errors.firstName ? "border-red-300 bg-red-50" : "border-gray-200"
+              className={`w-full h-10 pl-9 pr-3 text-sm text-slate-800 placeholder:text-slate-400 placeholder:font-normal placeholder:text-sm border rounded-lg bg-white focus:outline-none 
+            focus:ring-2 focus:ring-orange-500/20 focus:bg-white transition-colors ${
+              errors.firstName ? "border-red-300 bg-red-50" : "border-slate-300"
             }`}
-              placeholder="Enter first name"
+              placeholder="e.g. John"
             />
           </div>
           {errors.firstName && (
@@ -211,24 +211,24 @@ const AddEditUserModal = ({ isOpen, onClose, user, onSave }) => {
 
         {/* Last Name */}
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-2">
+          <label className="block text-sm font-medium text-slate-900 mb-1.5">
             Last Name <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <User
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              size={18}
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"
+              size={16}
             />
             <input
               type="text"
               name="lastName"
               value={formData.lastName}
               onChange={handleChange}
-              className={`w-full pl-10 pr-4 py-2.5 border rounded-lg bg-gray-50 focus:outline-none 
-            focus:ring-2 focus:ring-orange-500 focus:bg-white transition-colors ${
-              errors.lastName ? "border-red-300 bg-red-50" : "border-gray-200"
+              className={`w-full h-10 pl-9 pr-3 text-sm text-slate-800 placeholder:text-slate-400 placeholder:font-normal placeholder:text-sm border rounded-lg bg-white focus:outline-none 
+            focus:ring-2 focus:ring-orange-500/20 focus:bg-white transition-colors ${
+              errors.lastName ? "border-red-300 bg-red-50" : "border-slate-300"
             }`}
-              placeholder="Enter last name"
+              placeholder="e.g. Carter"
             />
           </div>
           {errors.lastName && (
@@ -238,23 +238,27 @@ const AddEditUserModal = ({ isOpen, onClose, user, onSave }) => {
 
         {/* Email */}
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-2">
+          <label className="block text-sm font-medium text-slate-900 mb-1.5">
             Email <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <Mail
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              size={18}
+              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"
+              size={16}
             />
             <input
               type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              className={`w-full pl-10 pr-4 py-2.5 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-colors ${
-                errors.email ? "border-red-300 bg-red-50" : "border-gray-200"
-              } ${user ? "bg-gray-100 cursor-not-allowed" : ""}`}
-              placeholder="Enter email address"
+              className={`w-full h-10 pl-9 pr-3 text-sm text-slate-800 placeholder:text-slate-400 placeholder:font-normal placeholder:text-sm border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:bg-white transition-colors ${
+                errors.email ? "border-red-300 bg-red-50" : "border-slate-300"
+              } ${user ? "bg-slate-100 cursor-not-allowed" : ""}`}
+              placeholder={
+                user
+                  ? "Email cannot be changed"
+                  : "e.g. john.carter@company.com"
+              }
               disabled={!!user}
             />
           </div>
@@ -284,7 +288,7 @@ const AddEditUserModal = ({ isOpen, onClose, user, onSave }) => {
         {/* Password (only for new users) */}
         {!user && (
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-2">
+            <label className="block text-sm font-medium text-slate-900 mb-1.5">
               Password <span className="text-red-500">*</span>
             </label>
             <div className="relative">
@@ -293,19 +297,19 @@ const AddEditUserModal = ({ isOpen, onClose, user, onSave }) => {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className={`w-full px-4 py-2.5 pr-10 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-colors ${
+                className={`w-full h-10 px-3 pr-10 text-sm text-slate-800 placeholder:text-slate-400 placeholder:font-normal placeholder:text-sm border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:bg-white transition-colors ${
                   errors.password
                     ? "border-red-300 bg-red-50"
-                    : "border-gray-200"
+                    : "border-slate-300"
                 }`}
-                placeholder="Enter password"
+                placeholder="Minimum 6 characters"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
               >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
             {errors.password && (
@@ -316,21 +320,21 @@ const AddEditUserModal = ({ isOpen, onClose, user, onSave }) => {
 
         {/* Role - Dynamic Dropdown */}
         <div>
-          <label className="block text-sm font-medium text-gray-900 mb-2">
+          <label className="block text-sm font-medium text-slate-900 mb-1.5">
             Role <span className="text-red-500">*</span>
           </label>
           {rolesLoading ? (
-            <div className="w-full px-4 py-2.5 border border-gray-200 rounded-lg bg-gray-50 flex items-center justify-center">
+            <div className="w-full h-10 px-4 border border-slate-300 rounded-lg bg-white flex items-center justify-center">
               <div className="w-4 h-4 border-2 border-orange-600 border-t-transparent rounded-full animate-spin mr-2"></div>
-              <span className="text-sm text-gray-500">Loading roles...</span>
+              <span className="text-sm text-slate-500">Loading roles...</span>
             </div>
           ) : (
             <select
               name="roleId"
               value={formData.roleId}
               onChange={handleChange}
-              className={`w-full px-4 py-2.5 border rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-colors appearance-none ${
-                errors.roleId ? "border-red-300 bg-red-50" : "border-gray-200"
+              className={`w-full h-10 px-3 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:bg-white transition-colors appearance-none ${
+                errors.roleId ? "border-red-300 bg-red-50" : "border-slate-300"
               }`}
               style={{
                 backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
@@ -338,7 +342,7 @@ const AddEditUserModal = ({ isOpen, onClose, user, onSave }) => {
                 backgroundPosition: "right 1rem center",
               }}
             >
-              <option value="">Select role</option>
+              <option value="">Choose a role</option>
               {roles.map((role) => (
                 <option key={role.id} value={role.id}>
                   {role.name}
@@ -350,7 +354,7 @@ const AddEditUserModal = ({ isOpen, onClose, user, onSave }) => {
             <p className="mt-1.5 text-xs text-red-600">{errors.roleId}</p>
           )}
           {roles.length === 0 && !rolesLoading && (
-            <p className="mt-1.5 text-xs text-gray-500">
+            <p className="mt-1.5 text-xs text-slate-500">
               No roles available. Please create a role first.
             </p>
           )}
@@ -375,18 +379,18 @@ const AddEditUserModal = ({ isOpen, onClose, user, onSave }) => {
         )}
 
         {/* Actions */}
-        <div className="flex justify-end gap-3 pt-2 pb-2">
+        <div className="flex justify-end gap-2.5 pt-3 border-t border-slate-200/80">
           <button
             type="button"
             onClick={onClose}
-            className="px-6 py-2.5 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+            className="px-5 h-10 text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors font-medium text-sm"
             disabled={loading}
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="px-6 py-2.5 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-medium"
+            className="px-5 h-10 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 font-semibold text-sm"
             disabled={loading || rolesLoading}
           >
             {loading ? (

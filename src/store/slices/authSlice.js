@@ -1,45 +1,44 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import * as api from '../../api/authService';
-import { saveToken, getToken, clearToken } from '../../utils/auth/authHelper';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import * as api from "../../api/authService";
+import { saveToken, getToken, clearToken } from "../../utils/auth/authHelper";
 
 // ---- Existing async thunks (register / login) ----
 export const registerUser = createAsyncThunk(
-  'auth/register',
+  "auth/register",
   async (userData, { rejectWithValue }) => {
     try {
       const response = await api.registerUser(userData);
       if (response.token) saveToken(response.token);
       return response;
     } catch (error) {
-      return rejectWithValue(error.message || 'Registration failed');
+      return rejectWithValue(error.message || "Registration failed");
     }
-  }
+  },
 );
 
 export const loginUser = createAsyncThunk(
-  'auth/login',
+  "auth/login",
   async (credentials, { rejectWithValue }) => {
     try {
       const response = await api.loginUser(credentials);
       if (response.token) saveToken(response.token);
       return response;
     } catch (error) {
-      return rejectWithValue(error.message || 'Login failed');
+      return rejectWithValue(error.message || "Login failed");
     }
-  }
+  },
 );
 
-
 export const fetchCurrentUser = createAsyncThunk(
-  'auth/fetchCurrentUser',
+  "auth/fetchCurrentUser",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.getCurrentUser(); 
-      return response;                           
+      const response = await api.getCurrentUser();
+      return response;
     } catch (err) {
       return rejectWithValue(err.message);
     }
-  }
+  },
 );
 
 const initialState = {
@@ -51,7 +50,7 @@ const initialState = {
 };
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
     logout: (state) => {
@@ -79,8 +78,8 @@ const authSlice = createSlice({
       .addCase(registerUser.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload.user || { email: action.payload.email };
-        state.token = action.payload.token;
-        state.isAuthenticated = true;
+        state.token = null; // Don't set token until email is verified
+        state.isAuthenticated = false; // User must verify email first
         state.error = null;
       })
       .addCase(registerUser.rejected, (state, action) => {

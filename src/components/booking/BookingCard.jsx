@@ -39,10 +39,10 @@ export default function BookingCard({ booking, onViewDetails }) {
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+    <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
       <div className="flex flex-col md:flex-row">
         {/* Tour Image */}
-        <div className="relative w-full md:w-48 h-40 md:h-auto flex-shrink-0">
+        <div className="relative w-full md:w-44 h-36 md:h-auto flex-shrink-0">
           <img
             src={booking.package?.image}
             alt={booking.package?.title}
@@ -58,22 +58,22 @@ export default function BookingCard({ booking, onViewDetails }) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 p-4 md:p-5">
+        <div className="flex-1 p-4 md:p-4.5">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs font-medium text-gray-500">
+                <span className="text-[11px] font-semibold tracking-wide text-slate-500">
                   {booking.id}
                 </span>
                 <BookingStatusBadge status={booking.status} size="sm" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-800 line-clamp-1">
+              <h3 className="text-base font-semibold text-slate-800 line-clamp-1">
                 {booking.package?.title}
               </h3>
-              <p className="text-sm text-gray-500 flex items-center gap-1">
+              <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
                 <svg
-                  className="w-4 h-4"
+                  className="w-3.5 h-3.5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -95,7 +95,7 @@ export default function BookingCard({ booking, onViewDetails }) {
               </p>
             </div>
             <div className="text-right">
-              <p className="text-lg font-bold text-orange-600">
+              <p className="text-base font-bold text-orange-600">
                 {formatCurrency(
                   booking.pricing?.totalAmount,
                   booking.pricing?.currency,
@@ -106,12 +106,12 @@ export default function BookingCard({ booking, onViewDetails }) {
           </div>
 
           {/* Details Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-3.5">
             {/* Tourist */}
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+            <div className="flex items-center gap-2 p-2 rounded-lg border border-slate-100 bg-slate-50/50">
+              <div className="w-7 h-7 bg-white border border-slate-200 rounded-full flex items-center justify-center">
                 <svg
-                  className="w-4 h-4 text-gray-500"
+                  className="w-3.5 h-3.5 text-slate-500"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -125,18 +125,18 @@ export default function BookingCard({ booking, onViewDetails }) {
                 </svg>
               </div>
               <div className="min-w-0">
-                <p className="text-xs text-gray-500">Tourist</p>
-                <p className="text-sm font-medium text-gray-800 truncate">
+                <p className="text-[11px] text-slate-500">Tourist</p>
+                <p className="text-xs font-semibold text-slate-800 truncate">
                   {booking.tourist?.name}
                 </p>
               </div>
             </div>
 
             {/* Duration */}
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+            <div className="flex items-center gap-2 p-2 rounded-lg border border-slate-100 bg-slate-50/50">
+              <div className="w-7 h-7 bg-white border border-slate-200 rounded-full flex items-center justify-center">
                 <svg
-                  className="w-4 h-4 text-gray-500"
+                  className="w-3.5 h-3.5 text-slate-500"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -150,18 +150,18 @@ export default function BookingCard({ booking, onViewDetails }) {
                 </svg>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Duration</p>
-                <p className="text-sm font-medium text-gray-800">
+                <p className="text-[11px] text-slate-500">Duration</p>
+                <p className="text-xs font-semibold text-slate-800">
                   {booking.package?.duration}
                 </p>
               </div>
             </div>
 
             {/* Schedule */}
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+            <div className="flex items-center gap-2 p-2 rounded-lg border border-slate-100 bg-slate-50/50">
+              <div className="w-7 h-7 bg-white border border-slate-200 rounded-full flex items-center justify-center">
                 <svg
-                  className="w-4 h-4 text-gray-500"
+                  className="w-3.5 h-3.5 text-slate-500"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -175,18 +175,18 @@ export default function BookingCard({ booking, onViewDetails }) {
                 </svg>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Dates</p>
-                <p className="text-sm font-medium text-gray-800">
+                <p className="text-[11px] text-slate-500">Starts</p>
+                <p className="text-xs font-semibold text-slate-800">
                   {formatDate(booking.schedule?.startDate)}
                 </p>
               </div>
             </div>
 
             {/* Participants */}
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+            <div className="flex items-center gap-2 p-2 rounded-lg border border-slate-100 bg-slate-50/50">
+              <div className="w-7 h-7 bg-white border border-slate-200 rounded-full flex items-center justify-center">
                 <svg
-                  className="w-4 h-4 text-gray-500"
+                  className="w-3.5 h-3.5 text-slate-500"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -200,8 +200,8 @@ export default function BookingCard({ booking, onViewDetails }) {
                 </svg>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Participants</p>
-                <p className="text-sm font-medium text-gray-800">
+                <p className="text-[11px] text-slate-500">Guests</p>
+                <p className="text-xs font-semibold text-slate-800">
                   {booking.participants} persons
                 </p>
               </div>
@@ -210,15 +210,15 @@ export default function BookingCard({ booking, onViewDetails }) {
 
           {/* Progress Bar (for ongoing tours) */}
           {booking.status === "ONGOING" && (
-            <div className="mb-4">
-              <div className="flex justify-between text-xs text-gray-600 mb-1">
+            <div className="mb-3.5">
+              <div className="flex justify-between text-[11px] text-slate-600 mb-1.5">
                 <span>Tour Progress</span>
                 <span>
                   Day {booking.schedule?.currentDay} of{" "}
                   {booking.package?.duration?.split(" ")[0]}
                 </span>
               </div>
-              <div className="w-full bg-gray-100 rounded-full h-2">
+              <div className="w-full bg-slate-100 rounded-full h-2">
                 <div
                   className="bg-orange-500 h-2 rounded-full transition-all duration-500"
                   style={{ width: `${getProgressPercentage()}%` }}
@@ -228,13 +228,13 @@ export default function BookingCard({ booking, onViewDetails }) {
           )}
 
           {/* Footer Actions */}
-          <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-            <p className="text-xs text-gray-500">
+          <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+            <p className="text-[11px] text-slate-500">
               Booked on {formatDate(booking.bookingDate)}
             </p>
             <button
               onClick={handleViewClick}
-              className="flex items-center gap-1 px-4 py-2 text-sm font-medium text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+              className="inline-flex items-center gap-1.5 h-9 px-3 text-sm font-semibold text-orange-700 border border-orange-200 hover:bg-orange-50 rounded-lg transition-colors"
             >
               View Details
               <svg
