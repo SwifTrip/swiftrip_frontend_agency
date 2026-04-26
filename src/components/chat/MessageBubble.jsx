@@ -10,6 +10,19 @@ export default function MessageBubble({ message, isOwn }) {
             : "bg-white text-gray-800 rounded-2xl rounded-bl-sm border border-gray-100"
         } px-4 py-2.5`}
       >
+        {message.isAiGenerated && (
+          <div className="mb-1">
+            <span
+              className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold border ${
+                isOwn
+                  ? "bg-white/20 text-white border-white/30"
+                  : "bg-violet-50 text-violet-700 border-violet-100"
+              }`}
+            >
+              AI
+            </span>
+          </div>
+        )}
         <p className="text-[13px] leading-relaxed whitespace-pre-wrap">
           {message.text}
         </p>

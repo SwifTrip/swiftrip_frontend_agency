@@ -8,6 +8,11 @@ import {
 } from "../../components/chat";
 import { STATUS_CONFIG, BOOKING_STATUS } from "../../components/chat/ConversationList";
 import { getChatRooms, getMessages } from "../../api/chatService";
+import {
+  getCompanyAiSettings,
+  getRoomAiSettings,
+  updateRoomAiSettings,
+} from "../../api/chatAiService";
 import { getToken } from "../../utils/auth/authHelper";
 import { useSelector } from "react-redux";
 import { selectUser } from "../../store/slices/authSlice";
@@ -120,8 +125,17 @@ export default function ChatPage() {
   const [messages, setMessages] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [showDetails, setShowDetails] = useState(false);
+  const [companyAiEnabled, setCompanyAiEnabled] = useState(false);
+  const [roomAiOverride, setRoomAiOverride] = useState(null); // null = inherit
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiResponding, setAiResponding] = useState(false);
   const socketRef = useRef(null);
+  const userIdRef = useRef(null);
   const user = useSelector(selectUser);
+
+  useEffect(() => {
+    userIdRef.current = user?.id ?? null;
+  }, [user?.id]);
 
   // Initialize Socket.io connection and load rooms
   useEffect(() => {
@@ -156,6 +170,16 @@ export default function ChatPage() {
     
     fetchRooms();
 
+    // Load company AI default (best-effort)
+    (async () => {
+      try {
+        const company = await getCompanyAiSettings();
+        setCompanyAiEnabled(Boolean(company?.aiAutoReplyEnabled));
+      } catch (e) {
+        // ignore (e.g., tourist account or missing perms)
+      }
+    })();
+
     const token = getToken();
     const API_URL = import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace('/api', '') : 'http://localhost:3000';
     
@@ -168,16 +192,33 @@ export default function ChatPage() {
     });
 
     socket.on("receive_message", (data) => {
+      const senderId = data?.senderId?.toString?.() ?? String(data?.senderId ?? "");
+      const isAiGenerated = Boolean(data?.isAiGenerated);
+      const isOwn =
+        isAiGenerated ||
+        (senderId &&
+          userIdRef.current !== null &&
+          senderId === String(userIdRef.current));
+
       setMessages((prevMsg) => [
         ...prevMsg,
         {
           id: data.id || Date.now(),
           text: data.content,
           timestamp: new Date(data.timestamp || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-          isOwn: false,
+          isOwn,
           status: "delivered",
+          isAiGenerated,
         }
       ]);
+    });
+
+    socket.on("ai_typing", (data) => {
+      const roomId = String(data?.roomId || "");
+      const isTyping = Boolean(data?.isTyping);
+      if (selectedConversation?.id && roomId === selectedConversation.id) {
+        setAiResponding(isTyping);
+      }
     });
 
     socketRef.current = socket;
@@ -188,7 +229,7 @@ export default function ChatPage() {
   }, []);
 
   const handleSendMessage = (messageContent) => {
-    if (!selectedConversation || !socketRef.current) return;
+    if (!selectedConversation || !socketRef.current || aiResponding) return;
 
     // Optimistically update UI
     const tempMsg = {
@@ -211,6 +252,8 @@ export default function ChatPage() {
   const handleSelectConversation = async (conv) => {
     setSelectedConversation(conv);
     setShowDetails(false);
+    setRoomAiOverride(null);
+    setAiResponding(false);
     
     // Fetch message history for this room
     try {
@@ -219,8 +262,9 @@ export default function ChatPage() {
         id: m.id,
         text: m.content,
         timestamp: new Date(m.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-        isOwn: m.participant?.user?.id === user?.id,
+        isOwn: Boolean(m.isAiGenerated) || m.participant?.user?.id === user?.id,
         status: m.isRead ? "read" : "delivered",
+        isAiGenerated: Boolean(m.isAiGenerated),
       }));
       setMessages(formattedHistory);
 
@@ -228,6 +272,41 @@ export default function ChatPage() {
       socketRef.current?.emit("join_room", conv.id);
     } catch (err) {
       console.error("Failed to load message history", err);
+    }
+
+    // Load room AI override
+    try {
+      setAiLoading(true);
+      const room = await getRoomAiSettings(conv.id);
+      setRoomAiOverride(
+        room?.aiAutoReplyEnabled === null || room?.aiAutoReplyEnabled === undefined
+          ? null
+          : Boolean(room.aiAutoReplyEnabled),
+      );
+    } catch (e) {
+      // ignore
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  const aiEffectiveEnabled =
+    roomAiOverride === null ? Boolean(companyAiEnabled) : Boolean(roomAiOverride);
+
+  const handleSetAiRoomOverride = async (valueOrNull) => {
+    if (!selectedConversation) return;
+    try {
+      setAiLoading(true);
+      const updated = await updateRoomAiSettings(selectedConversation.id, valueOrNull);
+      setRoomAiOverride(
+        updated?.aiAutoReplyEnabled === null || updated?.aiAutoReplyEnabled === undefined
+          ? null
+          : Boolean(updated.aiAutoReplyEnabled),
+      );
+    } catch (e) {
+      console.error("Failed to update AI setting", e);
+    } finally {
+      setAiLoading(false);
     }
   };
 
@@ -247,11 +326,15 @@ export default function ChatPage() {
         <ChatHeader
           conversation={selectedConversation}
           onToggleProfile={() => setShowDetails((v) => !v)}
+          aiEffectiveEnabled={aiEffectiveEnabled}
+          aiRoomOverride={roomAiOverride}
+          aiLoading={aiLoading}
+          onSetAiRoomOverride={handleSetAiRoomOverride}
         />
         <MessageList conversation={selectedConversation} messages={messages} />
         <MessageInput
           onSendMessage={handleSendMessage}
-          disabled={!selectedConversation}
+          disabled={!selectedConversation || aiResponding}
         />
       </div>
 

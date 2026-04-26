@@ -1,7 +1,14 @@
 import React from "react";
 import { STATUS_CONFIG } from "./ConversationList";
 
-export default function ChatHeader({ conversation, onToggleProfile }) {
+export default function ChatHeader({
+  conversation,
+  onToggleProfile,
+  aiEffectiveEnabled = false,
+  aiRoomOverride = null,
+  aiLoading = false,
+  onSetAiRoomOverride = () => {},
+}) {
   if (!conversation) return null;
 
   const statusCfg = STATUS_CONFIG[conversation.bookingStatus];
@@ -48,7 +55,55 @@ export default function ChatHeader({ conversation, onToggleProfile }) {
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
+          {/* AI Auto-Reply Toggle */}
+          <div className="flex items-center gap-2 mr-1">
+            <span className="text-[11px] font-semibold text-gray-500">
+              AI Auto-Reply
+            </span>
+            <button
+              type="button"
+              disabled={aiLoading}
+              onClick={() => {
+                // Toggle logic:
+                // - If override is null (inherit), set explicit to opposite of effective
+                // - If override is boolean, flip it
+                const next =
+                  aiRoomOverride === null
+                    ? !aiEffectiveEnabled
+                    : !Boolean(aiRoomOverride);
+                onSetAiRoomOverride(next);
+              }}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                aiEffectiveEnabled ? "bg-emerald-500" : "bg-gray-200"
+              } ${aiLoading ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
+              title={
+                aiRoomOverride === null
+                  ? "Inheriting company default (click to override)"
+                  : "Room override (click to change)"
+              }
+              aria-label="Toggle AI auto-reply"
+            >
+              <span
+                className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+                  aiEffectiveEnabled ? "translate-x-5" : "translate-x-1"
+                }`}
+              />
+            </button>
+            <button
+              type="button"
+              disabled={aiLoading || aiRoomOverride === null}
+              onClick={() => onSetAiRoomOverride(null)}
+              className={`text-[10px] font-semibold px-2 py-1 rounded-md border ${
+                aiRoomOverride === null
+                  ? "border-gray-200 text-gray-400 cursor-not-allowed"
+                  : "border-gray-200 text-gray-600 hover:bg-gray-50"
+              }`}
+              title="Clear room override (inherit company default)"
+            >
+              Inherit
+            </button>
+          </div>
           <button
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
             title="Voice Call"

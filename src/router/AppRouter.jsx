@@ -65,6 +65,9 @@ const PaymentsPage = lazy(() => import("../pages/payment/PaymentsPage"));
 
 // Chat page
 const ChatPage = lazy(() => import("../pages/chat/ChatPage"));
+const KnowledgeBasePage = lazy(
+  () => import("../pages/knowledgeBase/KnowledgeBasePage"),
+);
 
 // Keep these as regular imports (needed immediately)
 import DashboardLayout from "../layouts/DashboardLayout";
@@ -163,6 +166,10 @@ export default function AppRouter() {
 
                     {/* Chat routes */}
                     <Route path="chat" element={<ChatPage />} />
+                    <Route
+                      path="knowledge-base"
+                      element={<KnowledgeBasePage />}
+                    />
 
                     {/* Account settings routes */}
                     <Route path="profile" element={<ProfilePage />} />
