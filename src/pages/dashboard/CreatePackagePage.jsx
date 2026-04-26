@@ -204,6 +204,27 @@ export default function CreatePackagePage() {
         setSubmitError("Arrival date must be after departure date.");
         return;
       }
+
+      const totalTransportCapacity = (formData.tourTransports || []).reduce(
+        (sum, transport) => {
+          const capacity = Number(transport.capacity);
+          const vehicleCount = Number(transport.vehicleCount ?? 1);
+          if (!Number.isFinite(capacity) || capacity <= 0) return sum;
+          if (!Number.isFinite(vehicleCount) || vehicleCount <= 0) return sum;
+          return sum + capacity * vehicleCount;
+        },
+        0,
+      );
+
+      if (
+        formData.maxGroupSize &&
+        totalTransportCapacity < Number(formData.maxGroupSize)
+      ) {
+        setSubmitError(
+          `Shared transport capacity (${totalTransportCapacity}) must cover the public group size (${formData.maxGroupSize}).`,
+        );
+        return;
+      }
     }
 
     setLoading(true);

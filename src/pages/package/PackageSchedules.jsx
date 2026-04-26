@@ -48,7 +48,7 @@ const PackageSchedules = () => {
       }
       const schedResponse = await scheduleApi.getPackageSchedules(
         packageId,
-        filters
+        filters,
       );
       setSchedules(schedResponse.data || []);
     } catch (error) {
@@ -68,7 +68,7 @@ const PackageSchedules = () => {
       console.error("Error creating schedules:", error);
       toast.error(
         error.response?.data?.message ||
-          "Failed to create schedules. Please try again."
+          "Failed to create schedules. Please try again.",
       );
     }
   };
@@ -116,7 +116,7 @@ const PackageSchedules = () => {
         error.response?.data?.message ||
           `Failed to ${type} schedule.${
             type === "delete" ? " It may have active bookings." : ""
-          }`
+          }`,
       );
       setConfirmModal((prev) => ({ ...prev, loading: false }));
     }
@@ -149,13 +149,22 @@ const PackageSchedules = () => {
             <p className="text-gray-600">{packageData?.title}</p>
           </div>
 
-          <button
-            onClick={() => setShowForm(true)}
-            className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Add Schedules
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate(`/app/packages/edit/${packageId}`)}
+              className="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+            >
+              <Edit2 className="w-4 h-4" />
+              Edit Package
+            </button>
+            <button
+              onClick={() => setShowForm(true)}
+              className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Add Schedules
+            </button>
+          </div>
         </div>
       </div>
 
@@ -182,7 +191,10 @@ const PackageSchedules = () => {
         <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
           <div className="text-sm text-gray-600 mb-1">Total Bookings</div>
           <div className="text-2xl font-bold text-purple-600">
-            {schedules.reduce((sum, s) => sum + (s._count?.bookings || 0), 0)}
+            {schedules.reduce(
+              (sum, s) => sum + (s._count?.publicTours || 0),
+              0,
+            )}
           </div>
         </div>
       </div>
@@ -246,12 +258,12 @@ const PackageSchedules = () => {
                             month: "long",
                             day: "numeric",
                             year: "numeric",
-                          }
+                          },
                         )}
                       </div>
                       <div className="text-sm text-gray-500">
                         {schedule.seatsAvailable} / {schedule.seatsTotal} seats
-                        • {schedule._count?.bookings || 0} booking(s)
+                        • {schedule._count?.publicTours || 0} booking(s)
                       </div>
                     </div>
                   </div>
@@ -272,10 +284,10 @@ const PackageSchedules = () => {
                         // TODO: Navigate to schedule details page when implemented
                         toast.info(
                           `Schedule #${schedule.id}: ${new Date(
-                            schedule.departureDate
+                            schedule.departureDate,
                           ).toLocaleDateString()} - ${new Date(
-                            schedule.arrivalDate
-                          ).toLocaleDateString()}`
+                            schedule.arrivalDate,
+                          ).toLocaleDateString()}`,
                         );
                       }}
                       className="p-2 text-gray-600 hover:bg-gray-200 rounded-lg"

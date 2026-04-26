@@ -95,7 +95,7 @@ const SchedulePicker = ({
   const groupedSchedules = schedules.reduce((acc, schedule) => {
     const date = new Date(schedule.departureDate);
     const monthKey = `${date.getFullYear()}-${String(
-      date.getMonth() + 1
+      date.getMonth() + 1,
     ).padStart(2, "0")}`;
     const monthLabel = date.toLocaleDateString("en-US", {
       month: "long",
@@ -125,8 +125,8 @@ const SchedulePicker = ({
                   selectedSchedule?.id === schedule.id
                     ? "border-orange-500 bg-orange-50 shadow-md"
                     : hoveredId === schedule.id
-                    ? "border-gray-400 shadow-sm"
-                    : "border-gray-200 hover:border-gray-300"
+                      ? "border-gray-400 shadow-sm"
+                      : "border-gray-200 hover:border-gray-300"
                 }`}
                 onClick={() =>
                   schedule.status === "PUBLISHED" && onSelect(schedule)
@@ -178,11 +178,11 @@ const SchedulePicker = ({
                 </div>
 
                 {/* Booking Info */}
-                {showBooking && schedule._count?.bookings > 0 && (
+                {showBooking && schedule._count?.publicTours > 0 && (
                   <div className="mt-3 pt-3 border-t border-gray-200">
                     <span className="text-xs text-gray-600">
-                      {schedule._count.bookings} booking
-                      {schedule._count.bookings > 1 ? "s" : ""}
+                      {schedule._count.publicTours} booking
+                      {schedule._count.publicTours > 1 ? "s" : ""}
                     </span>
                   </div>
                 )}

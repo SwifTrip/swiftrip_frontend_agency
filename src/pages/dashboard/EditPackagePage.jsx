@@ -184,7 +184,10 @@ export default function EditPackagePage() {
           status: pkg.status || "DRAFT",
           includes: pkg.includes || {},
           tourStays: pkg.tourStays || [],
-          tourTransports: pkg.tourTransports || [],
+          tourTransports: (pkg.tourTransports || []).map((transport) => ({
+            ...transport,
+            vehicleCount: transport.vehicleCount ?? 1,
+          })),
           itineraries: processedItineraries,
           media: existingMedia,
           keepMedia: existingMedia.map((m) => m.url), // Initially keep all
@@ -314,9 +317,42 @@ export default function EditPackagePage() {
       };
     };
 
+    const normalizeTransportForUpdate = (transport) => ({
+      ...transport,
+      capacity: toNumeric(transport.capacity),
+      vehicleCount: toNumeric(transport.vehicleCount) || 1,
+      estimatedDuration: toNumeric(transport.estimatedDuration),
+    });
+
+    if (formData.isPublic) {
+      const totalTransportCapacity = (formData.tourTransports || []).reduce(
+        (sum, transport) => {
+          const capacity = Number(transport.capacity);
+          const vehicleCount = Number(transport.vehicleCount ?? 1);
+          if (!Number.isFinite(capacity) || capacity <= 0) return sum;
+          if (!Number.isFinite(vehicleCount) || vehicleCount <= 0) return sum;
+          return sum + capacity * vehicleCount;
+        },
+        0,
+      );
+
+      if (
+        formData.maxGroupSize &&
+        totalTransportCapacity < Number(formData.maxGroupSize)
+      ) {
+        setSubmitError(
+          `Shared transport capacity (${totalTransportCapacity}) must cover the public group size (${formData.maxGroupSize}).`,
+        );
+        return;
+      }
+    }
+
     const normalizedPayload = {
       ...formData,
       status: publishNow ? "ACTIVE" : formData.status,
+      tourTransports: (formData.tourTransports || []).map(
+        normalizeTransportForUpdate,
+      ),
       itineraries: (formData.itineraries || []).map((itinerary) => ({
         ...itinerary,
         dayTransports: (itinerary.dayTransports || []).map(

@@ -283,6 +283,12 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
           "Capacity must be greater than 0";
       }
 
+      const vehicleCount = Number(transport.vehicleCount ?? 1);
+      if (!Number.isFinite(vehicleCount) || vehicleCount <= 0) {
+        sectionErrors[`tourTransports.${idx}.vehicleCount`] =
+          "Vehicle count must be greater than 0";
+      }
+
       if (hasValue(transport.estimatedDuration)) {
         const estimatedDuration = Number(transport.estimatedDuration);
         if (!Number.isFinite(estimatedDuration) || estimatedDuration <= 0) {
@@ -291,6 +297,25 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
         }
       }
     });
+
+    const totalTransportCapacity = (data.tourTransports || []).reduce(
+      (sum, transport) => {
+        const capacity = Number(transport.capacity);
+        const vehicleCount = Number(transport.vehicleCount ?? 1);
+        if (!Number.isFinite(capacity) || capacity <= 0) return sum;
+        if (!Number.isFinite(vehicleCount) || vehicleCount <= 0) return sum;
+        return sum + capacity * vehicleCount;
+      },
+      0,
+    );
+
+    if (
+      data.isPublic &&
+      hasValue(data.maxGroupSize) &&
+      totalTransportCapacity < Number(data.maxGroupSize)
+    ) {
+      sectionErrors.tourTransports = `Shared transport capacity (${totalTransportCapacity}) must cover max group size (${data.maxGroupSize}).`;
+    }
 
     return sectionErrors;
   };
@@ -416,6 +441,7 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
       {
         vehicleType: "",
         capacity: undefined,
+        vehicleCount: 1,
         startLocation: "",
         endLocation: "",
         estimatedDuration: undefined,
@@ -429,7 +455,15 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
   const handleUpdateTransport = (idx, field, value) => {
     const next = [...(formData.tourTransports || [])];
     const target = { ...(next[idx] || {}) };
-    target[field] = value;
+    if (
+      field === "capacity" ||
+      field === "vehicleCount" ||
+      field === "estimatedDuration"
+    ) {
+      target[field] = value === "" ? undefined : Number(value);
+    } else {
+      target[field] = value;
+    }
     next[idx] = target;
     updateFormData({ tourTransports: next });
     syncOptionalSectionErrors({ ...formData, tourTransports: next });
@@ -461,7 +495,7 @@ export default function BasicInfoStep({ formData, updateFormData, onNext }) {
         <button
           type="button"
           onClick={() => setShowPDFModal(true)}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-50 to-indigo-50 text-orange-600 rounded-lg hover:from-orange-100 hover:to-indigo-100 transition border border-orange-200 font-medium"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-linear-to-r from-orange-50 to-indigo-50 text-orange-600 rounded-lg hover:from-orange-100 hover:to-indigo-100 transition border border-orange-200 font-medium"
         >
           <DocumentArrowUpIcon className="w-5 h-5" />
           Import from PDF

@@ -85,6 +85,30 @@ export default function SharedTransportsSection({
                     </p>
                   )}
                 </div>
+                <div>
+                  <label className="text-xs font-semibold text-gray-700 block mb-1">
+                    Vehicle Count
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={transport.vehicleCount ?? 1}
+                    onChange={(e) =>
+                      onUpdateTransport(
+                        idx,
+                        "vehicleCount",
+                        Number(e.target.value || 0),
+                      )
+                    }
+                    placeholder="1"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-md text-sm bg-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-400 transition"
+                  />
+                  {getError(idx, "vehicleCount") && (
+                    <p className="mt-1 text-xs text-red-600">
+                      {getError(idx, "vehicleCount")}
+                    </p>
+                  )}
+                </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
