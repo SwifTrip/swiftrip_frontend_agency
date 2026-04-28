@@ -2,34 +2,26 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   createKnowledgeFaq,
   createKnowledgeNote,
-  deleteKnowledgeDocument,
   deleteKnowledgeFaq,
   deleteKnowledgeNote,
-  listKnowledgeDocuments,
   listKnowledgeFaqs,
   listKnowledgeNotes,
-  uploadKnowledgeDocument,
 } from "../../api/knowledgeService";
 
 const Tabs = {
-  DOCUMENTS: "documents",
   NOTES: "notes",
   FAQS: "faqs",
 };
 
 export default function KnowledgeBasePage() {
-  const [tab, setTab] = useState(Tabs.DOCUMENTS);
+  const [tab, setTab] = useState(Tabs.NOTES);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const [docs, setDocs] = useState([]);
   const [notes, setNotes] = useState([]);
   const [faqs, setFaqs] = useState([]);
 
   const [scope, setScope] = useState({ bookingId: "", tourPackageId: "" });
-
-  const [docTitle, setDocTitle] = useState("");
-  const [docFile, setDocFile] = useState(null);
 
   const [noteTitle, setNoteTitle] = useState("");
   const [noteContent, setNoteContent] = useState("");
@@ -47,12 +39,10 @@ export default function KnowledgeBasePage() {
     setError("");
     setLoading(true);
     try {
-      const [d, n, f] = await Promise.all([
-        listKnowledgeDocuments(scopeParams),
+      const [n, f] = await Promise.all([
         listKnowledgeNotes(scopeParams),
         listKnowledgeFaqs(scopeParams),
       ]);
-      setDocs(d);
       setNotes(n);
       setFaqs(f);
     } catch (e) {
@@ -66,26 +56,6 @@ export default function KnowledgeBasePage() {
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scopeParams.bookingId, scopeParams.tourPackageId]);
-
-  const handleUpload = async () => {
-    if (!docFile) return;
-    setError("");
-    setLoading(true);
-    try {
-      await uploadKnowledgeDocument({
-        title: docTitle,
-        file: docFile,
-        ...scopeParams,
-      });
-      setDocTitle("");
-      setDocFile(null);
-      await refresh();
-    } catch (e) {
-      setError(e?.response?.data?.error || e?.message || "Upload failed");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleCreateNote = async () => {
     if (!noteContent.trim()) return;
@@ -191,91 +161,12 @@ export default function KnowledgeBasePage() {
                 tab === t ? "bg-orange-50 text-orange-800" : "text-gray-600 hover:bg-gray-50"
               }`}
             >
-              {t === Tabs.DOCUMENTS ? "Documents" : t === Tabs.NOTES ? "Notes" : "FAQs"}
+              {t === Tabs.NOTES ? "Notes" : "FAQs"}
             </button>
           ))}
         </div>
 
         <div className="p-4">
-          {tab === Tabs.DOCUMENTS && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div className="md:col-span-1">
-                  <label className="text-xs font-semibold text-gray-600">Title</label>
-                  <input
-                    value={docTitle}
-                    onChange={(e) => setDocTitle(e.target.value)}
-                    placeholder="e.g. Cancellation policy"
-                    className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-200"
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <label className="text-xs font-semibold text-gray-600">File (PDF or text)</label>
-                  <input
-                    type="file"
-                    accept="application/pdf,text/plain,text/markdown"
-                    onChange={(e) => setDocFile(e.target.files?.[0] || null)}
-                    className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
-                  />
-                </div>
-              </div>
-              <div className="flex items-center justify-end">
-                <button
-                  type="button"
-                  onClick={handleUpload}
-                  disabled={loading || !docFile}
-                  className="h-10 px-4 rounded-lg bg-orange-600 text-white text-sm font-semibold hover:bg-orange-700 disabled:opacity-60"
-                >
-                  Upload
-                </button>
-              </div>
-
-              <div className="border-t border-gray-100 pt-4">
-                <h3 className="text-sm font-bold text-gray-900 mb-3">
-                  Documents ({docs.length})
-                </h3>
-                <div className="space-y-2">
-                  {docs.map((d) => (
-                    <div
-                      key={d.id}
-                      className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 px-3 py-2"
-                    >
-                      <div className="min-w-0">
-                        <div className="text-sm font-semibold text-gray-900 truncate">
-                          {d.title}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {d.mimeType || "unknown"} • {d.status}
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        disabled={loading}
-                        onClick={async () => {
-                          setLoading(true);
-                          try {
-                            await deleteKnowledgeDocument(d.id);
-                            await refresh();
-                          } catch (e) {
-                            setError(e?.response?.data?.error || e?.message || "Delete failed");
-                          } finally {
-                            setLoading(false);
-                          }
-                        }}
-                        className="px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-bold text-red-600 hover:bg-red-50 disabled:opacity-60"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  ))}
-                  {docs.length === 0 && (
-                    <div className="text-sm text-gray-500">No documents yet.</div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
           {tab === Tabs.NOTES && (
             <div className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
