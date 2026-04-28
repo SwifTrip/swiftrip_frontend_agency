@@ -44,19 +44,43 @@ const simulateDelay = (ms = 500) =>
 /**
  * Transform backend booking data to frontend expected format
  * Maps the API response structure to the UI component requirements
+ * Handles both custom tours and public tours
  */
 const transformBooking = (apiBooking) => {
-  const customTour = apiBooking.customTour;
-  const user = customTour?.user;
-  const itineraries = customTour?.customItineraries || [];
+  // Determine if this is a custom or public tour
+  const isCustomTour = !!apiBooking.customTour;
+  const isPublicTour = !!apiBooking.publicTour;
+
+  // Extract tour-specific data
+  let tourData, user, itineraries, tourPackage, startDate, endDate;
+
+  if (isCustomTour) {
+    tourData = apiBooking.customTour;
+    user = tourData?.user;
+    itineraries = tourData?.customItineraries || [];
+    tourPackage = tourData?.tourPackage;
+    startDate = new Date(tourData?.startDate);
+    endDate = new Date(tourData?.endDate);
+  } else if (isPublicTour) {
+    tourData = apiBooking.publicTour;
+    user = tourData?.user;
+    itineraries = tourData?.publicItineraries || [];
+    tourPackage = tourData?.packageSchedule?.tourPackage;
+    startDate = new Date(tourData?.packageSchedule?.departureDate);
+    endDate = new Date(tourData?.packageSchedule?.arrivalDate);
+  } else {
+    // Fallback for bookings without tour data
+    return null;
+  }
+
+  const mappedPackageId = isCustomTour
+    ? `CT-${tourData?.id}`
+    : `PT-${tourPackage?.id || tourData?.packageSchedule?.tourPackageId || tourData?.id}`;
 
   // Calculate duration from itineraries or date range
   const totalDays =
     itineraries.length ||
-    Math.ceil(
-      (new Date(customTour?.endDate) - new Date(customTour?.startDate)) /
-        (1000 * 60 * 60 * 24),
-    ) + 1;
+    Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
 
   // Map backend status to frontend status
   const statusMap = {
@@ -77,8 +101,6 @@ const transformBooking = (apiBooking) => {
 
   // Calculate current day for ongoing tours
   const today = new Date();
-  const startDate = new Date(customTour?.startDate);
-  const endDate = new Date(customTour?.endDate);
   let currentDay = 0;
   if (today >= startDate && today <= endDate) {
     currentDay = Math.ceil((today - startDate) / (1000 * 60 * 60 * 24)) + 1;
@@ -94,26 +116,29 @@ const transformBooking = (apiBooking) => {
     mappedStatus = BOOKING_STATUS.ONGOING;
   }
 
+  // Extract image from tour package media
+  const packageImage = tourPackage?.media?.[0]?.url || 
+    "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop";
+
   return {
     id: `BK-${apiBooking.id}`,
     bookingDate: apiBooking.createdAt,
-    tourType: TOUR_TYPE.PRIVATE, // Custom tours are private by default
+    tourType: isPublicTour ? TOUR_TYPE.PUBLIC : TOUR_TYPE.PRIVATE,
     status: mappedStatus,
     paymentStatus:
       paymentStatusMap[apiBooking.paymentStatus] || PAYMENT_STATUS.PENDING,
     package: {
-      id: `CT-${customTour?.id}`,
-      title: `Custom Tour - ${totalDays} Days`,
-      destination: getDestinationFromItineraries(itineraries),
-      duration: `${totalDays} Days / ${totalDays - 1} Nights`,
-      category: "CUSTOM",
-      image:
-        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop",
+      id: mappedPackageId,
+      title: tourPackage?.title || (isCustomTour ? `Custom Tour - ${totalDays} Days` : `Public Tour`),
+      destination: tourPackage?.toLocation || getDestinationFromItineraries(itineraries),
+      duration: `${totalDays} Days / ${Math.max(0, totalDays - 1)} Nights`,
+      category: tourPackage?.category || "CUSTOM",
+      image: packageImage,
     },
     schedule: {
-      id: `SCH-${customTour?.id}`,
-      startDate: customTour?.startDate,
-      endDate: customTour?.endDate,
+      id: `SCH-${tourData?.id}`,
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
       currentDay: currentDay,
     },
     tourist: {
@@ -128,7 +153,7 @@ const transformBooking = (apiBooking) => {
       cnic: user?.cnic || "",
     },
     pricing: {
-      basePrice: customTour?.totalPrice || apiBooking.totalAmount,
+      basePrice: tourData?.totalPrice || apiBooking.totalAmount,
       discount: 0,
       tax: 0,
       totalAmount: apiBooking.totalAmount,
@@ -136,7 +161,7 @@ const transformBooking = (apiBooking) => {
         apiBooking.paymentStatus === "PAID" ? apiBooking.totalAmount : 0,
       currency: "PKR",
     },
-    participants: customTour?.travelerCount || apiBooking.seats || 1,
+    participants: tourData?.travelerCount || apiBooking.seats || 1,
     notes: apiBooking.cancellationReason || "",
     createdAt: apiBooking.createdAt,
     updatedAt: apiBooking.updatedAt,
@@ -327,7 +352,9 @@ export const getAllBookings = async (filters = {}) => {
 
     if (response.data.success) {
       // Transform API bookings to frontend format
-      let transformedBookings = response.data.bookings.map(transformBooking);
+      let transformedBookings = response.data.bookings
+        .map(transformBooking)
+        .filter(booking => booking !== null);
 
       // Apply client-side filters (since backend may not support all filters yet)
       transformedBookings = applyClientFilters(transformedBookings, filters);
