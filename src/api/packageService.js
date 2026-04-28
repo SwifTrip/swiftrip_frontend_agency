@@ -1,9 +1,10 @@
 import axios from "axios";
+import { getToken } from "../utils/auth/authHelper";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const getAuthHeader = () => {
-  const token = localStorage.getItem("access_token");
+  const token = getToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 

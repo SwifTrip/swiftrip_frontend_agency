@@ -1,7 +1,13 @@
 import axios from "axios";
+import { getToken } from "../utils/auth/authHelper";
 
 axios.defaults.withCredentials = true;
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+const getAuthHeader = () => {
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
 
 /**
  * Fetch all users
@@ -11,12 +17,14 @@ export async function fetchUsers() {
   try {
     const response = await axios.get(`${API_BASE_URL}/users`, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        ...getAuthHeader(),
       },
     });
     return response.data;
   } catch (err) {
-    throw err.response?.data || { success: false, message: "Failed to fetch users" };
+    throw (
+      err.response?.data || { success: false, message: "Failed to fetch users" }
+    );
   }
 }
 
@@ -26,19 +34,17 @@ export async function fetchUsers() {
  */
 export async function createUser(userData) {
   try {
-    const response = await axios.post(
-      `${API_BASE_URL}/user/create`,
-      userData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
+    const response = await axios.post(`${API_BASE_URL}/user/create`, userData, {
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+    });
     return response.data;
   } catch (err) {
-    throw err.response?.data || { success: false, message: "Failed to create user" };
+    throw (
+      err.response?.data || { success: false, message: "Failed to create user" }
+    );
   }
 }
 
@@ -54,13 +60,15 @@ export async function updateUser(userId, userData) {
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          ...getAuthHeader(),
         },
-      }
+      },
     );
     return response.data;
   } catch (err) {
-    throw err.response?.data || { success: false, message: "Failed to update user" };
+    throw (
+      err.response?.data || { success: false, message: "Failed to update user" }
+    );
   }
 }
 
@@ -70,17 +78,16 @@ export async function updateUser(userId, userData) {
  */
 export async function deleteUser(userId) {
   try {
-    const response = await axios.delete(
-      `${API_BASE_URL}/user/${userId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
+    const response = await axios.delete(`${API_BASE_URL}/user/${userId}`, {
+      headers: {
+        ...getAuthHeader(),
+      },
+    });
     return response.data;
   } catch (err) {
-    throw err.response?.data || { success: false, message: "Failed to delete user" };
+    throw (
+      err.response?.data || { success: false, message: "Failed to delete user" }
+    );
   }
 }
 
@@ -92,11 +99,13 @@ export async function fetchUserById(userId) {
   try {
     const response = await axios.get(`${API_BASE_URL}/user/${userId}`, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        ...getAuthHeader(),
       },
     });
     return response.data;
   } catch (err) {
-    throw err.response?.data || { success: false, message: "Failed to fetch user" };
+    throw (
+      err.response?.data || { success: false, message: "Failed to fetch user" }
+    );
   }
 }

@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
+import { getToken } from "./utils/auth/authHelper";
 import {
   fetchCurrentUser,
   selectIsAuthenticated,
@@ -11,7 +12,7 @@ function App() {
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = getToken();
     if (token && !isAuthenticated) {
       dispatch(fetchCurrentUser());
     }

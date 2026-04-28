@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getToken } from "../utils/auth/authHelper";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
@@ -9,6 +10,17 @@ const apiClient = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+});
+
+apiClient.interceptors.request.use((config) => {
+  const token = getToken();
+  if (token) {
+    config.headers = {
+      ...config.headers,
+      Authorization: `Bearer ${token}`,
+    };
+  }
+  return config;
 });
 
 export const getCompanyAiSettings = async () => {
@@ -28,10 +40,12 @@ export const getRoomAiSettings = async (roomId) => {
   return response.data;
 };
 
-export const updateRoomAiSettings = async (roomId, aiAutoReplyEnabledOrNull) => {
+export const updateRoomAiSettings = async (
+  roomId,
+  aiAutoReplyEnabledOrNull,
+) => {
   const response = await apiClient.patch(`/chat-ai/rooms/${roomId}`, {
     aiAutoReplyEnabled: aiAutoReplyEnabledOrNull,
   });
   return response.data;
 };
-

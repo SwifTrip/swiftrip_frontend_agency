@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getToken } from "../utils/auth/authHelper";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
@@ -8,14 +9,34 @@ const apiClient = axios.create({
   withCredentials: true,
 });
 
-export const listKnowledgeDocuments = async ({ bookingId, tourPackageId, q } = {}) => {
+apiClient.interceptors.request.use((config) => {
+  const token = getToken();
+  if (token) {
+    config.headers = {
+      ...config.headers,
+      Authorization: `Bearer ${token}`,
+    };
+  }
+  return config;
+});
+
+export const listKnowledgeDocuments = async ({
+  bookingId,
+  tourPackageId,
+  q,
+} = {}) => {
   const response = await apiClient.get("/knowledge/documents", {
     params: { bookingId, tourPackageId, q },
   });
   return response.data;
 };
 
-export const uploadKnowledgeDocument = async ({ title, file, bookingId, tourPackageId }) => {
+export const uploadKnowledgeDocument = async ({
+  title,
+  file,
+  bookingId,
+  tourPackageId,
+}) => {
   const form = new FormData();
   if (title) form.append("title", title);
   if (bookingId) form.append("bookingId", bookingId);
@@ -39,7 +60,12 @@ export const listKnowledgeNotes = async ({ bookingId, tourPackageId } = {}) => {
   return response.data;
 };
 
-export const createKnowledgeNote = async ({ title, content, bookingId, tourPackageId }) => {
+export const createKnowledgeNote = async ({
+  title,
+  content,
+  bookingId,
+  tourPackageId,
+}) => {
   const response = await apiClient.post("/knowledge/notes", {
     title,
     content,
@@ -60,7 +86,12 @@ export const listKnowledgeFaqs = async ({ bookingId, tourPackageId } = {}) => {
   return response.data;
 };
 
-export const createKnowledgeFaq = async ({ question, answer, bookingId, tourPackageId }) => {
+export const createKnowledgeFaq = async ({
+  question,
+  answer,
+  bookingId,
+  tourPackageId,
+}) => {
   const response = await apiClient.post("/knowledge/faqs", {
     question,
     answer,
@@ -73,4 +104,3 @@ export const createKnowledgeFaq = async ({ question, answer, bookingId, tourPack
 export const deleteKnowledgeFaq = async (id) => {
   await apiClient.delete(`/knowledge/faqs/${id}`);
 };
-

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getToken } from "../utils/auth/authHelper";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:3000/api";
@@ -11,13 +12,24 @@ const apiClient = axios.create({
   },
 });
 
+apiClient.interceptors.request.use((config) => {
+  const token = getToken();
+  if (token) {
+    config.headers = {
+      ...config.headers,
+      Authorization: `Bearer ${token}`,
+    };
+  }
+  return config;
+});
+
 /**
  * Create schedules for a package
  */
 export const createSchedules = async (packageId, data) => {
   const response = await apiClient.post(
     `/packages/${packageId}/schedules`,
-    data
+    data,
   );
   return response.data;
 };
@@ -44,7 +56,7 @@ export const getPackageSchedules = async (packageId, filters = {}) => {
   if (filters.hasAvailability) params.append("hasAvailability", "true");
 
   const response = await apiClient.get(
-    `/packages/${packageId}/schedules?${params}`
+    `/packages/${packageId}/schedules?${params}`,
   );
   return response.data;
 };
@@ -97,7 +109,7 @@ export const createBooking = async (scheduleId, seats) => {
 export const confirmBooking = async (bookingId, paymentData) => {
   const response = await apiClient.post(
     `/bookings/${bookingId}/confirm`,
-    paymentData
+    paymentData,
   );
   return response.data;
 };
