@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Plus, Calendar, Edit2, Trash2, CheckCircle, Eye } from "lucide-react";
+import { Plus, Calendar, Edit2, Trash2, CheckCircle } from "lucide-react";
 import { toast } from "react-toastify";
 import SchedulePicker from "../../components/schedules/SchedulePicker";
 import ScheduleForm from "../../components/schedules/ScheduleForm";
+import Modal from "../../components/user/Modal";
 import ConfirmModal from "../../components/package/ConfirmModal";
 import * as scheduleApi from "../../api/scheduleApi";
 import { getPackageById } from "../../api/packageApi";
@@ -240,110 +241,30 @@ const PackageSchedules = () => {
               showBooking={true}
               onSelect={() => {}} // View only mode
             />
-
-            {/* Action buttons for each schedule */}
-            <div className="mt-6 space-y-2">
-              {schedules.map((schedule) => (
-                <div
-                  key={schedule.id}
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200"
-                >
-                  <div className="flex items-center gap-4">
-                    <Calendar className="w-5 h-5 text-gray-500" />
-                    <div>
-                      <div className="font-medium text-gray-900">
-                        {new Date(schedule.departureDate).toLocaleDateString(
-                          "en-US",
-                          {
-                            month: "long",
-                            day: "numeric",
-                            year: "numeric",
-                          },
-                        )}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {schedule.seatsAvailable} / {schedule.seatsTotal} seats
-                        • {schedule._count?.publicTours || 0} booking(s)
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    {schedule.status === "DRAFT" && (
-                      <button
-                        onClick={() => handlePublish(schedule.id)}
-                        className="px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-1 text-sm"
-                      >
-                        <CheckCircle className="w-4 h-4" />
-                        Publish
-                      </button>
-                    )}
-
-                    <button
-                      onClick={() => {
-                        // TODO: Navigate to schedule details page when implemented
-                        toast.info(
-                          `Schedule #${schedule.id}: ${new Date(
-                            schedule.departureDate,
-                          ).toLocaleDateString()} - ${new Date(
-                            schedule.arrivalDate,
-                          ).toLocaleDateString()}`,
-                        );
-                      }}
-                      className="p-2 text-gray-600 hover:bg-gray-200 rounded-lg"
-                      title="View Details"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </button>
-
-                    <button
-                      onClick={() => handleDelete(schedule.id)}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
-                      title="Delete"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         )}
       </div>
 
       {/* Schedule Form Modal */}
-      {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-black/30"
-            onClick={() => setShowForm(false)}
-          />
-          <div className="relative max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <ScheduleForm
-              packageData={packageData}
-              onSubmit={handleCreateSchedules}
-              onCancel={() => setShowForm(false)}
-            />
-          </div>
-        </div>
-      )}
+      <Modal
+        isOpen={showForm}
+        onClose={() => setShowForm(false)}
+        title="Add Schedule"
+        subtitle="Create a new departure schedule for this package."
+        size="lg"
+      >
+        <ScheduleForm
+          packageData={packageData}
+          onSubmit={handleCreateSchedules}
+          onCancel={() => setShowForm(false)}
+        />
+      </Modal>
 
       {/* Confirm Modal */}
-      <ConfirmModal
-        open={confirmModal.open}
-        title={
-          confirmModal.type === "delete"
-            ? "Delete Schedule"
-            : "Publish Schedule"
-        }
-        message={
-          confirmModal.type === "delete"
-            ? "Are you sure you want to delete this schedule? This action cannot be undone."
-            : "Publish this schedule? It will become available for booking."
-        }
-        confirmText={confirmModal.type === "delete" ? "Delete" : "Publish"}
-        onConfirm={handleConfirmAction}
-        onCancel={() =>
+      {/* Delete/Publish Modal */}
+      <Modal
+        isOpen={confirmModal.open}
+        onClose={() =>
           setConfirmModal({
             open: false,
             type: null,
@@ -351,8 +272,52 @@ const PackageSchedules = () => {
             loading: false,
           })
         }
-        loading={confirmModal.loading}
-      />
+        title={
+          confirmModal.type === "delete"
+            ? "Delete Schedule"
+            : "Publish Schedule"
+        }
+        subtitle={
+          confirmModal.type === "delete"
+            ? "Are you sure you want to delete this schedule? This action cannot be undone."
+            : "Publish this schedule? It will become available for booking."
+        }
+        size="sm"
+      >
+        <div className="flex justify-end gap-3 mt-4">
+          <button
+            type="button"
+            onClick={() =>
+              setConfirmModal({
+                open: false,
+                type: null,
+                scheduleId: null,
+                loading: false,
+              })
+            }
+            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+            disabled={confirmModal.loading}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleConfirmAction}
+            className={`px-4 py-2 rounded-lg text-white ${
+              confirmModal.type === "delete"
+                ? "bg-red-600 hover:bg-red-700"
+                : "bg-orange-600 hover:bg-orange-700"
+            }`}
+            disabled={confirmModal.loading}
+          >
+            {confirmModal.loading
+              ? "Processing..."
+              : confirmModal.type === "delete"
+                ? "Delete"
+                : "Publish"}
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 };

@@ -22,9 +22,9 @@ import {
 
 const formatCurrency = (amount) => {
   const num = Number(amount) || 0;
-  if (num >= 1_000_000) return `$${(num / 1_000_000).toFixed(2)}M`;
-  if (num >= 1_000) return `$${(num / 1_000).toFixed(1)}K`;
-  return `$${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  if (num >= 1_000_000) return `₨${(num / 1_000_000).toFixed(2)}M`;
+  if (num >= 1_000) return `₨${(num / 1_000).toFixed(1)}K`;
+  return `₨${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 
 export default function PaymentsPage() {
@@ -49,7 +49,10 @@ export default function PaymentsPage() {
 
     // Check if user is returning from Stripe onboarding
     const params = new URLSearchParams(window.location.search);
-    if (params.get("onboarding") === "return" || params.get("onboarding") === "refresh") {
+    if (
+      params.get("onboarding") === "return" ||
+      params.get("onboarding") === "refresh"
+    ) {
       // Poll for status update after redirect (Stripe may take a moment to sync)
       const pollInterval = setInterval(() => {
         dispatch(fetchStripeConnectStatus());
@@ -82,8 +85,15 @@ export default function PaymentsPage() {
   useEffect(() => {
     if (connectStatus?.isConnected && connectStatus?.detailsSubmitted) {
       const params = new URLSearchParams(window.location.search);
-      if (params.get("onboarding") === "return" || params.get("onboarding") === "refresh") {
-        window.history.replaceState({}, document.title, window.location.pathname);
+      if (
+        params.get("onboarding") === "return" ||
+        params.get("onboarding") === "refresh"
+      ) {
+        window.history.replaceState(
+          {},
+          document.title,
+          window.location.pathname,
+        );
         toast.success("Stripe account connected successfully!");
       }
     }
