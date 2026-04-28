@@ -241,6 +241,56 @@ const PackageSchedules = () => {
               showBooking={true}
               onSelect={() => {}} // View only mode
             />
+
+            {/* Action buttons for each schedule */}
+            <div className="mt-6 space-y-2">
+              {schedules.map((schedule) => (
+                <div
+                  key={schedule.id}
+                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200"
+                >
+                  <div className="flex items-center gap-4">
+                    <Calendar className="w-5 h-5 text-gray-500" />
+                    <div>
+                      <div className="font-medium text-gray-900">
+                        {new Date(schedule.departureDate).toLocaleDateString(
+                          "en-US",
+                          {
+                            month: "long",
+                            day: "numeric",
+                            year: "numeric",
+                          },
+                        )}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {schedule.seatsAvailable} / {schedule.seatsTotal} seats
+                        • {schedule._count?.publicTours || 0} booking(s)
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {schedule.status === "DRAFT" && (
+                      <button
+                        onClick={() => handlePublish(schedule.id)}
+                        className="px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-1 text-sm"
+                      >
+                        <CheckCircle className="w-4 h-4" />
+                        Publish
+                      </button>
+                    )}
+
+                    <button
+                      onClick={() => handleDelete(schedule.id)}
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                      title="Delete"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
