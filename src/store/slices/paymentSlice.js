@@ -81,6 +81,7 @@ const initialState = {
   pendingAmount: 0,
   availableAmount: 0,
   totalAmount: 0,
+  totalRevenue: 0,
   loading: false,
   redeemLoading: false,
   error: null,
@@ -119,6 +120,7 @@ const paymentSlice = createSlice({
           action.payload?.avaiableAmount ??
           0;
         state.totalAmount = action.payload?.totalAmount ?? 0;
+        state.totalRevenue = action.payload?.totalRevenue ?? 0;
       })
       .addCase(fetchPaymentDetails.rejected, (state, action) => {
         state.loading = false;
@@ -162,6 +164,7 @@ export const { clearRedeemStatus } = paymentSlice.actions;
 export const selectPendingAmount = (state) => state.payments.pendingAmount;
 export const selectAvailableAmount = (state) => state.payments.availableAmount;
 export const selectTotalAmount = (state) => state.payments.totalAmount;
+export const selectTotalRevenue = (state) => state.payments.totalRevenue;
 export const selectPaymentLoading = (state) => state.payments.loading;
 export const selectRedeemLoading = (state) => state.payments.redeemLoading;
 export const selectPaymentError = (state) => state.payments.error;
