@@ -1,7 +1,13 @@
 import axios from "axios";
+import { getToken } from "../utils/auth/authHelper";
 
 axios.defaults.withCredentials = true;
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+const getAuthHeader = () => {
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
 
 /**
  * Fetch all roles
@@ -11,12 +17,14 @@ export async function fetchRoles() {
   try {
     const response = await axios.get(`${API_BASE_URL}/roles`, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        ...getAuthHeader(),
       },
     });
     return response.data;
   } catch (err) {
-    throw err.response?.data || { success: false, message: "Failed to fetch roles" };
+    throw (
+      err.response?.data || { success: false, message: "Failed to fetch roles" }
+    );
   }
 }
 
@@ -27,19 +35,17 @@ export async function fetchRoles() {
  */
 export async function createRole(roleData) {
   try {
-    const response = await axios.post(
-      `${API_BASE_URL}/role/create`,
-      roleData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
+    const response = await axios.post(`${API_BASE_URL}/role/create`, roleData, {
+      headers: {
+        "Content-Type": "application/json",
+        ...getAuthHeader(),
+      },
+    });
     return response.data;
   } catch (err) {
-    throw err.response?.data || { success: false, message: "Failed to create role" };
+    throw (
+      err.response?.data || { success: false, message: "Failed to create role" }
+    );
   }
 }
 
@@ -57,13 +63,15 @@ export async function updateRole(roleId, roleData) {
       {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          ...getAuthHeader(),
         },
-      }
+      },
     );
     return response.data;
   } catch (err) {
-    throw err.response?.data || { success: false, message: "Failed to update role" };
+    throw (
+      err.response?.data || { success: false, message: "Failed to update role" }
+    );
   }
 }
 
@@ -74,17 +82,16 @@ export async function updateRole(roleId, roleData) {
  */
 export async function deleteRole(roleId) {
   try {
-    const response = await axios.delete(
-      `${API_BASE_URL}/role/${roleId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      }
-    );
+    const response = await axios.delete(`${API_BASE_URL}/role/${roleId}`, {
+      headers: {
+        ...getAuthHeader(),
+      },
+    });
     return response.data;
   } catch (err) {
-    throw err.response?.data || { success: false, message: "Failed to delete role" };
+    throw (
+      err.response?.data || { success: false, message: "Failed to delete role" }
+    );
   }
 }
 
@@ -97,12 +104,14 @@ export async function fetchRoleById(roleId) {
   try {
     const response = await axios.get(`${API_BASE_URL}/role/${roleId}`, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        ...getAuthHeader(),
       },
     });
     return response.data;
   } catch (err) {
-    throw err.response?.data || { success: false, message: "Failed to fetch role" };
+    throw (
+      err.response?.data || { success: false, message: "Failed to fetch role" }
+    );
   }
 }
 
@@ -117,11 +126,16 @@ export async function fetchPermissions() {
   try {
     const response = await axios.get(`${API_BASE_URL}/permissions`, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        ...getAuthHeader(),
       },
     });
     return response.data;
   } catch (err) {
-    throw err.response?.data || { success: false, message: "Failed to fetch permissions" };
+    throw (
+      err.response?.data || {
+        success: false,
+        message: "Failed to fetch permissions",
+      }
+    );
   }
 }

@@ -7,6 +7,7 @@
 
 import axios from "axios";
 import mockBookings, { calculateBookingStats } from "../data/mockBookings";
+import { getToken } from "../utils/auth/authHelper";
 import {
   BOOKING_STATUS,
   TOUR_TYPE,
@@ -23,6 +24,17 @@ const apiClient = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+});
+
+apiClient.interceptors.request.use((config) => {
+  const token = getToken();
+  if (token) {
+    config.headers = {
+      ...config.headers,
+      Authorization: `Bearer ${token}`,
+    };
+  }
+  return config;
 });
 
 // Helper to simulate API delay for mock functions (will be removed when all endpoints are ready)
