@@ -236,10 +236,9 @@ export default function BookingsPage() {
 
   return (
     <div>
-      <div className="mb-4 flex justify-end">
+      {/* <div className="mb-4 flex justify-end">
         <button
           onClick={() => {
-            /* Export functionality */
           }}
           className="inline-flex h-10 items-center gap-2 px-4 bg-white border border-slate-300 text-slate-700 text-sm font-semibold rounded-lg hover:bg-slate-50 transition-colors"
         >
@@ -258,7 +257,7 @@ export default function BookingsPage() {
           </svg>
           Export Data
         </button>
-      </div>
+      </div> */}
 
       <BookingStats stats={stats} />
 

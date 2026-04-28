@@ -108,7 +108,7 @@ export default function KnowledgeBasePage() {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 p-4">
+      {/* <div className="bg-white rounded-xl border border-gray-200 p-4">
         <div className="flex flex-col md:flex-row gap-3 md:items-end md:justify-between">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full md:max-w-[520px]">
             <div>
@@ -148,7 +148,7 @@ export default function KnowledgeBasePage() {
         {error && (
           <div className="mt-3 text-sm text-red-600 font-medium">{error}</div>
         )}
-      </div>
+      </div> */}
 
       <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
         <div className="flex items-center gap-1 border-b border-gray-200 px-3 py-2">
