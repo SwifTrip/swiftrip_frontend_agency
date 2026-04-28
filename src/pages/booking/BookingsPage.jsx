@@ -150,6 +150,60 @@ export default function BookingsPage() {
     );
   }, [filters]);
 
+  // Group public bookings by package and keep private bookings unchanged.
+  const displayBookings = useMemo(() => {
+    const publicGroups = new Map();
+    const privateBookings = [];
+
+    bookings.forEach((booking) => {
+      if (booking.tourType !== "PUBLIC") {
+        privateBookings.push(booking);
+        return;
+      }
+
+      const groupKey = booking.package?.id || booking.package?.title || booking.id;
+      const existing = publicGroups.get(groupKey);
+
+      if (existing) {
+        existing.bookings.push(booking);
+      } else {
+        publicGroups.set(groupKey, {
+          bookings: [booking],
+          sortDate: booking.bookingDate,
+        });
+      }
+    });
+
+    const groupedPublicBookings = Array.from(publicGroups.values()).map(
+      ({ bookings: groupedItems }) => {
+        if (groupedItems.length === 1) return groupedItems[0];
+
+        const sortedGroup = [...groupedItems].sort(
+          (a, b) => new Date(b.bookingDate) - new Date(a.bookingDate),
+        );
+        const latestBooking = sortedGroup[0];
+        const totalGuests = sortedGroup.reduce(
+          (sum, item) => sum + (item.participants || 0),
+          0,
+        );
+
+        return {
+          ...latestBooking,
+          id: `PUBLIC-GROUP-${latestBooking.package?.id || latestBooking.package?.title || latestBooking.id}`,
+          isGroupedPublic: true,
+          groupedBookings: sortedGroup,
+          groupedCount: sortedGroup.length,
+          participants: totalGuests,
+          bookingDate: latestBooking.bookingDate,
+        };
+      },
+    );
+
+    return [...groupedPublicBookings, ...privateBookings].sort(
+      (a, b) => new Date(b.bookingDate) - new Date(a.bookingDate),
+    );
+  }, [bookings]);
+
   // Handlers
   const handleFilterChange = useCallback(
     (newFilters) => {
@@ -168,16 +222,17 @@ export default function BookingsPage() {
   }, [dispatch]);
 
   const handleViewDetails = useCallback(
-    (bookingId) => {
-      navigate(`/app/bookings/${bookingId}`);
+    (bookingId, navigationState = undefined) => {
+      navigate(`/app/bookings/${bookingId}`, { state: navigationState });
     },
     [navigate],
   );
 
   const showInitialSkeleton = !hasFetchedOnce && loading;
   const showUpdatingOverlay = hasFetchedOnce && loading;
-  const showEmptyState = hasFetchedOnce && !loading && bookings.length === 0;
-  const showBookings = bookings.length > 0;
+  const showEmptyState =
+    hasFetchedOnce && !loading && displayBookings.length === 0;
+  const showBookings = displayBookings.length > 0;
 
   return (
     <div>
@@ -249,7 +304,7 @@ export default function BookingsPage() {
               <BookingCardSkeleton />
             </>
           ) : showBookings ? (
-            bookings.map((booking) => (
+            displayBookings.map((booking) => (
               <BookingCard
                 key={booking.id}
                 booking={booking}
@@ -268,9 +323,13 @@ export default function BookingsPage() {
       </div>
 
       {/* Results Count */}
-      {!loading && bookings.length > 0 && (
+      {!loading && displayBookings.length > 0 && (
         <div className="mt-5 text-center text-sm text-slate-500">
-          Showing {bookings.length} booking{bookings.length !== 1 ? "s" : ""}
+          Showing {displayBookings.length} booking
+          {displayBookings.length !== 1 ? "s" : ""}
+          {displayBookings.length !== bookings.length && (
+            <> ({bookings.length} total records)</>
+          )}
           {hasActiveFilters && " (filtered)"}
         </div>
       )}

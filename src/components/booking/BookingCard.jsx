@@ -11,6 +11,11 @@ import PaymentStatusBadge from "./PaymentStatusBadge";
 
 export default function BookingCard({ booking, onViewDetails }) {
   const navigate = useNavigate();
+  const isGroupedPublic =
+    booking.tourType === "PUBLIC" &&
+    booking.isGroupedPublic &&
+    Array.isArray(booking.groupedBookings) &&
+    booking.groupedBookings.length > 1;
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -25,6 +30,17 @@ export default function BookingCard({ booking, onViewDetails }) {
   };
 
   const handleViewClick = () => {
+    if (isGroupedPublic) {
+      if (onViewDetails) {
+        onViewDetails(booking.id, { groupedPublicBooking: booking });
+      } else {
+        navigate(`/app/bookings/${booking.id}`, {
+          state: { groupedPublicBooking: booking },
+        });
+      }
+      return;
+    }
+
     if (onViewDetails) {
       onViewDetails(booking.id);
     } else {
@@ -64,9 +80,17 @@ export default function BookingCard({ booking, onViewDetails }) {
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-[11px] font-semibold tracking-wide text-slate-500">
-                  {booking.id}
+                  {isGroupedPublic
+                    ? `${booking.groupedCount} PUBLIC BOOKINGS`
+                    : booking.id}
                 </span>
-                <BookingStatusBadge status={booking.status} size="sm" />
+                {isGroupedPublic ? (
+                  <span className="inline-flex items-center rounded-full border border-orange-200 bg-orange-50 px-2 py-0.5 text-[11px] font-semibold text-orange-700">
+                    Grouped
+                  </span>
+                ) : (
+                  <BookingStatusBadge status={booking.status} size="sm" />
+                )}
               </div>
               <h3 className="text-base font-semibold text-slate-800 line-clamp-1">
                 {booking.package?.title}
@@ -101,7 +125,13 @@ export default function BookingCard({ booking, onViewDetails }) {
                   booking.pricing?.currency,
                 )}
               </p>
-              <PaymentStatusBadge status={booking.paymentStatus} size="sm" />
+              {isGroupedPublic ? (
+                <span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700">
+                  Multiple Payments
+                </span>
+              ) : (
+                <PaymentStatusBadge status={booking.paymentStatus} size="sm" />
+              )}
             </div>
           </div>
 
@@ -125,7 +155,9 @@ export default function BookingCard({ booking, onViewDetails }) {
                 </svg>
               </div>
               <div className="min-w-0">
-                <p className="text-[11px] text-slate-500">Tourist</p>
+                <p className="text-[11px] text-slate-500">
+                  {isGroupedPublic ? "Latest Tourist" : "Tourist"}
+                </p>
                 <p className="text-xs font-semibold text-slate-800 truncate">
                   {booking.tourist?.name}
                 </p>
@@ -230,13 +262,17 @@ export default function BookingCard({ booking, onViewDetails }) {
           {/* Footer Actions */}
           <div className="flex items-center justify-between pt-3 border-t border-slate-100">
             <p className="text-[11px] text-slate-500">
-              Booked on {formatDate(booking.bookingDate)}
+              {isGroupedPublic
+                ? `${booking.groupedCount} people booked this public package`
+                : `Booked on ${formatDate(booking.bookingDate)}`}
             </p>
             <button
               onClick={handleViewClick}
               className="inline-flex items-center gap-1.5 h-9 px-3 text-sm font-semibold text-orange-700 border border-orange-200 hover:bg-orange-50 rounded-lg transition-colors"
             >
-              View Details
+              {isGroupedPublic
+                ? "View Users"
+                : "View Details"}
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -247,7 +283,9 @@ export default function BookingCard({ booking, onViewDetails }) {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M9 5l7 7-7 7"
+                  d={
+                    "M9 5l7 7-7 7"
+                  }
                 />
               </svg>
             </button>

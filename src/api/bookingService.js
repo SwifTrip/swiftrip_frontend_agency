@@ -61,6 +61,10 @@ const transformBooking = (apiBooking) => {
     return null;
   }
 
+  const mappedPackageId = isCustomTour
+    ? `CT-${tourData?.id}`
+    : `PT-${tourPackage?.id || tourData?.packageSchedule?.tourPackageId || tourData?.id}`;
+
   // Calculate duration from itineraries or date range
   const totalDays =
     itineraries.length ||
@@ -112,7 +116,7 @@ const transformBooking = (apiBooking) => {
     paymentStatus:
       paymentStatusMap[apiBooking.paymentStatus] || PAYMENT_STATUS.PENDING,
     package: {
-      id: isCustomTour ? `CT-${tourData?.id}` : `PT-${tourData?.id}`,
+      id: mappedPackageId,
       title: tourPackage?.title || (isCustomTour ? `Custom Tour - ${totalDays} Days` : `Public Tour`),
       destination: tourPackage?.toLocation || getDestinationFromItineraries(itineraries),
       duration: `${totalDays} Days / ${Math.max(0, totalDays - 1)} Nights`,

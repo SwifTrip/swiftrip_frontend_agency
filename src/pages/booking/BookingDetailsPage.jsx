@@ -4,7 +4,7 @@
  */
 
 import React, { useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   fetchBookingById,
@@ -258,7 +258,12 @@ const DetailsSkeleton = () => (
 export default function BookingDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
+  const groupedPublicBooking = location.state?.groupedPublicBooking;
+  const isGroupedPublicDetails =
+    groupedPublicBooking?.isGroupedPublic &&
+    Array.isArray(groupedPublicBooking?.groupedBookings);
 
   const booking = useSelector(selectCurrentBooking);
   const loading = useSelector(selectDetailsLoading);
@@ -266,13 +271,14 @@ export default function BookingDetailsPage() {
 
   // Fetch booking details on mount
   useEffect(() => {
+    if (isGroupedPublicDetails) return;
     if (id) {
       dispatch(fetchBookingById(id));
     }
     return () => {
       dispatch(clearCurrentBooking());
     };
-  }, [dispatch, id]);
+  }, [dispatch, id, isGroupedPublicDetails]);
 
   // Format helpers
   const formatDate = (dateString) => {
@@ -299,6 +305,154 @@ export default function BookingDetailsPage() {
   const formatCurrency = (amount, currency = "PKR") => {
     return `${currency} ${amount?.toLocaleString() || 0}`;
   };
+
+  if (isGroupedPublicDetails) {
+    const groupedBookings = groupedPublicBooking.groupedBookings || [];
+    const totalGuests = groupedBookings.reduce(
+      (sum, item) => sum + (item.participants || 0),
+      0,
+    );
+
+    return (
+      <div>
+        <div className="mb-6">
+          <button
+            onClick={() => navigate("/app/bookings")}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4 transition-colors"
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            Back to Bookings
+          </button>
+
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <h1 className="text-2xl font-bold text-gray-800">
+                  Public Tour Users
+                </h1>
+                <TourTypeBadge tourType="PUBLIC" size="md" />
+              </div>
+              <p className="text-gray-600">
+                {groupedPublicBooking.package?.title} - {groupedBookings.length}{" "}
+                booking{groupedBookings.length !== 1 ? "s" : ""} - {totalGuests}{" "}
+                guest{totalGuests !== 1 ? "s" : ""}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 space-y-6">
+            <InfoCard
+              title="Booked Users"
+              icon={
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+              }
+            >
+              <div className="space-y-3">
+                {groupedBookings.map((groupedBooking) => (
+                  <div
+                    key={groupedBooking.id}
+                    className="flex items-center justify-between gap-4 p-3.5 rounded-lg border border-gray-100 bg-gray-50"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-gray-800 truncate">
+                        {groupedBooking.tourist?.name || "Unknown Tourist"}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">
+                        {groupedBooking.tourist?.email || "-"}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {groupedBooking.participants || 0} guest
+                        {(groupedBooking.participants || 0) !== 1 ? "s" : ""} -{" "}
+                        Booked on {formatDateTime(groupedBooking.bookingDate)}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <BookingStatusBadge status={groupedBooking.status} size="sm" />
+                      <button
+                        onClick={() => navigate(`/app/bookings/${groupedBooking.id}`)}
+                        className="inline-flex h-8 items-center px-2.5 text-xs font-semibold text-orange-700 border border-orange-200 hover:bg-orange-50 rounded-md transition-colors"
+                      >
+                        Details
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </InfoCard>
+          </div>
+
+          <div className="space-y-6">
+            <InfoCard
+              title="Tour Summary"
+              icon={
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                  />
+                </svg>
+              }
+            >
+              <DetailRow
+                label="Package"
+                value={groupedPublicBooking.package?.title || "-"}
+              />
+              <DetailRow
+                label="Destination"
+                value={groupedPublicBooking.package?.destination || "-"}
+              />
+              <DetailRow
+                label="Duration"
+                value={groupedPublicBooking.package?.duration || "-"}
+              />
+              <DetailRow label="Bookings" value={groupedBookings.length} />
+              <DetailRow label="Total Guests" value={totalGuests} />
+              <DetailRow
+                label="Amount"
+                value={formatCurrency(
+                  groupedPublicBooking.pricing?.totalAmount,
+                  groupedPublicBooking.pricing?.currency,
+                )}
+              />
+            </InfoCard>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return <DetailsSkeleton />;
