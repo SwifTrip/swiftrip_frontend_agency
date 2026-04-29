@@ -17,55 +17,6 @@ import { getToken } from "../../utils/auth/authHelper";
 import { useSelector } from "react-redux";
 import { selectUser } from "../../store/slices/authSlice";
 
-const CHAT_BOOKING_STATUS = {
-  UPCOMING: "upcoming",
-  IN_PROGRESS: "in_progress",
-  COMPLETED: "completed",
-};
-
-const toValidDate = (value) => {
-  if (!value) return null;
-  const parsed = new Date(value);
-  return Number.isNaN(parsed.getTime()) ? null : parsed;
-};
-
-const resolveBookingStatus = (room) => {
-  if (room?.chatBookingStatus) {
-    return room.chatBookingStatus;
-  }
-
-  const booking = room?.booking;
-  const now = new Date();
-
-  if (booking?.status === "COMPLETED") {
-    return CHAT_BOOKING_STATUS.COMPLETED;
-  }
-
-  const customTour = booking?.customTour || room?.customTour || null;
-  const schedule = booking?.publicTour?.packageSchedule || null;
-  const startDate = toValidDate(customTour?.startDate || schedule?.departureDate);
-  const endDate = toValidDate(customTour?.endDate || schedule?.arrivalDate);
-
-  if (startDate && now < startDate) return CHAT_BOOKING_STATUS.UPCOMING;
-  if (startDate && endDate && now >= startDate && now <= endDate) {
-    return CHAT_BOOKING_STATUS.IN_PROGRESS;
-  }
-  if (endDate && now > endDate) return CHAT_BOOKING_STATUS.COMPLETED;
-
-  return CHAT_BOOKING_STATUS.UPCOMING;
-};
-
-const buildBookingDateLabel = (room) => {
-  const booking = room?.booking;
-  const customTour = booking?.customTour || room?.customTour || null;
-  const schedule = booking?.publicTour?.packageSchedule || null;
-  const startDate = toValidDate(customTour?.startDate || schedule?.departureDate);
-  const endDate = toValidDate(customTour?.endDate || schedule?.arrivalDate);
-
-  if (!startDate || !endDate) return "Flexible";
-  return `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
-};
-
 function DetailPanel({ conversation, onClose }) {
   if (!conversation) return null;
 
@@ -195,7 +146,6 @@ export default function ChatPage() {
           // Identify the tourist
           const tourist = r.participants.find(p => p.user.role === 'TOURIST')?.user || r.participants[0]?.user;
           const lastMsg = r.messages?.[0];
-          const bookingStatus = resolveBookingStatus(r);
           
           return {
             id: r.id,
@@ -205,13 +155,9 @@ export default function ChatPage() {
             timestamp: lastMsg ? new Date(lastMsg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : "",
             unread: 0,
             online: true, // Faked for testing
-            packageName:
-              r.booking?.publicTour?.packageSchedule?.tourPackage?.title ||
-              r.booking?.customTour?.tourPackage?.title ||
-              r.customTour?.tourPackage?.title ||
-              "Custom Tour",
-            bookingStatus,
-            bookingDate: buildBookingDateLabel(r),
+            packageName: r.booking?.publicTour?.packageSchedule?.tourPackage?.title || r.customTour?.tourPackage?.title || "Custom Tour",
+            bookingStatus: "upcoming", 
+            bookingDate: "Flexible",
             travelers: r.booking?.seats || 2,
             amount: r.booking?.totalAmount ? `$${r.booking.totalAmount}` : "Paid",
           };

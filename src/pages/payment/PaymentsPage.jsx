@@ -10,7 +10,6 @@ import {
   selectPendingAmount,
   selectAvailableAmount,
   selectTotalAmount,
-  selectTotalRevenue,
   selectPaymentLoading,
   selectRedeemLoading,
   selectPaymentError,
@@ -35,7 +34,6 @@ export default function PaymentsPage() {
   const pendingAmount = useSelector(selectPendingAmount);
   const availableAmount = useSelector(selectAvailableAmount);
   const totalAmount = useSelector(selectTotalAmount);
-  const totalRevenue = useSelector(selectTotalRevenue);
   const loading = useSelector(selectPaymentLoading);
   const redeemLoading = useSelector(selectRedeemLoading);
   const error = useSelector(selectPaymentError);
@@ -138,29 +136,6 @@ export default function PaymentsPage() {
     connectStatus?.payoutsEnabled;
 
   const cards = [
-    {
-      title: "Total Revenue",
-      value: totalRevenue,
-      description: "Centralized value shared with dashboard and bookings",
-      bg: "bg-sky-50",
-      iconBg: "bg-sky-100",
-      textColor: "text-sky-600",
-      icon: (
-        <svg
-          className="w-6 h-6 text-sky-600"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-          />
-        </svg>
-      ),
-    },
     {
       title: "Available to Withdraw",
       value: availableAmount,
@@ -282,8 +257,8 @@ export default function PaymentsPage() {
 
       {/* Balance cards */}
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-          {[...Array(4)].map((_, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {[...Array(3)].map((_, i) => (
             <div
               key={i}
               className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 animate-pulse"
@@ -295,7 +270,7 @@ export default function PaymentsPage() {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           {cards.map((card) => (
             <div
               key={card.title}
